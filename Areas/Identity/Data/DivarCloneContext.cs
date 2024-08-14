@@ -1,4 +1,5 @@
 ﻿using DivarClone.Areas.Identity.Data;
+using DivarClone.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -12,6 +13,7 @@ public class DivarCloneContext : IdentityDbContext<DivarCloneUser>
         : base(options)
     {
     }
+    public DbSet<Listing> Listings { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
