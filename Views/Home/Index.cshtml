@@ -1,8 +1,32 @@
 ﻿@{
     ViewData["Title"] = "Home Page";
 }
+@model IEnumerable<DivarClone.Models.Listing>
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<h1>Listings</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Description</th>
+            <th>Price</th>
+            <th>Category</th>
+            <th>Poster</th>
+            <th>Date Posted</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var listing in Model)
+        {
+            <tr>
+                <td>@listing.Name</td>
+                <td>@listing.Description</td>
+                <td>@listing.Price</td>
+                <td>@listing.Category</td>
+                <td>@listing.Poster</td>
+                <td>@listing.DateTimeOfPosting.ToString("MM/dd/yyyy HH:mm:ss")</td>
+            </tr>
+        }
+    </tbody>
+</table>
