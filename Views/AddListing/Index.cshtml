@@ -1,0 +1,40 @@
+﻿@model DivarClone.Models.Listing
+
+@{
+    ViewData["Title"] = "Add New Listing";
+}
+@if (ViewBag.ModelStateErrors != null)
+{
+    <div class="alert alert-danger">
+        <pre>@ViewBag.ModelStateErrors</pre>
+    </div>
+}
+<form asp-action="Create" method="post">
+    <div class="mb-3">
+        <label for="Name">Listing Name</label>
+        <input class="form-control" type="text" id="Name" name="Name" />
+    </div>
+
+    <div class="mb-3">
+        <label for="Description">Listing Description</label>
+        <textarea class="form-control" id="Description" name="Description"></textarea>
+    </div>
+
+    <div class="mb-3">
+        <label for="Price">Price</label>
+        <input class="form-control" type="text" id="Price" name="Price" />
+    </div>
+
+    <div class="mb-3">
+        <label for="Category">Category</label>
+        <select id="Category" name="Category" class="form-select">
+            <option value="0">Electronics</option>
+            <option value="1">Realstate</option>
+            <option value="2">Vehicles</option>
+        </select>
+    </div>
+
+    <input type="hidden" asp-for="Poster" value="@User.Identity.Name" />
+
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>
