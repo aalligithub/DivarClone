@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Identity;
 
 namespace DivarClone.Areas.Identity.Data;
 
-// Add profile data for application users by adding properties to the DivarCloneUser class
+//ارث بری و اضافه کردن دو پراپرتی جدید به مدل یوزر دیفالت
 public class DivarCloneUser : IdentityUser
 {
     public string FirstName { get; set; }

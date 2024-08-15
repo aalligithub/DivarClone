@@ -1,40 +1,42 @@
-﻿@model DivarClone.Models.Listing
+﻿@model DivarClone.Models.Listing //اضافه کردن مدل به ویو
 
 @{
     ViewData["Title"] = "Add New Listing";
 }
-@if (ViewBag.ModelStateErrors != null)
+
+@if (ViewBag.ModelStateErrors != null) //پنجره نشان دادن ارور ها که داخل کنترلر تعریف کردیم
 {
     <div class="alert alert-danger">
         <pre>@ViewBag.ModelStateErrors</pre>
     </div>
 }
-<form asp-action="Create" method="post">
+
+<form asp-action="Create" method="post"> @* فرم ها قالب دیفالت دریافت دیتا برای عملیات های POST میباشند مثل وقتی که بخوایم از کاربر محتوا بگیریم *@
     <div class="mb-3">
         <label for="Name">Listing Name</label>
-        <input class="form-control" type="text" id="Name" name="Name" />
+        <input class="form-control" type="text" id="Name" name="Name" /> @* فیلد نیم  *@
     </div>
 
     <div class="mb-3">
         <label for="Description">Listing Description</label>
-        <textarea class="form-control" id="Description" name="Description"></textarea>
+        <textarea class="form-control" id="Description" name="Description"></textarea> @* فیلد توضیحات  *@
     </div>
 
     <div class="mb-3">
         <label for="Price">Price</label>
-        <input class="form-control" type="text" id="Price" name="Price" />
+        <input class="form-control" type="text" id="Price" name="Price" /> @* فیلد قیمت  *@
     </div>
 
     <div class="mb-3">
         <label for="Category">Category</label>
-        <select id="Category" name="Category" class="form-select">
+        <select id="Category" name="Category" class="form-select"> @* فیلد کتگوری دقت کنید که هر کتگوری به عدد خودش در ENUM متصل است  *@
             <option value="0">Electronics</option>
             <option value="1">Realstate</option>
             <option value="2">Vehicles</option>
         </select>
     </div>
 
-    <input type="hidden" asp-for="Poster" value="@User.Identity.Name" />
+    <input type="hidden" asp-for="Poster" value="@User.Identity.Name" /> @* با اینکه ما نام کاربری کاربر حال حاضر را داریم بازم برای تکمیل فرم نیاز است که ارسال شود پس از اینپوت مخفی استفاده میکنیم  *@
 
     <button type="submit" class="btn btn-primary">Submit</button>
 </form>

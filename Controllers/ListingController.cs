@@ -2,6 +2,7 @@
 using DivarClone.Models;
 using DivarClone.Areas.Identity.Data;  // Add this to use DivarCloneContext
 
+// خود لیستینگ هم بصورت صفحه مجزا و خارج از خانه با url خودش قابل نمایش است
 namespace DivarClone.Controllers
 {
     public class ListingController : Controller
