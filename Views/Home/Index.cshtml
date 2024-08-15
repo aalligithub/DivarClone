@@ -5,28 +5,25 @@
 
 <h1>Listings</h1>
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Description</th>
-            <th>Price</th>
-            <th>Category</th>
-            <th>Poster</th>
-            <th>Date Posted</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var listing in Model)
-        {
-            <tr>
-                <td>@listing.Name</td>
-                <td>@listing.Description</td>
-                <td>@listing.Price</td>
-                <td>@listing.Category</td>
-                <td>@listing.Poster</td>
-                <td>@listing.DateTimeOfPosting.ToString("MM/dd/yyyy HH:mm:ss")</td>
-            </tr>
-        }
-    </tbody>
-</table>
+<div class="row">
+    @foreach (var listing in Model)
+    {
+        <div class="col-md-4 mb-4">
+            <div class="card" style="width: 100%;">
+                @* <img src="..." class="card-img-top" alt="..."> *@
+                <div class="card-body">
+                    <h5 class="card-title">@listing.Name</h5>
+                    <p class="card-text">@listing.Description</p>
+                </div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">Price : @listing.Price</li>
+                    <li class="list-group-item">Category : @listing.Category</li>
+                    <li class="list-group-item">Poster : @listing.Poster</li>
+                </ul>
+                <div class="card-body">
+                    <p class="card-text">@listing.DateTimeOfPosting.ToString("MM/dd/yyyy HH:mm:ss")</p>
+                </div>
+            </div>
+        </div>
+    }
+</div>
