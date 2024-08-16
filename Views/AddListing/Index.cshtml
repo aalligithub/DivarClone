@@ -11,7 +11,8 @@
     </div>
 }
 
-<form asp-action="Create" method="post"> @* فرم ها قالب دیفالت دریافت دیتا برای عملیات های POST میباشند مثل وقتی که بخوایم از کاربر محتوا بگیریم *@
+<form asp-action="Create" enctype="multipart/form-data" method="post">
+    @* فرم ها قالب دیفالت دریافت دیتا برای عملیات های POST میباشند مثل وقتی که بخوایم از کاربر محتوا بگیریم *@
     <div class="mb-3">
         <label for="Name">Listing Name</label>
         <input class="form-control" type="text" id="Name" name="Name" /> @* فیلد نیم  *@
@@ -34,6 +35,11 @@
             <option value="1">Realstate</option>
             <option value="2">Vehicles</option>
         </select>
+    </div>
+
+    <div class="mb-3">
+        <label for="ImageFile">Upload Image</label>
+        <input type="file" class="form-control" id="ImageFile" name="ImageFile">
     </div>
 
     <input type="hidden" asp-for="Poster" value="@User.Identity.Name" /> @* با اینکه ما نام کاربری کاربر حال حاضر را داریم بازم برای تکمیل فرم نیاز است که ارسال شود پس از اینپوت مخفی استفاده میکنیم  *@

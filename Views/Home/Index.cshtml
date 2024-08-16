@@ -1,17 +1,21 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "دیوار";
 }
 @model IEnumerable<DivarClone.Models.Listing> //ایمپورت کردن مدل لیستینگ 
 
-<h1>Listings</h1>
+<h1 class="custom-font">آگهی ها</h1>
 
 <div class="row">
     @foreach (var listing in Model)
     {
         <div class="col-md-4 mb-4">
             <div class="card" style="width: 100%;">
-                @* <img src="..." class="card-img-top" alt="..."> *@
-                <div class="card-body">
+                @if (listing.ImagePath == null)
+                {
+                    listing.ImagePath = "/images/No_Image_Available.jpg";
+                }
+				<img src="@listing.ImagePath" class="card-img-top" style="width:400px; height:400px; object-fit:scale-down;">
+				<div class="card-body">
                     <h5 class="card-title">@listing.Name</h5>
                     <p class="card-text">@listing.Description</p>
                 </div>

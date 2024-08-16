@@ -7,12 +7,31 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/DivarClone.styles.css" asp-append-version="true" />
+    @* کد فونت از گوگل *@
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@300&family=Noto+Naskh+Arabic:wght@400..700&display=swap" rel="stylesheet">
 </head>
+
+<style>
+    .custom-font {
+        font-family: "Noto Naskh Arabic", serif;
+        font-optical-sizing: auto;
+        font-weight: 400;
+        font-style: normal;
+    }
+    .custom-font-btn {
+        font-family: "Noto Naskh Arabic", serif !important;
+        font-weight: 400;
+        font-style: normal;
+    }
+</style>
+
 <body>
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">DivarClone</a>
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index"></a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -20,10 +39,20 @@
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            @* <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index" style="height:auto; width:80px; background-image: url(../../wwwroot/icon.svg);"></a> *@
+                            <a class="nav-link text-dark"
+                               asp-area=""
+                               asp-controller="Home"
+                               asp-action="Index"
+                               style="display: inline-block; height: 50px; width: 80px;
+                                  background-image: url('/icon.png');
+                                  background-size: contain;
+                                  background-repeat: no-repeat;">
+                            </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="AddListing" asp-action="Index">Add a new listing</a>
+                            @* <button type="button" class="btn btn-danger custom-font-btn" asp-area="" asp-controller="AddListing" asp-action="Index">ثبت آگهی</button> *@
+                            <a class="btn btn-danger custom-font-btn" asp-area="" asp-controller="AddListing" asp-action="Index">ثبت آگهی</a>
                         </li>
                     </ul>
                 </div>

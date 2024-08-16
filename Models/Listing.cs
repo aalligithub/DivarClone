@@ -25,5 +25,7 @@ namespace DivarClone.Models //مدل اگهی های ما که محتوایی ک
         public Category Category { get; set; }
 
         public DateTime DateTimeOfPosting { get; set; }
+
+        public string? ImagePath { get; set; }
     }
 }
