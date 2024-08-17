@@ -36,10 +36,10 @@ namespace DivarClone.Controllers
         
         public async Task<IActionResult> Create(Listing listing, IFormFile? ImageFile) //اکشن create برای ایجاد لیستینگ جدید که از listing ارث بری میکند
         {
-            //if (ImageFile == null) //برای اضافه کردن عکس چندین موقعیت وجود دارد احتمال اول اینکه عکسی ارسال نشود که تصمیم گرفتم بجای دیفالت مدل رو nullable کنم
-            //{
-            //    listing.ImagePath = "/images/" + "No_Image_Available.jpg";
-            //}
+            if (ImageFile == null) //هرچند فیلد قابل نال شدن است ترجیح این است که نال نباشد پس دیفالت قرار میدهیم
+            {
+                listing.ImagePath = "/images/" + "No_Image_Available.jpg";
+            }
 
             if (ImageFile != null && ImageFile.Length > 0) //اگه عکس اپلود شده بود و خالی نبود
             {

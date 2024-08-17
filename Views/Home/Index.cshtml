@@ -13,6 +13,8 @@
                 @if (listing.ImagePath == null)
                 {
                     listing.ImagePath = "/images/No_Image_Available.jpg";
+                    //دلیل وجود این خط کد برای مطمعن شدن از نبود ایراد در محتوای قدیمی دیتابیس است چون ابجکت های قدیمی این فیلد رو نال داشتن
+                    //موقع دیپلویمنت میشه این شرط رو پاک کرد
                 }
 				<img src="@listing.ImagePath" class="card-img-top" style="width:400px; height:400px; object-fit:scale-down;">
 				<div class="card-body">
