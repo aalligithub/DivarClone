@@ -14,7 +14,7 @@ namespace DivarClone.Controllers
         //اضافه کردن دو قابلیت یکی لاگر برای ثبت وضعیت اضافه و خواندن دیتا بیس و دیگری کانتکست مدل و دیتابیس
         private readonly ILogger<AddListingController> _logger;
         private readonly DivarCloneContext _context;
-        private readonly IWebHostEnvironment _webHostEnvironment;
+        private readonly IWebHostEnvironment _webHostEnvironment; //برای دسترسی به محیط هاستینگ و پوشه ها برای ذخیره سازی عکس لازمه
 
         public AddListingController(DivarCloneContext context, ILogger<AddListingController> logger, IWebHostEnvironment webHostEnvironment)
         {
@@ -36,29 +36,27 @@ namespace DivarClone.Controllers
         
         public async Task<IActionResult> Create(Listing listing, IFormFile? ImageFile) //اکشن create برای ایجاد لیستینگ جدید که از listing ارث بری میکند
         {
-            if (ImageFile == null)
-            {
-                listing.ImagePath = "/images/" + "No_Image_Available.jpg";
-            }
+            //if (ImageFile == null) //برای اضافه کردن عکس چندین موقعیت وجود دارد احتمال اول اینکه عکسی ارسال نشود که تصمیم گرفتم بجای دیفالت مدل رو nullable کنم
+            //{
+            //    listing.ImagePath = "/images/" + "No_Image_Available.jpg";
+            //}
 
-            else if (ImageFile.Length > 0)
+            if (ImageFile != null && ImageFile.Length > 0) //اگه عکس اپلود شده بود و خالی نبود
             {
-                // Create the directory if it doesn't exist
+                // برای فولدر عکس ها یک فولدر درست کن اگه از قبل نبود
                 var uploadDir = Path.Combine(_webHostEnvironment.WebRootPath, "images");
                 Directory.CreateDirectory(uploadDir);
 
-                // Create a unique file name
-                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(ImageFile.FileName);
+                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(ImageFile.FileName); //ایجاد یک uuid برای اسم عکس ها که مطمعن بشیم تکراری نیستن
                 var filePath = Path.Combine(uploadDir, fileName);
 
-                // Save the image to the server
+                // ذخیره سازی عکس در جایی که تایین کردیم بصورت async که مزاحم رشته اصلی نشه
                 using (var stream = new FileStream(filePath, FileMode.Create))
                 {
                     await ImageFile.CopyToAsync(stream);
                 }
 
-                // Store the image path in the database
-                listing.ImagePath = "/images/" + fileName;
+                listing.ImagePath = "/images/" + fileName; //در نهایت مسیر عکس رو در دیتابیس ذخیره میکنیم به جای اینکه عکس رو به بیس شصت و چهار تبدیل کنیم مسیر عکس خیلی سریع تر و سبک تر داخل وبسایت کار میکنه
             }
 
             if (ModelState.IsValid)

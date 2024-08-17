@@ -11,7 +11,7 @@
     </div>
 }
 
-<form asp-action="Create" enctype="multipart/form-data" method="post">
+<form asp-action="Create" enctype="multipart/form-data" method="post"> @* مولتی پارت کردن برای اپلود فایل نیازه *@
     @* فرم ها قالب دیفالت دریافت دیتا برای عملیات های POST میباشند مثل وقتی که بخوایم از کاربر محتوا بگیریم *@
     <div class="mb-3">
         <label for="Name">Listing Name</label>
@@ -37,7 +37,7 @@
         </select>
     </div>
 
-    <div class="mb-3">
+    <div class="mb-3">  @* فیلد اپلود فایل که الزامی هم نیست اما میتونه باشه *@
         <label for="ImageFile">Upload Image</label>
         <input type="file" class="form-control" id="ImageFile" name="ImageFile">
     </div>
