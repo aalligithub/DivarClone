@@ -1,4 +1,10 @@
-﻿@{
+﻿@using Microsoft.AspNetCore.Identity
+@using DivarClone.Areas.Identity.Data
+
+@inject SignInManager<DivarCloneUser> SignInManager
+@inject UserManager<DivarCloneUser> UserManager
+
+@{
     ViewData["Title"] = "دیوار";
 }
 @model IEnumerable<DivarClone.Models.Listing> //ایمپورت کردن مدل لیستینگ 
@@ -29,29 +35,35 @@
         } else {
             @foreach (var listing in Model)
                 {
-                    <div class="col-md-4" style="margin-bottom:25px;">
-                        <div class="card h-100">
-                            @if (listing.ImagePath == null)
-                            {
-                                listing.ImagePath = "/images/No_Image_Available.jpg";
-                                //دلیل وجود این خط کد برای مطمعن شدن از نبود ایراد در محتوای قدیمی دیتابیس است چون ابجکت های قدیمی این فیلد رو نال داشتن
-                                //موقع دیپلویمنت میشه این شرط رو پاک کرد
-                            }
-                            <img src="@listing.ImagePath" class="card-img-top" style="width:100%; height:300px; object-fit:cover;">
-                            <div class="card-body">
-                                <h5 class="card-title">@listing.Name</h5>
-                                <p class="card-text">@listing.Description</p>
-                            </div>
-                            <ul class="list-group list-group-flush">
-                                <li class="list-group-item">Price : @listing.Price</li>
-                                <li class="list-group-item">Category : @listing.Category</li>
-                                <li class="list-group-item">Poster : @listing.Poster</li>
-                            </ul>
-                            <div class="card-footer">
-                                <small class="text-muted">@listing.DateTimeOfPosting.ToString("MM/dd/yyyy HH:mm:ss")</small>
-                            </div>
+                <div class="col-md-4" style="margin-bottom:25px;">
+                    <div class="card h-100">
+                        @if (listing.ImagePath == null)
+                        {
+                            listing.ImagePath = "/images/No_Image_Available.jpg";
+                            //دلیل وجود این خط کد برای مطمعن شدن از نبود ایراد در محتوای قدیمی دیتابیس است چون ابجکت های قدیمی این فیلد رو نال داشتن
+                            //موقع دیپلویمنت میشه این شرط رو پاک کرد
+                        }
+                        <img src="@listing.ImagePath" class="card-img-top" style="width:100%; height:300px; object-fit:cover;">
+                        <div class="card-body">
+                            <h5 class="card-title">@listing.Name</h5>
+                            <p class="card-text">@listing.Description</p>
                         </div>
-                    </div>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item">Price : @listing.Price</li>
+                            <li class="list-group-item">Category : @listing.Category</li>
+                            <li class="list-group-item">Poster : @listing.Poster</li>
+                        </ul>
+                        <div class="card-body">
+                            <small class="text-muted">@listing.DateTimeOfPosting.ToString("MM/dd/yyyy HH:mm:ss")</small>
+                        </div>
+                        @if (listing.Poster == @UserManager.GetUserName(User))
+                            {
+                                <div class="card-footer">
+                                <button>EDIT BUTTON</button>
+                                </div>
+                            }
+                        </div>
+                </div>
                 }
             }
         `)
