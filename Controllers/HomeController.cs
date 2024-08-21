@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using DivarClone.Areas.Identity.Data;
 using DivarClone.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 
@@ -35,6 +36,28 @@ namespace DivarClone.Controllers
             return View(listings);
         }
 
+        public IActionResult FilterResults(string category)
+        {
+            if (Enum.TryParse(typeof(Category), category, out var categoryEnum))
+            {
+                var listings = _context.Listings
+                    .Where(l => l.Category == (Category)categoryEnum)
+                    .ToList();
+
+                foreach (var listing in listings)
+                {
+                    if (string.IsNullOrEmpty(listing.ImagePath) ||
+                        !System.IO.File.Exists(Path.Combine(_webHostEnvironment.WebRootPath, listing.ImagePath.TrimStart('/'))))
+                    {
+                        listing.ImagePath = "/images/No_Image_Available.jpg";
+                    }
+                }
+                return View("index", listings);
+            }
+            return RedirectToAction("Index");
+        }
+
+        [Authorize]
         public IActionResult UserControlPartial() {
             return PartialView("_UserControl");
         }
