@@ -28,16 +28,16 @@
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container-fluid">
-
                 <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index"></a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"aria-expanded="false" aria-label="Toggle navigation">
+
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
 
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
+                <div class="collapse navbar-collapse" id="navbarContent">
+                    <ul class="navbar-nav me-auto">
                         <li class="nav-item">
-                            @* <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index" style="height:auto; width:80px; background-image: url(../../wwwroot/icon.svg);"></a> *@
+                            
                             <a class="nav-link text-dark"
                                asp-area=""
                                asp-controller="Home"
@@ -50,17 +50,17 @@
                         </li>
 
                         <li class="nav-item">
-                            @* <button type="button" class="btn btn-danger custom-font-btn" asp-area="" asp-controller="AddListing" asp-action="Index">ثبت آگهی</button> *@
-                            <a class="btn btn-danger" asp-area="" asp-controller="AddListing" asp-action="Index">ثبت آگهی</a>
+                            <a class="btn btn-danger ms-2" asp-area="" asp-controller="AddListing" asp-action="Index">ثبت آگهی</a>
                         </li>
                     </ul>
                 </div>
 
-                <div class="btn-group">
-                    <button type="button" class="btn btn-secondary dropdown-toggle dropdown-menu-start" data-bs-toggle="dropdown" aria-expanded="false" style="background-color: rgb(220, 53, 69); border: 2px solid white; color: white;">
+                <div class="btn-group me-3">
+                    <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" style="background-color: rgb(220, 53, 69); border: 2px solid white; color: white;">
                         فیلتر کردن نتایج
                     </button>
-                    <ul class="dropdown-menu dropdown-menu-start">
+
+                    <ul class="dropdown-menu">
                         @foreach (var category in Enum.GetValues(typeof(DivarClone.Models.Category)))
                         {
                             <li><button class="dropdown-item" type="button" onclick="filterByCategory('@category')">@category</button></li>
@@ -68,7 +68,7 @@
                     </ul>
                 </div>
 
-                <div class="input-group mb-3" style="width:300px;">
+                <div class="input-group" style="width:300px;">
                     <input id="searchFieldInput" type="text" class="form-control" placeholder="آگهی مورد نظر" aria-label="Recipient's username" aria-describedby="button-addon2">
                     <button class="btn btn-outline-secondary" type="button" id="button-addon2" onclick="filterByText(document.getElementById('searchFieldInput').value)">جست و جو</button>
                 </div>
