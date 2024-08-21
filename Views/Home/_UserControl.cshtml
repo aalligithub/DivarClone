@@ -1,4 +1,10 @@
-﻿<div>
+﻿@using Microsoft.AspNetCore.Identity
+@using DivarClone.Areas.Identity.Data
+
+@inject SignInManager<DivarCloneUser> SignInManager
+@inject UserManager<DivarCloneUser> UserManager
+
+<div>
 	<style>
         .user-control-menu {
             background-color: rgb(220, 53, 69);
@@ -13,10 +19,16 @@
         }
 	</style>
 	<div class="list-group">
-        <a href="#" class="list-group-item list-group-item-action user-control-menu">A simple default list group item</a>
+        <a href="#" class="list-group-item list-group-item-action user-control-menu" onclick=userListings('@UserManager.GetUserName(User)')>آگهی های من</a>
 
         <a href="#" class="list-group-item list-group-item-action user-control-menu">گزینه اول</a>
         <a href="#" class="list-group-item list-group-item-action user-control-menu">گزینه دوم</a>
         <a href="#" class="list-group-item list-group-item-action user-control-menu">گزینه سوم</a>
 	</div>
 </div>
+
+<script>
+    function userListings(username) {
+        window.location.href = `@Url.Action("ShowUserListings", "Home")?Username=${username}`;
+    }
+</script>
