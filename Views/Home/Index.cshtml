@@ -21,9 +21,6 @@
     </div>
 }
 
-
-
-
 @section Scripts{
     <script>
         $('#PartialZone').load("/Home/UserControlPartial")
@@ -31,31 +28,36 @@
 
     <script>
         document.getElementById("listingCard").innerHTML += (`
+        @if (!Model.Any())
+        {
+            <p>آگهی یافت نشد</p>
+        } else {
             @foreach (var listing in Model)
-            {
-                <div class="col-md-4">
-                    <div class="card" style="width: 100%;">
-                        @if (listing.ImagePath == null)
-                        {
-                            listing.ImagePath = "/images/No_Image_Available.jpg";
-                            //دلیل وجود این خط کد برای مطمعن شدن از نبود ایراد در محتوای قدیمی دیتابیس است چون ابجکت های قدیمی این فیلد رو نال داشتن
-                            //موقع دیپلویمنت میشه این شرط رو پاک کرد
-                        }
-                        <img src="@listing.ImagePath" class="card-img-top" style="width:300px; height:300px; object-fit:scale-down;">
-                        <div class="card-body">
-                            <h5 class="card-title">@listing.Name</h5>
-                            <p class="card-text">@listing.Description</p>
-                        </div>
-                        <ul class="list-group list-group-flush">
-                            <li class="list-group-item">Price : @listing.Price</li>
-                            <li class="list-group-item">Category : @listing.Category</li>
-                            <li class="list-group-item">Poster : @listing.Poster</li>
-                        </ul>
-                        <div class="card-body">
-                            <p class="card-text">@listing.DateTimeOfPosting.ToString("MM/dd/yyyy HH:mm:ss")</p>
+                {
+                    <div class="col-md-4">
+                        <div class="card" style="width: 100%;">
+                            @if (listing.ImagePath == null)
+                            {
+                                listing.ImagePath = "/images/No_Image_Available.jpg";
+                                //دلیل وجود این خط کد برای مطمعن شدن از نبود ایراد در محتوای قدیمی دیتابیس است چون ابجکت های قدیمی این فیلد رو نال داشتن
+                                //موقع دیپلویمنت میشه این شرط رو پاک کرد
+                            }
+                            <img src="@listing.ImagePath" class="card-img-top" style="width:300px; height:300px; object-fit:scale-down;">
+                            <div class="card-body">
+                                <h5 class="card-title">@listing.Name</h5>
+                                <p class="card-text">@listing.Description</p>
+                            </div>
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item">Price : @listing.Price</li>
+                                <li class="list-group-item">Category : @listing.Category</li>
+                                <li class="list-group-item">Poster : @listing.Poster</li>
+                            </ul>
+                            <div class="card-body">
+                                <p class="card-text">@listing.DateTimeOfPosting.ToString("MM/dd/yyyy HH:mm:ss")</p>
+                            </div>
                         </div>
                     </div>
-                </div>
+                }
             }
         `)
     </script>
