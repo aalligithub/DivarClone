@@ -1,9 +1,11 @@
 using System.Diagnostics;
+using System.Reflection;
 using DivarClone.Areas.Identity.Data;
 using DivarClone.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 
 namespace DivarClone.Controllers
@@ -40,9 +42,7 @@ namespace DivarClone.Controllers
         {
             if (Enum.TryParse(typeof(Category), category, out var categoryEnum))
             {
-                var listings = _context.Listings
-                    .Where(l => l.Category == (Category)categoryEnum)
-                    .ToList();
+                var listings = _context.Listings.Where(l => l.Category == (Category)categoryEnum).ToList();
 
                 foreach (var listing in listings)
                 {
@@ -59,8 +59,7 @@ namespace DivarClone.Controllers
 
         public IActionResult SearchResults(string textToSearch)
         {
-            var listings = _context.Listings
-                .Where(l => l.Name.Contains(textToSearch)).ToList();
+            var listings = _context.Listings.Where(l => l.Name.Contains(textToSearch)).ToList();
 
             foreach (var listing in listings)
             {
@@ -75,8 +74,7 @@ namespace DivarClone.Controllers
 
         public IActionResult ShowUserListings(string Username)
         {
-            var listings = _context.Listings
-                .Where(l => l.Poster == Username).ToList();
+            var listings = _context.Listings.Where(l => l.Poster == Username).ToList();
 
             foreach (var listing in listings)
             {
@@ -87,6 +85,33 @@ namespace DivarClone.Controllers
                 }
             }
             return View("index", listings);
+        }
+
+        public IActionResult DeleteUserListing(int id)
+        {
+            var listingToDelete = _context.Listings.FirstOrDefault(l => l.Id == id);
+
+            if (listingToDelete == null)
+            {
+                return RedirectToAction("Index");
+            }
+            else { 
+                _context.Listings.Remove(listingToDelete);
+                _context.SaveChanges();
+
+                var listings = _context.Listings.ToList();
+
+                foreach (var listing in listings)
+                {
+                    if (string.IsNullOrEmpty(listing.ImagePath) ||
+                        !System.IO.File.Exists(Path.Combine(_webHostEnvironment.WebRootPath, listing.ImagePath.TrimStart('/'))))
+                    {
+                        listing.ImagePath = "/images/No_Image_Available.jpg";
+                    }
+                }
+
+                return View("index", listings);
+            }
         }
 
         [Authorize]

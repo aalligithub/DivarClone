@@ -59,7 +59,8 @@
                         @if (listing.Poster == @UserManager.GetUserName(User))
                             {
                                 <div class="card-footer">
-                                <button>EDIT BUTTON</button>
+                                    <a class="btn btn-danger ms-2" onclick=editListing(@listing.Id)>ویرایش</a>
+                                    <a class="btn btn-danger ms-2" onclick=deleteListing(@listing.Id)>حذف</a>
                                 </div>
                             }
                         </div>
@@ -67,5 +68,15 @@
                 }
             }
         `)
+    </script>
+
+    <script>
+        function editListing(listingId) {
+            
+        }
+
+        function deleteListing(listingId) {
+            window.location.href = `@Url.Action("DeleteUserListing", "Home")?id=${listingId}`;
+        }
     </script>
 }
