@@ -9,7 +9,9 @@ using Microsoft.EntityFrameworkCore;
 namespace DivarClone.Services { 
     public interface IListingService
     {
-        void AddListing(string listing);
+        Task<bool> CreateListingAsync(Listing listing);
+
+        Task<bool> ProcessImageAsync(Listing listing, IFormFile? ImageFile);
 
         List<Listing> FilterResult(string category, object categoryEnum);
 
@@ -20,6 +22,8 @@ namespace DivarClone.Services {
         void DeleteUserListing(int id);
 
         List<Listing> GetAllListings();
+
+        
     }
 
     public class ListingService : IListingService
@@ -31,6 +35,21 @@ namespace DivarClone.Services {
         {
             _context = context;
             _webHostEnvironment = webHostEnvironment;
+        }
+
+        public async Task<bool> CreateListingAsync(Listing listing)
+        {
+            try { 
+                listing.DateTimeOfPosting = DateTime.Now;
+
+                _context.Listings.Add(listing);
+                await _context.SaveChangesAsync();
+
+                return true;
+            }
+            catch {
+                return false;
+            }
         }
 
         public List<Listing> GetAllListings()
@@ -45,8 +64,41 @@ namespace DivarClone.Services {
                     listing.ImagePath = "/images/No_Image_Available.jpg";
                 }
             }
-
             return listings;
+        }
+
+        public async Task<bool> ProcessImageAsync(Listing listing, IFormFile? ImageFile)
+        {
+            if (ImageFile == null)
+            {
+                listing.ImagePath = "/images/" + "No_Image_Available.jpg";
+                return true;
+            }
+
+            if (ImageFile != null && ImageFile.Length > 0)
+            {
+                var uploadDir = Path.Combine(_webHostEnvironment.WebRootPath, "images");
+                Directory.CreateDirectory(uploadDir);
+
+                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(ImageFile.FileName);
+                var filePath = Path.Combine(uploadDir, fileName);
+
+                try
+                {
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await ImageFile.CopyToAsync(stream);
+                    }
+
+                    listing.ImagePath = "/images/" + fileName;
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    return false;
+                }
+               
+            } return false;
         }
 
         public void DeleteUserListing(int id)
@@ -58,11 +110,6 @@ namespace DivarClone.Services {
                 _context.Listings.Remove(listingToDelete);
                 _context.SaveChanges();
             }
-        }
-
-        public void AddListing(string listing)
-        {
-            //balls
         }
 
         public List<Listing> FilterResult(string category, object categoryEnum)

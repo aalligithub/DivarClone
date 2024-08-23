@@ -48,12 +48,14 @@ namespace DivarClone.Controllers
             return View("index", listings);
         }
 
+        [Authorize]
         public IActionResult ShowUserListings(string Username)
         {           
             var listings = _service.ShowUserListings(Username);
             return View("index", listings);
         }
 
+        [Authorize]
         public IActionResult DeleteUserListing(int id)
         {
             _service.DeleteUserListing(id);
