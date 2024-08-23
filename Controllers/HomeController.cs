@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.Reflection;
 using DivarClone.Areas.Identity.Data;
 using DivarClone.Models;
+using DivarClone.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -15,26 +16,19 @@ namespace DivarClone.Controllers
         private readonly ILogger<HomeController> _logger;
         private readonly DivarCloneContext _context;
         private readonly IWebHostEnvironment _webHostEnvironment;
+        private readonly IListingService _service;
 
-        public HomeController(ILogger<HomeController> logger , DivarCloneContext context, IWebHostEnvironment webHostEnvironment)
+        public HomeController(ILogger<HomeController> logger , DivarCloneContext context, IWebHostEnvironment webHostEnvironment, IListingService service)
         {
             _logger = logger;
             _context = context;
             _webHostEnvironment = webHostEnvironment;
+            _service = service;
         }
 
         public IActionResult Index()
         {
-            var listings = _context.Listings.ToList();
-
-            foreach (var listing in listings)
-            {
-                if (string.IsNullOrEmpty(listing.ImagePath) ||
-                    !System.IO.File.Exists(Path.Combine(_webHostEnvironment.WebRootPath, listing.ImagePath.TrimStart('/'))))
-                {
-                    listing.ImagePath = "/images/No_Image_Available.jpg";
-                }
-            }
+            var listings = _service.GetAllListings();
             return View(listings);
         }
 
@@ -42,16 +36,7 @@ namespace DivarClone.Controllers
         {
             if (Enum.TryParse(typeof(Category), category, out var categoryEnum))
             {
-                var listings = _context.Listings.Where(l => l.Category == (Category)categoryEnum).ToList();
-
-                foreach (var listing in listings)
-                {
-                    if (string.IsNullOrEmpty(listing.ImagePath) ||
-                        !System.IO.File.Exists(Path.Combine(_webHostEnvironment.WebRootPath, listing.ImagePath.TrimStart('/'))))
-                    {
-                        listing.ImagePath = "/images/No_Image_Available.jpg";
-                    }
-                }
+                var listings = _service.FilterResult(category, categoryEnum);
                 return View("index", listings);
             }
             return RedirectToAction("Index");
@@ -59,59 +44,21 @@ namespace DivarClone.Controllers
 
         public IActionResult SearchResults(string textToSearch)
         {
-            var listings = _context.Listings.Where(l => l.Name.Contains(textToSearch)).ToList();
-
-            foreach (var listing in listings)
-            {
-                if (string.IsNullOrEmpty(listing.ImagePath) ||
-                    !System.IO.File.Exists(Path.Combine(_webHostEnvironment.WebRootPath, listing.ImagePath.TrimStart('/'))))
-                {
-                    listing.ImagePath = "/images/No_Image_Available.jpg";
-                }
-            }
+            var listings = _service.SearchResult(textToSearch);
             return View("index", listings);
         }
 
         public IActionResult ShowUserListings(string Username)
-        {
-            var listings = _context.Listings.Where(l => l.Poster == Username).ToList();
-
-            foreach (var listing in listings)
-            {
-                if (string.IsNullOrEmpty(listing.ImagePath) ||
-                    !System.IO.File.Exists(Path.Combine(_webHostEnvironment.WebRootPath, listing.ImagePath.TrimStart('/'))))
-                {
-                    listing.ImagePath = "/images/No_Image_Available.jpg";
-                }
-            }
+        {           
+            var listings = _service.ShowUserListings(Username);
             return View("index", listings);
         }
 
         public IActionResult DeleteUserListing(int id)
         {
-            var listingToDelete = _context.Listings.FirstOrDefault(l => l.Id == id);
-
-            if (listingToDelete == null)
-            {
-                return RedirectToAction("Index");
-            }
-            else { 
-                _context.Listings.Remove(listingToDelete);
-                _context.SaveChanges();
-
-                var listings = _context.Listings.ToList();
-
-                foreach (var listing in listings)
-                {
-                    if (string.IsNullOrEmpty(listing.ImagePath) ||
-                        !System.IO.File.Exists(Path.Combine(_webHostEnvironment.WebRootPath, listing.ImagePath.TrimStart('/'))))
-                    {
-                        listing.ImagePath = "/images/No_Image_Available.jpg";
-                    }
-                }
-
-                return View("index", listings);
-            }
+            _service.DeleteUserListing(id);
+            var listings = _service.GetAllListings();
+            return View("Index", listings);
         }
 
         [Authorize]
