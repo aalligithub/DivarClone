@@ -66,5 +66,11 @@ namespace DivarClone.Controllers
             }
             return View("Index", listing);
         }
+
+        public IActionResult EditListing(int id)
+        {
+            var listing = _service.GetSpecificListing(id);
+            return View("EditListing", listing);
+        }
     }
 }
