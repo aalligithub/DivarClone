@@ -7,24 +7,26 @@
 @{
     ViewData["Title"] = "دیوار";
 }
-@model IEnumerable<DivarClone.Models.Listing> //ایمپورت کردن مدل لیستینگ 
+@model IEnumerable<DivarClone.Models.Listing>
 
 <h1 class="custom-font">آگهی ها</h1>
 <div class="row">
     @if (User.Identity.IsAuthenticated)
     {
-        <div class="col-md-10">
+        <div class="col-md-10" id="listingCardContainer">
             <div class="row" id="listingCard"></div>
+            <div id="listingForm"></div>
         </div>
 
-        <div id="PartialZone" class="col-md-2"></div>
+        <div id="PartialZoneUserControl" class="col-md-2"></div>
+
     } else  {
         <div class="row" id="listingCard"></div>
     }
 </div>
 @section Scripts{
     <script>
-        $('#PartialZone').load("/Home/UserControlPartial")
+        $('#PartialZoneUserControl').load("/Home/UserControlPartial")
     </script>
 
     <script>
@@ -72,7 +74,7 @@
 
     <script>
         function editListing(listingId) {
-            
+            window.location.href = `@Url.Action("GetSpecificListing", "Home")?id=${listingId}`
         }
 
         function deleteListing(listingId) {

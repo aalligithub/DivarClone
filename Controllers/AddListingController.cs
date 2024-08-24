@@ -31,6 +31,11 @@ namespace DivarClone.Controllers
             return View();
         }
 
+        public IActionResult FormPartial()
+        {
+            return PartialView("_AddListingForm");
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]     
         public async Task<IActionResult> Create(Listing listing, IFormFile? ImageFile)

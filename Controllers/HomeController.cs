@@ -63,6 +63,12 @@ namespace DivarClone.Controllers
             return View("Index", listings);
         }
 
+        public IActionResult GetSpecificListing(int id)
+        {
+            var listing = _service.GetSpecificListing(id);
+            return View("Index", listing);  
+        }
+
         [Authorize]
         public IActionResult UserControlPartial() {
             return PartialView("_UserControl");

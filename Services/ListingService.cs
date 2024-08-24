@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.Data.Common;
+using System.Net;
 using DivarClone.Areas.Identity.Data;
 using DivarClone.Models;
 using Microsoft.AspNetCore.Hosting;
@@ -23,7 +24,7 @@ namespace DivarClone.Services {
 
         List<Listing> GetAllListings();
 
-        
+        public IEnumerable<Listing> GetSpecificListing(int id);
     }
 
     public class ListingService : IListingService
@@ -93,7 +94,7 @@ namespace DivarClone.Services {
                     listing.ImagePath = "/images/" + fileName;
                     return true;
                 }
-                catch (Exception ex)
+                catch
                 {
                     return false;
                 }
@@ -101,10 +102,21 @@ namespace DivarClone.Services {
             } return false;
         }
 
+        public IEnumerable<Listing> GetSpecificListing(int id)
+        {
+            var specificListing = _context.Listings.FirstOrDefault(l => l.Id == id);
+
+            if (specificListing != null)
+            {
+                return new List<Listing> { specificListing };
+            }
+            return Enumerable.Empty<Listing>();
+        }
+
         public void DeleteUserListing(int id)
         {
             var listingToDelete = _context.Listings.FirstOrDefault(l => l.Id == id);
-
+            
             if (listingToDelete != null)
             {
                 _context.Listings.Remove(listingToDelete);
