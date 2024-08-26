@@ -62,6 +62,7 @@
                 {
                     <div class="card-footer">
                         <a class="btn btn-danger ms-2" onclick=deleteListing(@listing.Id)>حذف</a>
+                        <a class="btn btn-danger ms-2" onclick=editListing(@listing.Id)>ویرایش</a>
                     </div>
                 }
                 </div>
@@ -74,6 +75,10 @@
     <script>
         function deleteListing(listingId) {
             window.location.href = `@Url.Action("DeleteUserListing", "Home")?id=${listingId}`;
+        }
+
+        function editListing(listingId) {
+            window.location.href = `@Url.Action("EditListing", "AddListing")?id=${listingId}`;
         }
     </script>
 }

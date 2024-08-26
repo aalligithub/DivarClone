@@ -1,6 +1,7 @@
 ﻿using System.Data.Common;
 using System.Net;
 using DivarClone.Areas.Identity.Data;
+using DivarClone.Controllers;
 using DivarClone.Models;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -24,18 +25,22 @@ namespace DivarClone.Services {
 
         List<Listing> GetAllListings();
 
-        public IEnumerable<Listing> GetSpecificListing(int id);
+        public Listing GetSpecificListing(int id);
+
+        Task<bool> UpdateListingAsync(Listing listing);
     }
 
     public class ListingService : IListingService
     {
         private readonly DivarCloneContext _context;
         private readonly IWebHostEnvironment _webHostEnvironment;
+        private readonly ILogger<AddListingController> _logger;
 
-        public ListingService(DivarCloneContext context, IWebHostEnvironment webHostEnvironment)
+        public ListingService(DivarCloneContext context, IWebHostEnvironment webHostEnvironment, ILogger<AddListingController> logger)
         {
             _context = context;
             _webHostEnvironment = webHostEnvironment;
+            _logger = logger;
         }
 
         public async Task<bool> CreateListingAsync(Listing listing)
@@ -102,16 +107,47 @@ namespace DivarClone.Services {
             } return false;
         }
 
-        public IEnumerable<Listing> GetSpecificListing(int id)
+        public Listing GetSpecificListing(int id)
         {
             var specificListing = _context.Listings.FirstOrDefault(l => l.Id == id);
 
             if (specificListing != null)
             {
-                return new List<Listing> { specificListing };
+                return specificListing;
             }
-            return Enumerable.Empty<Listing>();
+            return null;
         }
+
+        public async Task<bool> UpdateListingAsync(Listing listing)
+        {
+            var existingListing = await _context.Listings.FindAsync(listing.Id);
+            if (existingListing == null)
+            {
+                _logger.LogWarning($"Listing with ID {listing.Id} not found.");
+                return false;
+            }
+
+            existingListing.Name = listing.Name;
+            existingListing.Description = listing.Description;
+            existingListing.Price = listing.Price;
+            existingListing.Category = listing.Category;
+            existingListing.ImagePath = listing.ImagePath;
+
+            try
+            {
+                _context.Entry(existingListing).State = EntityState.Modified;
+                await _context.SaveChangesAsync();
+                _logger.LogInformation($"Listing with ID {listing.Id} updated successfully.");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error updating listing with ID {listing.Id}");
+                return false;
+            }
+        }
+
+
 
         public void DeleteUserListing(int id)
         {

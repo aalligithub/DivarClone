@@ -67,10 +67,46 @@ namespace DivarClone.Controllers
             return View("Index", listing);
         }
 
+        [Authorize]
         public IActionResult EditListing(int id)
         {
             var listing = _service.GetSpecificListing(id);
-            return View("EditListing", listing);
+            if (listing != null) {
+                return View("EditListing", listing);
+            } else { return null; }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Update(Listing listing, IFormFile? ImageFile)
+        {
+            bool imageProcessed = await _service.ProcessImageAsync(listing, ImageFile);
+            if (!imageProcessed)
+            {
+                ModelState.AddModelError("", "Image processing error. ");
+            }
+
+            if (ModelState.IsValid)
+            {
+                bool updateSuccess = await _service.UpdateListingAsync(listing);
+                if (!updateSuccess)
+                {
+                    ModelState.AddModelError("", "Image processing error. ");
+                }
+                else { 
+
+                    return RedirectToAction("Index", "Home");
+                }
+            }
+
+            var errors = ModelState.Values.SelectMany(v => v.Errors);
+            foreach (var error in errors)
+            {
+                _logger.LogError(error.ErrorMessage);
+                ViewBag.ModelStateErrors += error.ErrorMessage + "\n";
+            }
+            return RedirectToAction("Index", "Home");
+
         }
     }
 }
