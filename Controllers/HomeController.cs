@@ -32,36 +32,36 @@ namespace DivarClone.Controllers
             return View(listings);
         }
 
-        public IActionResult FilterResults(string category)
-        {
-            if (Enum.TryParse(typeof(Category), category, out var categoryEnum))
-            {
-                var listings = _service.FilterResult(category, categoryEnum);
-                return View("index", listings);
-            }
-            return RedirectToAction("Index");
-        }
+        //public IActionResult FilterResults(string category)
+        //{
+        //    if (Enum.TryParse(typeof(Category), category, out var categoryEnum))
+        //    {
+        //        var listings = _service.FilterResult(category, categoryEnum);
+        //        return View("index", listings);
+        //    }
+        //    return RedirectToAction("Index");
+        //}
 
-        public IActionResult SearchResults(string textToSearch)
-        {
-            var listings = _service.SearchResult(textToSearch);
-            return View("index", listings);
-        }
+        //public IActionResult SearchResults(string textToSearch)
+        //{
+        //    var listings = _service.SearchResult(textToSearch);
+        //    return View("index", listings);
+        //}
 
-        [Authorize]
-        public IActionResult ShowUserListings(string Username)
-        {           
-            var listings = _service.ShowUserListings(Username);
-            return View("index", listings);
-        }
+        //[Authorize]
+        //public IActionResult ShowUserListings(string Username)
+        //{           
+        //    var listings = _service.ShowUserListings(Username);
+        //    return View("index", listings);
+        //}
 
-        [Authorize]
-        public IActionResult DeleteUserListing(int id)
-        {
-            _service.DeleteUserListing(id);
-            var listings = _service.GetAllListings();
-            return View("Index", listings);
-        }
+        //[Authorize]
+        //public IActionResult DeleteUserListing(int id)
+        //{
+        //    _service.DeleteUserListing(id);
+        //    var listings = _service.GetAllListings();
+        //    return View("Index", listings);
+        //}
 
         [Authorize]
         public IActionResult UserControlPartial() {
