@@ -1,4 +1,7 @@
 ﻿using System.Data.SqlClient;
+using System.Data;
+using System.Reflection;
+using System.Xml.Linq;
 using DivarClone.Controllers;
 using DivarClone.Models;
 using Microsoft.EntityFrameworkCore;
@@ -14,9 +17,9 @@ namespace DivarClone.Services
         //List<Listing> FilterResult(string category, object categoryEnum);
         //List<Listing> SearchResult(string textToSearch);
         //List<Listing> ShowUserListings(string Username);
-        //void DeleteUserListing(int id);
-        //Task<bool> CreateListingAsync(Listing listing);
-        //public Listing GetSpecificListing(int id);
+        Task DeleteUserListing(int id);
+        Task<bool> CreateListingAsync(Listing listing);
+        //public List<Listing> GetSpecificListing(int id);
         //Task<bool> UpdateListingAsync(Listing listing);
     }
 
@@ -44,7 +47,10 @@ namespace DivarClone.Services
             List<Listing> listingsList = new List<Listing>();
             try
             {
-                con.Open();
+                if (con != null && con.State == ConnectionState.Closed) {
+                    con.Open();
+                }
+
                 var cmd = new SqlCommand("SP_GetListings", con);
                 cmd.CommandType = System.Data.CommandType.StoredProcedure;
 
@@ -52,6 +58,7 @@ namespace DivarClone.Services
 
                 while (rdr.Read()) {
                     Listing list = new Listing {
+                        Id = rdr.GetInt32("Id"),
                         Name = rdr["Name"].ToString(),
                         Description = rdr["Description"].ToString(),
                         Price = Convert.ToInt32(rdr["Price"]),
@@ -67,27 +74,14 @@ namespace DivarClone.Services
                 return listingsList.ToList();
 
             }
-            catch (Exception) {
+            catch (Exception ex) {
+                _logger.LogError(ex, "Error creating listing");
                 throw;
             }
+            finally { con.Close(); }
 
         }
 
-
-        //public List<Listing> GetAllListings()
-        //{
-        //    var listings = _context.Listings.ToList();
-
-        //    foreach (var listing in listings)
-        //    {
-        //        if (string.IsNullOrEmpty(listing.ImagePath)
-        //            || !System.IO.File.Exists(Path.Combine(_webHostEnvironment.WebRootPath, listing.ImagePath.TrimStart('/'))))
-        //        {
-        //            listing.ImagePath = "/images/No_Image_Available.jpg";
-        //        }
-        //    }
-        //    return listings;
-        //}
 
         public async Task<bool> ProcessImageAsync(Listing listing, IFormFile? ImageFile)
         {
@@ -124,30 +118,77 @@ namespace DivarClone.Services
         }
 
 
-        //public async Task<bool> CreateListingAsync(Listing listing)
+        public async Task<bool> CreateListingAsync(Listing listing)
+        {
+            try
+            {
+                if (con != null && con.State == ConnectionState.Closed)
+                {
+                    con.Open();
+                }
+                var cmd = new SqlCommand("SP_CreateListing", con);
+                cmd.CommandType = System.Data.CommandType.StoredProcedure;
+
+                cmd.Parameters.AddWithValue("@Name", listing.Name);
+                cmd.Parameters.AddWithValue("@Description", listing.Description);
+                cmd.Parameters.AddWithValue("@Price", listing.Price);
+                cmd.Parameters.AddWithValue("@Poster", listing.Poster);
+                cmd.Parameters.AddWithValue("@Category", (int)listing.Category);
+                cmd.Parameters.AddWithValue("@DateTimeOfPosting", DateTime.Now);
+                cmd.Parameters.AddWithValue("@ImagePath", listing.ImagePath);
+
+                await cmd.ExecuteNonQueryAsync();
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error creating listing");
+                return false;
+            }
+            finally { 
+                con.Close();
+            }
+        }
+
+        //public List<Listing> GetSpecificListing(int id)
         //{
-        //    try { 
-        //        listing.DateTimeOfPosting = DateTime.Now;
-
-        //        _context.Listings.Add(listing);
-        //        await _context.SaveChangesAsync();
-
-        //        return true;
-        //    }
-        //    catch {
-        //        return false;
-        //    }
-        //}
-
-        //public Listing GetSpecificListing(int id)
-        //{
-        //    var specificListing = _context.Listings.FirstOrDefault(l => l.Id == id);
-
-        //    if (specificListing != null)
+        //    id = 2011;
+        //    List<Listing> listingsList = new List<Listing>();
+        //    try
         //    {
-        //        return specificListing;
+        //        con.Open();
+        //        var cmd = new SqlCommand("SP_GetSpecificListing", con);
+        //        cmd.CommandType = System.Data.CommandType.StoredProcedure;
+
+        //        cmd.Parameters.AddWithValue("@Id", id);
+        //        cmd.ExecuteNonQueryAsync();
+
+        //        SqlDataReader rdr = cmd.ExecuteReader();
+
+        //        while (rdr.Read())
+        //        {
+        //            Listing list = new Listing
+        //            {
+        //                Name = rdr["Name"].ToString(),
+        //                Description = rdr["Description"].ToString(),
+        //                Price = Convert.ToInt32(rdr["Price"]),
+        //                Poster = rdr["Poster"].ToString(),
+        //                Category = (Category)Enum.Parse(typeof(Category), rdr["Category"].ToString()),
+        //                DateTimeOfPosting = Convert.ToDateTime(rdr["DateTimeOfPosting"]),
+        //                ImagePath = rdr["ImagePath"].ToString(),
+        //            };
+
+        //            listingsList.Add(list);
+        //        }
+
+        //        return listingsList.ToList();
+
         //    }
-        //    return null;
+        //    catch (Exception)
+        //    {
+        //        throw;
+        //    }
         //}
 
         //public async Task<bool> UpdateListingAsync(Listing listing)
@@ -181,16 +222,54 @@ namespace DivarClone.Services
 
 
 
-        //public void DeleteUserListing(int id)
+        //public async Task DeleteUserListing(int id)
         //{
-        //    var listingToDelete = _context.Listings.FirstOrDefault(l => l.Id == id);
-            
-        //    if (listingToDelete != null)
+        //    try {
+        //        if (con != null && con.State == ConnectionState.Closed)
+        //        {
+        //            con.Open();
+        //        }
+        //        var cmd = new SqlCommand("SP_DeleteUserListing", con);
+        //        cmd.CommandType = System.Data.CommandType.StoredProcedure;
+        //        cmd.Parameters.AddWithValue("@Id", id);
+        //        await cmd.ExecuteNonQueryAsync();
+        //    }
+        //    catch (Exception ex)
         //    {
-        //        _context.Listings.Remove(listingToDelete);
-        //        _context.SaveChanges();
+        //        _logger.LogError(ex, "Error deleting listing");
+        //    }
+        //    finally
+        //    {
+        //        con.Close(); 
         //    }
         //}
+        public async Task DeleteUserListing(int id)
+        {
+            try
+            {
+                _logger.LogInformation("Attempting to delete listing with Id = {Id}", id);
+
+                if (con != null && con.State == ConnectionState.Closed)
+                {
+                    con.Open();
+                }
+
+                var cmd = new SqlCommand("SP_DeleteUserListing", con);
+                cmd.CommandType = System.Data.CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@Id", id);
+
+                await cmd.ExecuteNonQueryAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error deleting listing with Id = {Id}", id);
+            }
+            finally
+            {
+                con.Close();
+            }
+        }
+
 
         //public List<Listing> FilterResult(string category, object categoryEnum)
         //{            

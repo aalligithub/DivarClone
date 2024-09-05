@@ -32,6 +32,7 @@ namespace DivarClone.Controllers
             return View(listings);
         }
 
+
         //public IActionResult FilterResults(string category)
         //{
         //    if (Enum.TryParse(typeof(Category), category, out var categoryEnum))
@@ -55,13 +56,13 @@ namespace DivarClone.Controllers
         //    return View("index", listings);
         //}
 
-        //[Authorize]
-        //public IActionResult DeleteUserListing(int id)
-        //{
-        //    _service.DeleteUserListing(id);
-        //    var listings = _service.GetAllListings();
-        //    return View("Index", listings);
-        //}
+        [Authorize]
+        public async Task<IActionResult> DeleteUserListing(int id)
+        {
+            await _service.DeleteUserListing(id);
+            var listings = _service.GetAllListings();
+            return View("Index", listings);
+        }
 
         [Authorize]
         public IActionResult UserControlPartial() {

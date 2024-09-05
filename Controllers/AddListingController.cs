@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace DivarClone.Controllers
 {
-    
+
     [Authorize]
     public class AddListingController : Controller
     {
@@ -36,36 +36,37 @@ namespace DivarClone.Controllers
             return PartialView("_AddListingForm");
         }
 
-        //    [HttpPost]
-        //    [ValidateAntiForgeryToken]     
-        //    public async Task<IActionResult> Create(Listing listing, IFormFile? ImageFile)
-        //    {
-        //        bool imageProcessed = await _service.ProcessImageAsync(listing, ImageFile);
-        //        if (!imageProcessed)
-        //        {
-        //            ModelState.AddModelError("", "Image processing error. ");
-        //        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(Listing listing, IFormFile? ImageFile)
+        {
+            bool imageProcessed = await _service.ProcessImageAsync(listing, ImageFile);
+            if (!imageProcessed)
+            {
+                ModelState.AddModelError("", "Image processing error. ");
+            }
 
-        //        if (ModelState.IsValid)
-        //        {
-        //            bool createlisting = await _service.CreateListingAsync(listing);
-        //            if (!createlisting)
-        //            {
-        //                ModelState.AddModelError("", "Image processing error. ");
-        //            }
-        //            else { 
-        //                return RedirectToAction("Index", "Home");
-        //            }                              
-        //        }
+            if (ModelState.IsValid)
+            {
+                bool createlisting = await _service.CreateListingAsync(listing);
+                if (!createlisting)
+                {
+                    ModelState.AddModelError("", "Image processing error. ");
+                }
+                else
+                {
+                    return RedirectToAction("Index", "Home");
+                }
+            }
 
-        //        var errors = ModelState.Values.SelectMany(v => v.Errors);
-        //        foreach (var error in errors)
-        //        {
-        //            _logger.LogError(error.ErrorMessage);
-        //            ViewBag.ModelStateErrors += error.ErrorMessage + "\n";
-        //        }
-        //        return View("Index", listing);
-        //    }
+            var errors = ModelState.Values.SelectMany(v => v.Errors);
+            foreach (var error in errors)
+            {
+                _logger.LogError(error.ErrorMessage);
+                ViewBag.ModelStateErrors += error.ErrorMessage + "\n";
+            }
+            return View("Index", listing);
+        }
 
         //    [Authorize]
         //    public IActionResult EditListing(int id)
