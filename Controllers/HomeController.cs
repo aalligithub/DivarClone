@@ -43,11 +43,11 @@ namespace DivarClone.Controllers
             return RedirectToAction("Index");
         }
 
-        //public IActionResult SearchResults(string textToSearch)
-        //{
-        //    var listings = _service.SearchResult(textToSearch);
-        //    return View("index", listings);
-        //}
+        public IActionResult SearchResults(string textToSearch)
+        {
+            var listings = _service.SearchResult(textToSearch);
+            return View("index", listings);
+        }
 
         [Authorize]
         public IActionResult ShowUserListings(string Username)
