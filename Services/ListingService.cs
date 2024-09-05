@@ -15,7 +15,7 @@ namespace DivarClone.Services
         Task<bool> ProcessImageAsync(Listing listing, IFormFile? ImageFile);
         List<Listing> FilterResult(object categoryEnum);
         //List<Listing> SearchResult(string textToSearch);
-        //List<Listing> ShowUserListings(string Username);
+        List<Listing> ShowUserListings(string Username);
         Task DeleteUserListing(int id);
         Task<bool> CreateListingAsync(Listing listing);
         //public List<Listing> GetSpecificListing(int id);
@@ -308,20 +308,49 @@ namespace DivarClone.Services
         //    return listings;
         //}
 
-        //public List<Listing> ShowUserListings(string Username)
-        //{
-        //    var listings = _context.Listings.Where(l => l.Poster == Username).ToList();
+        public List<Listing> ShowUserListings(string Username)
+        {
+            List<Listing> listingsList = new List<Listing>();
+            try
+            {
+                if (con != null && con.State == ConnectionState.Closed)
+                {
+                    con.Open();
+                }
 
-        //    foreach (var listing in listings)
-        //    {
-        //        if (string.IsNullOrEmpty(listing.ImagePath) ||
-        //            !System.IO.File.Exists(Path.Combine(_webHostEnvironment.WebRootPath, listing.ImagePath.TrimStart('/'))))
-        //        {
-        //            listing.ImagePath = "/images/No_Image_Available.jpg";
-        //        }
-        //    }
+                var cmd = new SqlCommand("SP_ShowUserListings", con);
+                cmd.CommandType = System.Data.CommandType.StoredProcedure;
 
-        //    return listings;
-        //}
+                cmd.Parameters.AddWithValue("@Username", Username);
+
+                SqlDataReader rdr = cmd.ExecuteReader();
+
+                while (rdr.Read())
+                {
+                    Listing list = new Listing
+                    {
+                        Id = rdr.GetInt32("Id"),
+                        Name = rdr["Name"].ToString(),
+                        Description = rdr["Description"].ToString(),
+                        Price = Convert.ToInt32(rdr["Price"]),
+                        Poster = rdr["Poster"].ToString(),
+                        Category = (Category)Enum.Parse(typeof(Category), rdr["Category"].ToString()),
+                        DateTimeOfPosting = Convert.ToDateTime(rdr["DateTimeOfPosting"]),
+                        ImagePath = rdr["ImagePath"].ToString(),
+                    };
+
+                    listingsList.Add(list);
+                }
+
+                return listingsList.ToList();
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error creating listing");
+                throw;
+            }
+            finally { con.Close(); }
+        }
     }
 }
