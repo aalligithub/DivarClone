@@ -33,15 +33,15 @@ namespace DivarClone.Controllers
         }
 
 
-        //public IActionResult FilterResults(string category)
-        //{
-        //    if (Enum.TryParse(typeof(Category), category, out var categoryEnum))
-        //    {
-        //        var listings = _service.FilterResult(category, categoryEnum);
-        //        return View("index", listings);
-        //    }
-        //    return RedirectToAction("Index");
-        //}
+        public IActionResult FilterResults(string category)
+        {
+            if (Enum.TryParse(typeof(Category), category, out var categoryEnum))
+            {
+                var listings = _service.FilterResult(categoryEnum);
+                return View("index", listings);
+            }
+            return RedirectToAction("Index");
+        }
 
         //public IActionResult SearchResults(string textToSearch)
         //{
