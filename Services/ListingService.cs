@@ -170,6 +170,7 @@ namespace DivarClone.Services
         //        {
         //            Listing list = new Listing
         //            {
+        //                Id = rdr.GetInt32("Id"),
         //                Name = rdr["Name"].ToString(),
         //                Description = rdr["Description"].ToString(),
         //                Price = Convert.ToInt32(rdr["Price"]),
