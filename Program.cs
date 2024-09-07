@@ -11,6 +11,8 @@ builder.Services.AddDefaultIdentity<DivarCloneUser>(options => options.SignIn.Re
 
 builder.Services.AddScoped<IListingService, ListingService>();
 
+builder.Services.AddScoped<IEnrollService, EnrollService>();
+
 builder.Services.AddRazorPages().AddRazorRuntimeCompilation();
 
 // Add services to the container.

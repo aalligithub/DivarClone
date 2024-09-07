@@ -1,7 +1,5 @@
 ﻿using System.Data.SqlClient;
 using System.Data;
-using System.Reflection;
-using System.Xml.Linq;
 using DivarClone.Controllers;
 using DivarClone.Models;
 using Microsoft.EntityFrameworkCore;
@@ -155,6 +153,7 @@ namespace DivarClone.Services
                 con.Close();
             }
         }
+
 
         //public List<Listing> GetSpecificListing(int id)
         //{

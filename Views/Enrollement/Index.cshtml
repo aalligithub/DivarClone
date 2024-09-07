@@ -1,0 +1,93 @@
+﻿@model DivarClone.Models.Enroll
+@{
+	ViewBag.Title = "Index";
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>ENROLLMENT</title>
+    <link href="http://maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css" />
+    <script type="text/javascript" src="http://maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <link href="../../Content/StyleSheet.css" rel="stylesheet" type="text/css" />
+    <script type="text/javascript" src="~/Scripts/jquery-1.7.1.js"></script>
+    <script type="text/javascript" src="~/Scripts/jquery.validate.min.js"></script>
+    <script type="text/javascript" src="~/Scripts/jquery.validate.unobtrusive.min.js"></script>
+    <script type="text/javascript" src="~/Scripts/passwordscheck.js"></script>
+    <link href="~/Scripts/passwordscheck.css" rel="stylesheet" />
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+</head>
+<body>
+<!------ Include the above in your HEAD tag ---------->
+
+@using (Html.BeginForm("Index", "Enrollement", FormMethod.Post))
+{
+    <p class="container register">
+        <p class="row">
+            <p class="col-md-3 register-left">
+                <img src="https://image.ibb.co/n7oTvU/logo_white.png" alt="" />
+                <h3>Welcome</h3>
+                <p>
+                    This Example is for learning Basic Login and Registration Using ADO.NET in MVC.
+                    <br />Hope this will boost your Knowledge.
+                </p>
+            </p>
+            <p class="col-md-9 register-right">
+                <ul class="nav nav-tabs nav-justified" id="myTab" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link active" id="home-tab" data-toggle="tab" href="../Enrollment/Index" role="tab" aria-controls="home" aria-selected="true">Register</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="profile-tab" data-toggle="tab" href="../UserLogin/Index" role="tab" aria-controls="profile" aria-selected="false">Login</a>
+                    </li>
+                </ul>
+                <p class="tab-content" id="myTabContent">
+                    <p class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
+                        <h3 class="register-heading">Apply as a Employee</h3>
+                        <p class="row register-form">
+                            <p class="col-md-6">
+                                <p class="form-group">
+                                    @Html.TextBoxFor(e => e.FirstName, new { @class = "form-control", placeholder = "First Name *" })
+                                    @Html.ValidationMessageFor(e => e.FirstName)
+                                </p>
+                                <p class="form-group">
+                                    @Html.PasswordFor(e => e.Password, new { id = "password", @class = "form-control", placeholder = "Password *" })
+                                    <span id="result"></span>
+                                    @Html.ValidationMessageFor(e => e.Password)
+                                </p>
+                                <p class="form-group">
+                                    @Html.PasswordFor(e => e.Confirmpwd, new { @class = "form-control", placeholder = "Confirm Password *" })
+                                    @Html.ValidationMessageFor(e => e.Confirmpwd)
+                                </p>
+                            </p>
+                            <p class="col-md-6">
+                                <p class="form-group">
+                                    @Html.TextBoxFor(e => e.Email, new { @class = "form-control", placeholder = "Your Email *" })
+                                    @Html.ValidationMessageFor(e => e.Email)
+                                </p>
+                                <p class="form-group">
+                                    @Html.TextBoxFor(e => e.PhoneNumber, new { @class = "form-control", placeholder = "Your Phone *" })
+                                    @Html.ValidationMessageFor(e => e.PhoneNumber)
+                                </p>
+                                <input type="submit" class="btnRegister" value="Register" />
+                            </p>
+                        </p>
+                    </p>
+                </p>
+            </p>
+        </p>
+    </p>
+    <script type="text/javascript">
+        $(function () {
+            var msg = '@ViewData["result"]';
+            if (msg == '1') {
+                alert("User Details Inserted Successfully");
+                window.location.href = '@Url.Action("Index", "Enrollement")';
+            }
+        });
+    </script>
+}
+</body>
+</html>

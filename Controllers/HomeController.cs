@@ -1,12 +1,9 @@
 using System.Diagnostics;
-using System.Reflection;
 using DivarClone.Areas.Identity.Data;
 using DivarClone.Models;
 using DivarClone.Services;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 
 namespace DivarClone.Controllers
