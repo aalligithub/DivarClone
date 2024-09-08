@@ -72,7 +72,10 @@
                     <input id="searchFieldInput" type="text" class="form-control" placeholder="آگهی مورد نظر" aria-label="Recipient's username" aria-describedby="button-addon2">
                     <button class="btn btn-outline-secondary" type="button" id="button-addon2" onclick="filterByText(document.getElementById('searchFieldInput').value)">جست و جو</button>
                 </div>
-                <partial name="_LoginPartial"/>
+                <div>
+                    <button class="btn btn-outline-primary" type="button" onclick="register()">ثبت نام</button>
+                    <button class="btn btn-outline-primary" type="button" onclick="login()">ورود</button>
+                </div>
             </div>
         </nav>
     </header>
@@ -101,6 +104,14 @@
     function filterByText(text) {
         window.location.href = `@Url.Action("SearchResults", "Home")?textToSearch=${text}`;
     }
+
+    function register() {
+        window.location.href = `@Url.Action("RegisterationPage", "Enrollement")`;
+    }
+
+    // function login() {
+    //     window.location.href = `@Url.Action("LoginPage", "Enrollement")`;
+    // }
 </script>
 
 </html>

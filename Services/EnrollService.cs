@@ -2,12 +2,17 @@
 using System.Data;
 using DivarClone.Controllers;
 using DivarClone.Models;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+
 
 namespace DivarClone.Services
 {
     public interface IEnrollService
     {
         Task<bool> EnrollUser(Enroll enroll);
+        Task<ClaimsPrincipal> LogUserIn(Enroll e);
     }
     public class EnrollService : IEnrollService
     {
@@ -39,6 +44,7 @@ namespace DivarClone.Services
                 cmd.CommandType = System.Data.CommandType.StoredProcedure;
 
                 cmd.Parameters.AddWithValue("@FirstName", e.FirstName);
+                cmd.Parameters.AddWithValue("@Username", e.Username);
                 cmd.Parameters.AddWithValue("@Password", e.Password);
                 cmd.Parameters.AddWithValue("@Email", e.Email);
                 cmd.Parameters.AddWithValue("@Phone", e.PhoneNumber);
@@ -52,6 +58,54 @@ namespace DivarClone.Services
             {
                 _logger.LogError(ex, "Error creating listing");
                 return false;
+            }
+            finally
+            {
+                con.Close();
+            }
+        }
+
+        public async Task<ClaimsPrincipal> LogUserIn(Enroll e)
+        {
+            try
+            {
+                if (con != null && con.State == ConnectionState.Closed)
+                {
+                    con.Open();
+                }
+                var cmd = new SqlCommand("SP_LogUserIn", con);
+                cmd.CommandType = System.Data.CommandType.StoredProcedure;
+
+                cmd.Parameters.AddWithValue("@Email", e.Email);
+                cmd.Parameters.AddWithValue("@Password", e.Password);
+
+                using (SqlDataReader rdr = await cmd.ExecuteReaderAsync())
+                {
+                    if (rdr.Read())
+                    {
+                        // Create claims for the authenticated user
+                        var claims = new List<Claim>
+                        {
+                            new Claim(ClaimTypes.Name, e.Email),       // User's email as claim
+                            new Claim(ClaimTypes.Role, "User")         // Example user role claim
+                        };
+
+                        var identity = new ClaimsIdentity(claims, "Login"); // Create identity with claims
+                        var principal = new ClaimsPrincipal(identity);      // Create principal
+
+                        // Sign in the user using the claims principal
+                        return principal;
+                    }
+                    else
+                    {
+                        return null;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error Logging user in");
+                return null;
             }
             finally
             {

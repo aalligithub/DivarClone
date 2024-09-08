@@ -1,0 +1,96 @@
+﻿@model DivarClone.Models.Enroll
+
+@{
+    ViewBag.Title = "Index";
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>ENROLLMENT</title>
+    <link href="http://maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css" />
+    <script type="text/javascript" src="http://maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <link href="../../Content/StyleSheet.css" rel="stylesheet" type="text/css" />
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+            $.ajax({
+
+                type: 'POST',
+                URL: '@Url.Action("UserLogin", "Enrollement")',
+                data: data,
+                dataType: 'JSON',
+                success: function (data) {
+                    datadata = data.status
+                    if (status == "1") {
+                        window.location.href = '@Url.Action("Index", "Enrollement/UserLogin")';
+                    }
+                }
+            });
+        });
+    </script>
+</head>
+
+<body>
+    <!------ Include the above in your HEAD tag ---------->
+    @using (Html.BeginForm("UserLogin", "Enrollement", FormMethod.Post))
+
+    {
+        @Html.AntiForgeryToken()
+        <p class="container register">
+        <p class="row">
+        <p class="col-md-3 register-left">
+            <img src="https://image.ibb.co/n7oTvU/logo_white.png" alt="" />
+            <h3>Welcome</h3>
+        <p>This Example is for learning MVC Basic Login and Registration Using ADO.NET.</p>
+        </p>
+        <p class="col-md-9 register-right">
+            <ul class="nav nav-tabs nav-justified" id="myTab" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active" id="home-tab" data-toggle="tab" href="../Enrollment/Index" role="tab" aria-controls="home" aria-selected="true">Register</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="profile-tab" data-toggle="tab" href="../UserLogin/Index" role="tab" aria-controls="profile" aria-selected="false">Login</a>
+                </li>
+            </ul>
+        <p class="tab-content" id="myTabContent">
+        <p class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
+            <h3 class="register-heading">Login as a Employee</h3>
+        <p class="row register-form">
+        <p class="col-md-6">
+        <p class="form-group">
+                                        @Html.TextBoxFor(e => e.Email, new { @class = "form-control", placeholder = "Your Email *" })
+                                        @Html.ValidationMessageFor(e => e.Email)
+        </p>
+        <p class="form-group">
+                                        @Html.PasswordFor(e => e.Password, new { id = "password", @class = "form-control", placeholder = "Password *" })
+            <span id="result"></span>
+                                        @Html.ValidationMessageFor(e => e.Password)
+        </p>
+        <p class="col-md-6">
+            <input type="submit" class="btnLogin" value="Login" />
+        </p>
+
+        </p>
+
+        </p>
+        </p>
+        </p>
+        </p>
+        </p>
+
+        <script type="text/javascript">
+            $(function () {
+                var msg = '@ViewData["result"]';
+                if (msg == '1') {
+                    alert("User Details Inserted Successfully");
+                    window.location.href = "@Url.Action("Index", "UserLogin")";
+                }
+            });
+        </script>
+        }
+        </p>
+    }
+</body>
+</html>

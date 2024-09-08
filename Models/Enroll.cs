@@ -13,6 +13,11 @@ namespace DivarClone.Models
         public string FirstName { get; set; }
 
 
+        [Required(ErrorMessage = "Please enter Username")]
+        [Display(Name = "Username")]
+        public string Username { get; set; }
+
+
         [Required(ErrorMessage = "Please enter password")]
         [DataType(DataType.Password)]
         [StringLength(100, ErrorMessage = "Password \"{0}\" must have {2} characters", MinimumLength = 8)]

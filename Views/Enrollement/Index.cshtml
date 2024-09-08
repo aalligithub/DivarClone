@@ -40,7 +40,7 @@
                         <a class="nav-link active" id="home-tab" data-toggle="tab" href="../Enrollment/Index" role="tab" aria-controls="home" aria-selected="true">Register</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" id="profile-tab" data-toggle="tab" href="../UserLogin/Index" role="tab" aria-controls="profile" aria-selected="false">Login</a>
+                        <a class="nav-link" id="profile-tab" data-toggle="tab" href="../Enrollement/UserLogin/Index" role="tab" aria-controls="profile" aria-selected="false">Login</a>
                     </li>
                 </ul>
                 <p class="tab-content" id="myTabContent">
@@ -51,6 +51,10 @@
                                 <p class="form-group">
                                     @Html.TextBoxFor(e => e.FirstName, new { @class = "form-control", placeholder = "First Name *" })
                                     @Html.ValidationMessageFor(e => e.FirstName)
+                                </p>
+                                <p class="form-group">
+                                        @Html.TextBoxFor(e => e.Username, new { @class = "form-control", placeholder = "Username *" })
+                                        @Html.ValidationMessageFor(e => e.Username)
                                 </p>
                                 <p class="form-group">
                                     @Html.PasswordFor(e => e.Password, new { id = "password", @class = "form-control", placeholder = "Password *" })
