@@ -3,6 +3,7 @@ using System.Data;
 using DivarClone.Controllers;
 using DivarClone.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.CodeAnalysis.Elfie.Diagnostics;
 
 namespace DivarClone.Services
 {
@@ -22,9 +23,9 @@ namespace DivarClone.Services
 
         Task<bool> CreateListingAsync(Listing listing);
 
-        //public List<Listing> GetSpecificListing(int id);
+        public Listing GetSpecificListing(int id);
 
-        //Task<bool> UpdateListingAsync(Listing listing);
+        Task<bool> UpdateListingAsync(Listing listing);
     }
 
     public class ListingService : IListingService
@@ -155,77 +156,89 @@ namespace DivarClone.Services
         }
 
 
-        //public List<Listing> GetSpecificListing(int id)
-        //{
-        //    id = 2011;
-        //    List<Listing> listingsList = new List<Listing>();
-        //    try
-        //    {
-        //        con.Open();
-        //        var cmd = new SqlCommand("SP_GetSpecificListing", con);
-        //        cmd.CommandType = System.Data.CommandType.StoredProcedure;
+        public Listing GetSpecificListing(int id)
+        {
+            Listing listing = null;
+            try
+            {
+                con.Open();
+                var cmd = new SqlCommand("SP_GetSpecificListing", con);
+                cmd.CommandType = System.Data.CommandType.StoredProcedure;
 
-        //        cmd.Parameters.AddWithValue("@Id", id);
-        //        cmd.ExecuteNonQueryAsync();
+                cmd.Parameters.AddWithValue("@Id", id);
 
-        //        SqlDataReader rdr = cmd.ExecuteReader();
+                SqlDataReader rdr = cmd.ExecuteReader();
 
-        //        while (rdr.Read())
-        //        {
-        //            Listing list = new Listing
-        //            {
-        //                Id = rdr.GetInt32("Id"),
-        //                Name = rdr["Name"].ToString(),
-        //                Description = rdr["Description"].ToString(),
-        //                Price = Convert.ToInt32(rdr["Price"]),
-        //                Poster = rdr["Poster"].ToString(),
-        //                Category = (Category)Enum.Parse(typeof(Category), rdr["Category"].ToString()),
-        //                DateTimeOfPosting = Convert.ToDateTime(rdr["DateTimeOfPosting"]),
-        //                ImagePath = rdr["ImagePath"].ToString(),
-        //            };
+                if (rdr.Read())
+                {
+                    listing = new Listing
+                    {
+                        Id = rdr.GetInt32("Id"),
+                        Name = rdr["Name"].ToString(),
+                        Description = rdr["Description"].ToString(),
+                        Price = Convert.ToInt32(rdr["Price"]),
+                        Poster = rdr["Poster"].ToString(),
+                        Category = (Category)Enum.Parse(typeof(Category), rdr["Category"].ToString()),
+                        DateTimeOfPosting = Convert.ToDateTime(rdr["DateTimeOfPosting"]),
+                        ImagePath = rdr["ImagePath"].ToString(),
+                    };
+                }
 
-        //            listingsList.Add(list);
-        //        }
+                return listing;
 
-        //        return listingsList.ToList();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
 
-        //    }
-        //    catch (Exception)
-        //    {
-        //        throw;
-        //    }
-        //}
+        public async Task<bool> UpdateListingAsync(Listing listing)
+        {
+            try
+            {
+                if (con != null && con.State == ConnectionState.Closed)
+                {
+                    con.Open();
+                }
 
-        //public async Task<bool> UpdateListingAsync(Listing listing)
-        //{
-        //    var existingListing = await _context.Listings.FindAsync(listing.Id);
-        //    if (existingListing == null)
-        //    {
-        //        _logger.LogWarning($"Listing with ID {listing.Id} not found.");
-        //        return false;
-        //    }
+                var cmd = new SqlCommand("SP_UpdateListing", con);
+                cmd.CommandType = System.Data.CommandType.StoredProcedure;
 
-        //    existingListing.Name = listing.Name;
-        //    existingListing.Description = listing.Description;
-        //    existingListing.Price = listing.Price;
-        //    existingListing.Category = listing.Category;
-        //    existingListing.ImagePath = listing.ImagePath;
+                cmd.Parameters.AddWithValue("@Id", listing.Id);
+                cmd.Parameters.AddWithValue("@Name", listing.Name);
+                cmd.Parameters.AddWithValue("@Description", listing.Description);
+                cmd.Parameters.AddWithValue("@Price", listing.Price);
+                cmd.Parameters.AddWithValue("@Poster", listing.Poster);
+                cmd.Parameters.AddWithValue("@Category", (int)listing.Category);
+                cmd.Parameters.AddWithValue("@DateTime", DateTime.Now);
+                cmd.Parameters.AddWithValue("@ImagePath", listing.ImagePath);
 
-        //    try
-        //    {
-        //        _context.Entry(existingListing).State = EntityState.Modified;
-        //        await _context.SaveChangesAsync();
-        //        _logger.LogInformation($"Listing with ID {listing.Id} updated successfully.");
-        //        return true;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        _logger.LogError(ex, $"Error updating listing with ID {listing.Id}");
-        //        return false;
-        //    }
-        //}
+                await cmd.ExecuteNonQueryAsync();
 
+                _logger.LogInformation($"Listing with ID {listing.Id} updated successfully.");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                if (con != null && con.State == ConnectionState.Closed)
+                {
+                    con.Open();
+                }
+                var cmd = new SqlCommand("SP_AddLogToDb", con);
+                cmd.CommandType = System.Data.CommandType.StoredProcedure;
 
+                cmd.Parameters.AddWithValue("@Operation", "LISTING UPDATE");
+                cmd.Parameters.AddWithValue("@Details", "Listing updated FAILED with details : " + listing.Id + " " + listing.Name + " " + listing.Description + " " + listing.Price + " " + listing.Poster + " " + (int)listing.Category + " " + DateTime.Now + " " + listing.ImagePath);
+                cmd.Parameters.AddWithValue("@LogDate", DateTime.Now);
+
+                await cmd.ExecuteNonQueryAsync();
+
+                _logger.LogError(ex, $"Error updating listing with ID {listing.Id}");
+                return false;
+            }
+        }
+ 
         public async Task DeleteUserListing(int id)
         {
             try
@@ -252,7 +265,6 @@ namespace DivarClone.Services
                 con.Close();
             }
         }
-
 
         public List<Listing> FilterResult(object categoryEnum)
         {

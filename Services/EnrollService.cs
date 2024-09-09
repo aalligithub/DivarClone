@@ -83,7 +83,6 @@ namespace DivarClone.Services
                 {
                     if (rdr.Read())
                     {
-
                         // Create claims for the authenticated user
                         var claims = new List<Claim>
                         {
