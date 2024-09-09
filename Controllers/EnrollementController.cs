@@ -27,18 +27,18 @@ namespace DivarClone.Controllers
         [HttpGet]
         public IActionResult RegisterationPage()
         {
-            return View("index");
+            return View("register");
         }
 
         [HttpPost]
-        public async Task<IActionResult> Index(Enroll e)
+        public async Task<IActionResult> register(Enroll e)
         {
             Enroll er = new Enroll();
             bool result = await _service.EnrollUser(e);
             if (result)
             {
                 //Redirect to login
-                return View();
+                return RedirectToAction("login","UserLogin");
             }
             else {
                 //display register form and errors
@@ -74,12 +74,11 @@ namespace DivarClone.Controllers
         }
 
 
-        //public ActionResult Logout()
-        //{
-        //    FormsAuthentication.SignOut();
-        //    Session.Abandon();
-        //    return RedirectToAction("Index", "UserLogin");
-        //}
+        public async Task<ActionResult> UserLogout()
+        {
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            return RedirectToAction("Index", "Home");
+        }
 
     }
 }

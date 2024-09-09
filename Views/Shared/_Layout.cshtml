@@ -72,9 +72,19 @@
                     <input id="searchFieldInput" type="text" class="form-control" placeholder="آگهی مورد نظر" aria-label="Recipient's username" aria-describedby="button-addon2">
                     <button class="btn btn-outline-secondary" type="button" id="button-addon2" onclick="filterByText(document.getElementById('searchFieldInput').value)">جست و جو</button>
                 </div>
-                <div>
-                    <button class="btn btn-outline-primary" type="button" onclick="register()">ثبت نام</button>
-                    <button class="btn btn-outline-primary" type="button" onclick="login()">ورود</button>
+                <div style="margin-left:40px;">
+                    @if (!User.Identity.IsAuthenticated)
+                    {
+                        <button class="btn btn-outline-danger" type="button" onclick="register()">ثبت نام</button>
+                        <button class="btn btn-outline-danger" type="button" onclick="login()">ورود</button>
+                    }
+                    else
+                    {
+                        <p style="font-size:14px; color:#333; font-weight:bold; padding:5px; background-color:#f0f0f0; border-radius:5px; display:inline-block;">
+                            👋 خوش اومدی, @User.Identity.Name!
+                        </p>
+                        <button class="btn btn-outline-danger" type="button" onclick="logout()">خروج</button>
+                    }
                 </div>
             </div>
         </nav>
@@ -109,9 +119,13 @@
         window.location.href = `@Url.Action("RegisterationPage", "Enrollement")`;
     }
 
-    // function login() {
-    //     window.location.href = `@Url.Action("LoginPage", "Enrollement")`;
-    // }
+    function login() {
+        window.location.href = `@Url.Action("UserLogin", "Enrollement")`;
+    }
+
+    function logout() {
+        window.location.href = `@Url.Action("UserLogout", "Enrollement")`;
+    }
 </script>
 
 </html>

@@ -1,7 +1,7 @@
 ﻿@model DivarClone.Models.Enroll
 
 @{
-    ViewBag.Title = "Index";
+    ViewBag.Title = "Login";
 }
 <!DOCTYPE html>
 <html>
@@ -41,17 +41,25 @@
         <p class="container register">
         <p class="row">
         <p class="col-md-3 register-left">
-            <img src="https://image.ibb.co/n7oTvU/logo_white.png" alt="" />
+            <a class="nav-link text-dark"
+               asp-area=""
+               asp-controller="Home"
+               asp-action="Index"
+               style="display: inline-block; height: 50px; width: 80px;
+                                  background-image: url('/icon.png');
+                                  background-size: contain;
+                                  background-repeat: no-repeat;">
+            </a>
             <h3>Welcome</h3>
         <p>This Example is for learning MVC Basic Login and Registration Using ADO.NET.</p>
         </p>
         <p class="col-md-9 register-right">
             <ul class="nav nav-tabs nav-justified" id="myTab" role="tablist">
                 <li class="nav-item">
-                    <a class="nav-link active" id="home-tab" data-toggle="tab" href="../Enrollment/Index" role="tab" aria-controls="home" aria-selected="true">Register</a>
+                    <a class="nav-link active" id="home-tab" href="#" data-toggle="tab" onclick="window.location.href='@Url.Action("RegisterationPage", "Enrollement")'" role="tab" aria-controls="home" aria-selected="true">Register</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" id="profile-tab" data-toggle="tab" href="../UserLogin/Index" role="tab" aria-controls="profile" aria-selected="false">Login</a>
+                    <a class="nav-link active" id="profile-tab" href="#" data-toggle="tab" onclick="window.location.href='@Url.Action("UserLogin", "Enrollement")'" role="tab" aria-controls="profile" aria-selected="false">Login</a>
                 </li>
             </ul>
         <p class="tab-content" id="myTabContent">
@@ -89,7 +97,6 @@
                 }
             });
         </script>
-        }
         </p>
     }
 </body>
