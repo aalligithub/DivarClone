@@ -1,10 +1,10 @@
 using System.Diagnostics;
-using DivarClone.Areas.Identity.Data;
 using DivarClone.Models;
 using DivarClone.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization.Infrastructure;
 
 
 
@@ -13,14 +13,12 @@ namespace DivarClone.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
-        private readonly DivarCloneContext _context;
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly IListingService _service;
 
-        public HomeController(ILogger<HomeController> logger , DivarCloneContext context, IWebHostEnvironment webHostEnvironment, IListingService service)
+        public HomeController(ILogger<HomeController> logger, IWebHostEnvironment webHostEnvironment, IListingService service)
         {
             _logger = logger;
-            _context = context;
             _webHostEnvironment = webHostEnvironment;
             _service = service;
         }
@@ -55,7 +53,8 @@ namespace DivarClone.Controllers
             return View("index", listings);
         }
 
-        [Authorize]
+
+        [Authorize(Roles = "Admin, User")]
         public async Task<IActionResult> DeleteUserListing(int id)
         {
             await _service.DeleteUserListing(id);

@@ -48,6 +48,7 @@ namespace DivarClone.Services
                 cmd.Parameters.AddWithValue("@Password", e.Password);
                 cmd.Parameters.AddWithValue("@Email", e.Email);
                 cmd.Parameters.AddWithValue("@Phone", e.PhoneNumber);
+                cmd.Parameters.AddWithValue("@Role", "User");
                 cmd.Parameters.AddWithValue("@status", "INSERT");
 
                 await cmd.ExecuteNonQueryAsync();
@@ -83,11 +84,13 @@ namespace DivarClone.Services
                 {
                     if (rdr.Read())
                     {
+                        var role = rdr["Role"].ToString();
                         // Create claims for the authenticated user
                         var claims = new List<Claim>
+                        
                         {
                             new Claim(ClaimTypes.Name, e.Email),       // User's email as claim
-                            new Claim(ClaimTypes.Role, "User")         // Example user role claim
+                            new Claim(ClaimTypes.Role, role)         // Example user role claim
                         };
 
                         var identity = new ClaimsIdentity(claims, "Login"); // Create identity with claims
@@ -97,7 +100,7 @@ namespace DivarClone.Services
                         cmd.CommandType = System.Data.CommandType.StoredProcedure;
 
                         cmd.Parameters.AddWithValue("@Operation", "LOGIN");
-                        cmd.Parameters.AddWithValue("@Details", "User LOGGED IN with email address = " + e.Email);
+                        cmd.Parameters.AddWithValue("@Details", "User LOGGED IN with email address = " + e.Email + " and Role : " + role);
                         cmd.Parameters.AddWithValue("@LogDate", DateTime.Now);
 
                         cmd.ExecuteNonQuery();
@@ -111,7 +114,7 @@ namespace DivarClone.Services
                         cmd.CommandType = System.Data.CommandType.StoredProcedure;
 
                         cmd.Parameters.AddWithValue("@Operation", "LOGIN");
-                        cmd.Parameters.AddWithValue("@Details", "User login FAILED with email address = " + e.Email);
+                        cmd.Parameters.AddWithValue("@Details", "User login FAILED with Role = " + rdr["Role"].ToString());
                         cmd.Parameters.AddWithValue("@LogDate", DateTime.Now);
 
                         cmd.ExecuteNonQuery();

@@ -2,7 +2,6 @@
 using System.Data;
 using DivarClone.Controllers;
 using DivarClone.Models;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.CodeAnalysis.Elfie.Diagnostics;
 
 namespace DivarClone.Services

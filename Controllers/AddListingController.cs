@@ -1,5 +1,4 @@
-﻿using DivarClone.Areas.Identity.Data;
-using DivarClone.Models;
+﻿using DivarClone.Models;
 using DivarClone.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
@@ -9,18 +8,16 @@ using Microsoft.AspNetCore.Mvc;
 namespace DivarClone.Controllers
 {
 
-    [Authorize]
+    [Authorize(Roles = "Admin, User")]
     public class AddListingController : Controller
     {
         private readonly ILogger<AddListingController> _logger;
-        private readonly DivarCloneContext _context;
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly IListingService _service;
 
-        public AddListingController(DivarCloneContext context, ILogger<AddListingController> logger, IWebHostEnvironment webHostEnvironment, IListingService service)
+        public AddListingController(ILogger<AddListingController> logger, IWebHostEnvironment webHostEnvironment, IListingService service)
         {
             _logger = logger;
-            _context = context;
             _webHostEnvironment = webHostEnvironment;
             _service = service;
         }

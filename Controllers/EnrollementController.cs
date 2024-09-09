@@ -1,12 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using DivarClone.Models;
 using DivarClone.Services;
-using DivarClone.Areas.Identity.Data;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.EntityFrameworkCore;
-using System.Data;
-using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages;
-using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 
@@ -38,7 +32,7 @@ namespace DivarClone.Controllers
             if (result)
             {
                 //Redirect to login
-                return RedirectToAction("login","UserLogin");
+                return RedirectToAction("UserLogin", "Enrollement");
             }
             else {
                 //display register form and errors

@@ -58,8 +58,8 @@
                 <div class="card-body">
                     <small class="text-muted">@listing.DateTimeOfPosting.ToString("MM/dd/yyyy HH:mm:ss")</small>
                 </div>
-                @if (listing.Poster == @UserManager.GetUserName(User))
-                {
+                        @if (listing.Poster == @UserManager.GetUserName(User) || (User.IsInRole("Admin")))
+                        {
                     <div class="card-footer">
                         <a class="btn btn-danger ms-2" onclick=deleteListing(@listing.Id)>حذف</a>
                         <a class="btn btn-danger ms-2" onclick=editListing(@listing.Id)>ویرایش</a>
