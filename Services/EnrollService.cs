@@ -83,6 +83,7 @@ namespace DivarClone.Services
                 {
                     if (rdr.Read())
                     {
+
                         // Create claims for the authenticated user
                         var claims = new List<Claim>
                         {
@@ -93,11 +94,29 @@ namespace DivarClone.Services
                         var identity = new ClaimsIdentity(claims, "Login"); // Create identity with claims
                         var principal = new ClaimsPrincipal(identity);      // Create principal
 
+                        cmd = new SqlCommand("SP_AddLogToDb", con);
+                        cmd.CommandType = System.Data.CommandType.StoredProcedure;
+
+                        cmd.Parameters.AddWithValue("@Operation", "LOGIN");
+                        cmd.Parameters.AddWithValue("@Details", "User LOGGED IN with email address = " + e.Email);
+                        cmd.Parameters.AddWithValue("@LogDate", DateTime.Now);
+
+                        cmd.ExecuteNonQuery();
+
                         // Sign in the user using the claims principal
                         return principal;
                     }
                     else
                     {
+                        cmd = new SqlCommand("SP_AddLogToDb", con);
+                        cmd.CommandType = System.Data.CommandType.StoredProcedure;
+
+                        cmd.Parameters.AddWithValue("@Operation", "LOGIN");
+                        cmd.Parameters.AddWithValue("@Details", "User login FAILED with email address = " + e.Email);
+                        cmd.Parameters.AddWithValue("@LogDate", DateTime.Now);
+
+                        cmd.ExecuteNonQuery();
+
                         return null;
                     }
                 }
