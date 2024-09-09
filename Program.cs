@@ -25,6 +25,9 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
     {
         options.LoginPath = "/Enrollment/login"; // Redirect to this path if user is not authenticated
         options.LogoutPath = "/Enrollment/Logout"; // Path for logging out
+        options.Cookie.Name = "UserLoginCookie"; // Name of the authentication cookie
+        options.Cookie.HttpOnly = true;
+        options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
     });
 
 var app = builder.Build();
@@ -39,8 +42,8 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-app.UseAuthorization();
 app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
