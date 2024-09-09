@@ -64,7 +64,7 @@ namespace DivarClone.Controllers
             {
                 await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
 
-                return RedirectToAction("Home/Index");
+                return RedirectToAction("Index", "Home");
             }
             else
             {
