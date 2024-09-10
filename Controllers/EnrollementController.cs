@@ -44,13 +44,14 @@ namespace DivarClone.Controllers
         public string status;
 
         [HttpGet]
-        public IActionResult UserLogin()
+        public IActionResult UserLogin(string returnUrl = null)
         {
+            ViewData["ReturnUrl"] = returnUrl;
             return View("login");
         }
 
         [HttpPost]
-        public async Task<IActionResult> UserLogin(Enroll e)
+        public async Task<IActionResult> UserLogin(Enroll e, string returnUrl = null)
         {
             var principal = await _service.LogUserIn(e);
 
@@ -58,11 +59,17 @@ namespace DivarClone.Controllers
             {
                 await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
 
+                if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+                {
+                    return Redirect(returnUrl);
+                }
+
                 return RedirectToAction("Index", "Home");
             }
             else
             {
                 ViewData["Message"] = "User Login Details Failed!!";
+                ViewData["ReturnUrl"] = returnUrl;
                 return View("login");
             }
         }

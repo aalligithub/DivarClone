@@ -23,7 +23,7 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
-        options.LoginPath = "/Enrollment/login"; // Redirect to this path if user is not authenticated
+        options.LoginPath = "/Enrollement/UserLogin"; // Redirect to this path if user is not authenticated
         options.LogoutPath = "/Enrollment/Logout"; // Path for logging out
         options.Cookie.Name = "UserLoginCookie"; // Name of the authentication cookie
         options.Cookie.HttpOnly = true;
