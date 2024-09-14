@@ -1,8 +1,9 @@
 ﻿@model DivarClone.Models.Enroll
 
 @{
-    ViewBag.Title = "Login";
+    ViewBag.Title = "ورود";
 }
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -13,16 +14,14 @@
     <script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <link href="../../Content/StyleSheet.css" rel="stylesheet" type="text/css" />
     <script type="text/javascript">
-
         $(document).ready(function () {
             $.ajax({
-
                 type: 'POST',
                 URL: '@Url.Action("UserLogin", "Enrollement")',
                 data: data,
                 dataType: 'JSON',
                 success: function (data) {
-                    datadata = data.status
+                    datadata = data.status;
                     if (status == "1") {
                         window.location.href = '@Url.Action("Index", "Enrollement/UserLogin")';
                     }
@@ -33,71 +32,68 @@
 </head>
 
 <body>
-    <!------ Include the above in your HEAD tag ---------->
     @using (Html.BeginForm("UserLogin", "Enrollement", FormMethod.Post))
-
     {
-        @Html.AntiForgeryToken()
-        <p class="container register">
-        <p class="row">
-        <p class="col-md-3 register-left">
-            <a class="nav-link text-dark"
-               asp-area=""
-               asp-controller="Home"
-               asp-action="Index"
-               style="display: inline-block; height: 50px; width: 80px;
-                                  background-image: url('/icon.png');
-                                  background-size: contain;
-                                  background-repeat: no-repeat;">
-            </a>
-            <h3>Welcome</h3>
-        <p>This Example is for learning MVC Basic Login and Registration Using ADO.NET.</p>
-        </p>
-        <p class="col-md-9 register-right">
-            <ul class="nav nav-tabs nav-justified" id="myTab" role="tablist">
-                <li class="nav-item">
-                    <a class="nav-link active" id="home-tab" href="#" data-toggle="tab" onclick="window.location.href='@Url.Action("RegisterationPage", "Enrollement")'" role="tab" aria-controls="home" aria-selected="true">Register</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link active" id="profile-tab" href="#" data-toggle="tab" onclick="window.location.href='@Url.Action("UserLogin", "Enrollement")'" role="tab" aria-controls="profile" aria-selected="false">Login</a>
-                </li>
-            </ul>
-        <p class="tab-content" id="myTabContent">
-        <p class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
-            <h3 class="register-heading">Login as a Employee</h3>
-        <p class="row register-form">
-        <p class="col-md-6">
-        <p class="form-group">
-                                        @Html.TextBoxFor(e => e.Email, new { @class = "form-control", placeholder = "Your Email *" })
-                                        @Html.ValidationMessageFor(e => e.Email)
-        </p>
-        <p class="form-group">
-                                        @Html.PasswordFor(e => e.Password, new { id = "password", @class = "form-control", placeholder = "Password *" })
-            <span id="result"></span>
-                                        @Html.ValidationMessageFor(e => e.Password)
-        </p>
-        <p class="col-md-6">
-            <input type="submit" class="btnLogin" value="Login" />
-        </p>
-
-        </p>
-
-        </p>
-        </p>
-        </p>
-        </p>
-        </p>
-
-        <script type="text/javascript">
-            $(function () {
-                var msg = '@ViewData["result"]';
-                if (msg == '1') {
-                    alert("User Details Inserted Successfully");
-                    window.location.href = "@Url.Action("Index", "UserLogin")";
-                }
-            });
-        </script>
-        </p>
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="returnUrl" value="@ViewData["ReturnUrl"]" />
+    <div class="container register">
+        <div class="row">
+            <div class="col-md-3 register-left">
+                <a class="nav-link text-dark"
+                    asp-area=""
+                    asp-controller="Home"
+                    asp-action="Index"
+                    style="display: inline-block; height: 50px; width: 80px;
+                            background-image: url('/icon.png');
+                            background-size: contain;
+                            background-repeat: no-repeat;">
+                </a>
+                <h3>خوش آمدید</h3>
+                <p>دیوار مرجع اصلی نیازمندی های رایگان و خرید و فروش کالای نو و دست دوم. نیازمندی های املاک، خودرو، استخدام، لوازم خانه، خدمات و سایر بخش های مورد نظر شما.</p>
+            </div>
+            <div class="col-md-9 register-right">
+                <ul class="nav nav-tabs nav-justified" id="myTab" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link active" id="home-tab" href="#" data-toggle="tab" onclick="window.location.href='@Url.Action("RegisterationPage", "Enrollement")'" role="tab" aria-controls="home" aria-selected="true">ثبت نام</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" id="profile-tab" href="#" data-toggle="tab" onclick="window.location.href='@Url.Action("UserLogin", "Enrollement")'" role="tab" aria-controls="profile" aria-selected="false">ورود</a>
+                    </li>
+                </ul>
+                <div class="tab-content" id="myTabContent">
+                    <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
+                        <h3 class="register-heading">ورود به عنوان کاربر</h3>
+                        <div class="row register-form">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    @Html.TextBoxFor(e => e.Email, new { @class = "form-control", placeholder = "ایمیل خود را وارد کنید" })
+                                    @* @Html.ValidationMessageFor(e => e.Email) *@
+                                </div>
+                                <div class="form-group">
+                                    @Html.PasswordFor(e => e.Password, new { id = "password", @class = "form-control", placeholder = "رمز عبور خود را وارد کنید" })
+                                    <span id="result"></span>
+                                    @Html.ValidationMessageFor(e => e.Password)
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <input type="submit" class="btnLogin" value="ورود" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+        
+    <script type="text/javascript">
+        $(function () {
+            var msg = '@ViewData["result"]';
+            if (msg == '1') {
+                alert("User Details Inserted Successfully");
+                window.location.href = "@Url.Action("Index", "UserLogin")";
+            }
+        });
+    </script>
     }
 </body>
 </html>

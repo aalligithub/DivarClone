@@ -85,12 +85,14 @@ namespace DivarClone.Services
                     if (rdr.Read())
                     {
                         var role = rdr["Role"].ToString();
+                        var username = rdr["Username"].ToString();
                         // Create claims for the authenticated user
                         var claims = new List<Claim>
                         
                         {
-                            new Claim(ClaimTypes.Name, e.Email),       // User's email as claim
-                            new Claim(ClaimTypes.Role, role)         // Example user role claim
+                            new Claim(ClaimTypes.Name, username),
+                            new Claim(ClaimTypes.Email, e.Email),       // User's email as claim
+                            new Claim(ClaimTypes.Role, role)      // Example user 
                         };
 
                         var identity = new ClaimsIdentity(claims, "Login"); // Create identity with claims

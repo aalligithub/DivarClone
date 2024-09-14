@@ -5,8 +5,13 @@ namespace DivarClone.Models //مدل اگهی های ما که محتوایی ک
 {    
     public enum Category //enum تعریف کردیم که کتگوری فقط از اعضای از پیش تایین شده انتخاب شود
     {
+        [Display(Name="وسایل برقی")]
         Electronics,
+
+        [Display(Name = "املاک")]
         Realstate,
+
+        [Display(Name = "وسایل نقلیه")]
         Vehicles
     }
 

@@ -1,4 +1,7 @@
-﻿<!DOCTYPE html>
+﻿@using System.ComponentModel.DataAnnotations
+
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -63,7 +66,14 @@
                     <ul class="dropdown-menu">
                         @foreach (var category in Enum.GetValues(typeof(DivarClone.Models.Category)))
                         {
-                            <li><button class="dropdown-item" type="button" onclick="filterByCategory('@category')">@category</button></li>
+                            // Use reflection to get the display name of the enum value
+                            var displayAttribute = category.GetType()
+                            .GetField(category.ToString())
+                            .GetCustomAttributes(typeof(DisplayAttribute), false)
+                            .FirstOrDefault() as DisplayAttribute;
+                            var displayName = displayAttribute?.GetName() ?? category.ToString();
+
+                            <li><button class="dropdown-item" type="button" onclick="filterByCategory('@category')">@displayName</button></li>
                         }
                     </ul>
                 </div>

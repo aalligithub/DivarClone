@@ -1,11 +1,10 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using DivarClone.Models;
 using DivarClone.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization.Infrastructure;
-
 
 
 namespace DivarClone.Controllers
@@ -42,8 +41,15 @@ namespace DivarClone.Controllers
 
         public IActionResult SearchResults(string textToSearch)
         {
-            var listings = _service.SearchResult(textToSearch);
-            return View("index", listings);
+            if (textToSearch != null)
+            {
+                var listings = _service.SearchResult(textToSearch);
+                return View("index", listings);
+            }
+            else {
+                ModelState.AddModelError("", "برای جست و جو ");
+                return RedirectToAction("Index");
+            }
         }
 
         [Authorize]

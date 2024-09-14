@@ -2,34 +2,73 @@
 
 <form asp-action="Create" enctype="multipart/form-data" method="post">
     <div class="mb-3">
-        <label for="Name">Listing Name</label>
-        <input class="form-control" type="text" id="Name" name="Name" />
+        <label for="Name">تیتر آگهی</label>
+        <input class="form-control" type="text" id="Name" name="تیتر آگهی" />
     </div>
 
     <div class="mb-3">
-        <label for="Description">Listing Description</label>
-        <textarea class="form-control" id="Description" name="Description"></textarea>
+        <label for="Description">توضیحات آگهی</label>
+        <textarea class="form-control" id="Description" name="توضیحات آگهی"></textarea>
     </div>
 
     <div class="mb-3">
-        <label for="Price">Price</label>
-        <input class="form-control" type="text" id="Price" name="Price" />
+        <label for="Price">قیمت</label>
+        <input class="form-control" type="text" id="Price" name="قیمت" />
     </div>
 
     <div class="mb-3">
-        <label for="Category">Category</label>
-        <select id="Category" name="Category" class="form-select">
-            <option value="0">Electronics</option>
-            <option value="1">Realstate</option>
-            <option value="2">Vehicles</option>
+        <label for="Category">دسته بندی</label>
+        <select id="Category" name="دسته بندی" class="form-select">
+            <option value="0">وسایل برقی</option>
+            <option value="1">املاک</option>
+            <option value="2">وسایل نقلیه</option>
         </select>
     </div>
 
     <div class="mb-3">
-        <label for="ImageFile">Upload Image</label>
-        <input type="file" class="form-control" id="ImageFile" name="ImageFile">
+        <label for="ImageFile">بارگذاری تصویر</label>
+        <div class="custom-file-upload">
+            <label for="ImageFile" id="customLabel">فایل را انتخاب کنید</label>
+            <input type="file" id="ImageFile" name="ImageFile" style="display: none;" onchange="updateLabel()">
+            <button type="button" onclick="document.getElementById('ImageFile').click()">انتخاب فایل</button>
+        </div>
+        <style>
+            .custom-file-upload {
+                display: inline-block;
+                position: relative;
+            }
+
+            .custom-file-upload button {
+                background-color: #dc3545; /* Customize the button color */
+                color: white;
+                padding: 8px 16px;
+                border: none;
+                cursor: pointer;
+                border-radius: 5px;
+            }
+
+            #customLabel {
+                margin-left: 10px;
+                font-size: 14px;
+                color: #555; /* Customize label color */
+            }
+        </style>
+        <script>
+            function updateLabel() {
+                var fileInput = document.getElementById('ImageFile');
+                var label = document.getElementById('customLabel');
+
+                // Check if a file is selected
+                if (fileInput.files.length > 0) {
+                    label.innerText = fileInput.files[0].name; // Show selected file name
+                } else {
+                    label.innerText = 'هیچ فایلی انتخاب نشده است'; // Default message
+                }
+            }
+
+        </script>
     </div>
 
     <input type="hidden" asp-for="Poster" value="@User.Identity.Name" />
-    <button type="submit" class="btn btn-primary">Submit</button>
+    <button type="submit" class="btn btn-primary">ثبت آگهی</button>
 </form>
