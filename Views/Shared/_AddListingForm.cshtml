@@ -3,22 +3,23 @@
 <form asp-action="Create" enctype="multipart/form-data" method="post">
     <div class="mb-3">
         <label for="Name">تیتر آگهی</label>
-        <input class="form-control" type="text" id="Name" name="تیتر آگهی" />
+        <input class="form-control" type="text" id="Name" name="Name" />
     </div>
 
     <div class="mb-3">
         <label for="Description">توضیحات آگهی</label>
-        <textarea class="form-control" id="Description" name="توضیحات آگهی"></textarea>
+        <textarea class="form-control" id="Description" name="Description"></textarea>
     </div>
 
     <div class="mb-3">
         <label for="Price">قیمت</label>
-        <input class="form-control" type="text" id="Price" name="قیمت" />
+        <input class="form-control" type="text" id="Price" name="Price" />
     </div>
 
     <div class="mb-3">
         <label for="Category">دسته بندی</label>
-        <select id="Category" name="دسته بندی" class="form-select">
+        <select id="Category" name="Category" class="form-select">
+            <option value="null">انتخاب کنید</option>
             <option value="0">وسایل برقی</option>
             <option value="1">املاک</option>
             <option value="2">وسایل نقلیه</option>

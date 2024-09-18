@@ -1,8 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using Microsoft.Build.Framework;
 
 namespace DivarClone.Models //مدل اگهی های ما که محتوایی که ما برای اگهی کردن لازم داریم را پوشش میدهد
-{    
+{
     public enum Category //enum تعریف کردیم که کتگوری فقط از اعضای از پیش تایین شده انتخاب شود
     {
         [Display(Name="وسایل برقی")]
@@ -19,15 +18,19 @@ namespace DivarClone.Models //مدل اگهی های ما که محتوایی ک
     {
         public int Id { get; set; }
 
-        public required string Name { get; set; }
+        [Required(ErrorMessage = "نام آگهی را وارد کنید")]
+        public string Name { get; set; }
 
-        public required string Description { get; set; }
+        [Required(ErrorMessage = "توضیحات آگهی را وارد کنید")]
+        public string Description { get; set; }
 
-        public int Price { get; set; }
+        [Required(ErrorMessage = "قیمت کالا را وارد کنید")]
+        public int? Price { get; set; }
 
-        public required string Poster { get; set; }
+        public string Poster { get; set; }
 
-        public Category Category { get; set; }
+        [Required(ErrorMessage = "برای آگهی خود دسته بندی انتخاب کنید")]
+        public Category? Category { get; set; }
 
         public DateTime DateTimeOfPosting { get; set; }
 

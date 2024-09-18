@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization.Infrastructure;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 
 namespace DivarClone.Controllers
@@ -46,9 +47,10 @@ namespace DivarClone.Controllers
                 var listings = _service.SearchResult(textToSearch);
                 return View("index", listings);
             }
-            else {
-                ModelState.AddModelError("", "برای جست و جو ");
-                return RedirectToAction("Index");
+            else { 
+                ViewBag.ModelStateErrors += "برای جست و جو اسم آگهی مورد نظر را وارد کنید ";
+                var listings = _service.GetAllListings();
+                return View("Index", listings);
             }
         }
 

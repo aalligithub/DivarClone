@@ -48,7 +48,7 @@ namespace DivarClone.Controllers
                 bool createlisting = await _service.CreateListingAsync(listing);
                 if (!createlisting)
                 {
-                    ModelState.AddModelError("", "Image processing error. ");
+                    ModelState.AddModelError("", "Data integrity error. ");
                 }
                 else
                 {
