@@ -14,6 +14,8 @@ builder.Services.AddScoped<IListingService, ListingService>();
 
 builder.Services.AddScoped<IEnrollService, EnrollService>();
 
+builder.Services.AddScoped<IAdminService, AdminService>();
+
 builder.Services.AddRazorPages().AddRazorRuntimeCompilation();
 
 // Add services to the container.
