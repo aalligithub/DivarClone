@@ -46,6 +46,6 @@ namespace DivarClone.Models
 
         public string Role { get; set; }
 
-        public List<Enroll> Enrollsinfo { get; set; }
+        public List<string> Permissions { get; set; } = new List<string>();
     }
 }

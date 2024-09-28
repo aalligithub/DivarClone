@@ -18,9 +18,10 @@ namespace DivarClone.Controllers
             _webHostEnvironment = webHostEnvironment;
             _service = service;
         }
-        
-        [Authorize(Roles = "Admin")]
-        public IActionResult Index()
+
+        //[Authorize(Policy = "AdminOrPermittedDashView")]
+        [Authorize(Policy = "ViewDashboardPolicy")]
+		public IActionResult Index()
         {
             var Users = _service.GetAllUsers();
             return View(Users);

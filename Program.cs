@@ -3,7 +3,12 @@ using Microsoft.EntityFrameworkCore;
 using DivarClone.Areas.Identity.Data;
 using DivarClone.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Options;
+using System.Security.Claims;
+
 var builder = WebApplication.CreateBuilder(args);
+
 var connectionString = builder.Configuration.GetConnectionString("DivarCloneContextConnection") ?? throw new InvalidOperationException("Connection string 'DivarCloneContextConnection' not found.");
 
 builder.Services.AddDbContext<DivarCloneContext>(options => options.UseSqlServer(connectionString));
@@ -31,6 +36,25 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.Cookie.HttpOnly = true;
         options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
     });
+
+builder.Services.AddAuthorizationBuilder()
+    .AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"))
+    .AddPolicy("PrivilegedUser", policy => policy.RequireRole("PrivilegedUser"))
+    .AddPolicy("RegularUser", policy => policy.RequireRole("RegularUser"))
+
+    .AddPolicy("ViewDashboardPolicy", policy => policy.RequireClaim("Permission", "CanViewDashboard"))
+    .AddPolicy("EditListingPolicy", policy => policy.RequireClaim("Permission", "CanEditListings"))
+    .AddPolicy("DeleteListingsPolicy", policy => policy.RequireClaim("Permission", "CanDeleteListings"))
+    .AddPolicy("ViewSpecialListingPolicy", policy => policy.RequireClaim("Permission", "CanViewSpecialListing"))
+    .AddPolicy("CreateListingPolicy", policy => policy.RequireClaim("Permission", "CanCreateListing"))
+
+	.AddPolicy("AdminOrPermittedDashView", policy => {
+		policy.RequireAssertion(context =>
+			context.User.HasClaim(c =>
+				(c.Type == ClaimTypes.Role && c.Value == "Admin") ||
+				(c.Type == "Permission" && c.Value == "CanViewDashboard"))); 
+    });
+
 
 var app = builder.Build();
 

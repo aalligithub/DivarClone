@@ -2,6 +2,7 @@
 using System.Data;
 using DivarClone.Controllers;
 using DivarClone.Models;
+using System.Reflection;
 
 namespace DivarClone.Services
 {
@@ -44,18 +45,60 @@ namespace DivarClone.Services
 
                 while (rdr.Read())
                 {
-                    Enroll list = new Enroll
+                    var ID = rdr.GetInt32("ID");
+
+                    var cmdb = new SqlCommand("SP_GetRoleFromUserRoles", con);
+                    cmdb.CommandType = System.Data.CommandType.StoredProcedure;
+
+                    cmdb.Parameters.AddWithValue("@UserId", ID);
+
+                    SqlDataReader roleRdr = cmdb.ExecuteReader();
+                    string role = null;
+                    if (roleRdr.Read())
                     {
-                        ID = rdr.GetInt32("ID"),
+                        role = roleRdr["RoleName"].ToString();
+                    }
+                    roleRdr.Close();
+
+                    var cmdbs = new SqlCommand("SP_GetUserPermissions", con);
+                    cmdbs.CommandType = System.Data.CommandType.StoredProcedure;
+
+                    cmdbs.Parameters.AddWithValue("@UserId", ID);
+
+                    SqlDataReader perRdr = cmdbs.ExecuteReader();
+                    List<string> permissions = new List<string>();
+                    while (perRdr.Read())
+                    {
+                        permissions.Add(perRdr["PermissionName"].ToString());
+                    }
+                    perRdr.Close();
+
+					var cmdbps = new SqlCommand("SP_GetSpecialUserPermissions", con);
+					cmdbps.CommandType = System.Data.CommandType.StoredProcedure;
+
+					cmdbps.Parameters.AddWithValue("@UserId", ID);
+
+					SqlDataReader sperRdr = cmdbps.ExecuteReader();
+
+					while (sperRdr.Read())
+					{
+						permissions.Add(sperRdr["PermissionName"].ToString());
+					}
+					sperRdr.Close();
+
+					Enroll list = new Enroll
+                    {
+                        ID = ID,
                         FirstName = rdr["FirstName"].ToString(),
                         Username = rdr["Username"].ToString(),
                         Email = rdr["Email"].ToString(),
-                        Password = rdr["Password"].ToString(),                   
+                        Password = rdr["Password"].ToString(),
                         PhoneNumber = rdr["Phone"].ToString(),
-                        Role = rdr["Role"].ToString(),
+                        Role = role,
+                        Permissions = permissions
                     };
-
                     UsersList.Add(list);
+                    
                 }
 
                 return UsersList.ToList();

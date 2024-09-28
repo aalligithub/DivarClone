@@ -4,24 +4,17 @@
 @model IEnumerable<DivarClone.Models.Enroll>
 
 @{    
-    // <div>
-    //     <ol class="list-group list-group-numbered">
-    //         @foreach(var user in Model)
-    //         {
-    //         <li class="list-group-item">
-				// <p>Username : @user.Username</p>
-    //             <p>Email : @user.Email</p>
-    //             <p>User Role : @user.Role</p>
-    //             <button type="button" class="btn btn-danger" style="align-content:start;">Edit</button>
-    //         </li>
-    //         }
-    //     </ol>
-    // </div>
+
     <div class="container mt-4">
         <div class="card shadow-lg">
             <div class="card-header bg-primary text-white">
-                <h4 class="mb-0">User Management</h4>
+				<h4 class="mb-0">User Management</h4>
+                <div class="input-group" style="width:300px;">
+					<input id="" type="text" class="form-control" placeholder="User" aria-label="Recipient's username" aria-describedby="button-addon2">
+					<button class="btn" type="button" id="button-addon2" onclick="" style="background-color:red;">search</button>
+				</div>
             </div>
+
             <div class="card-body p-4">
                 <ol class="list-group list-group-flush">
                     @foreach (var user in Model)
@@ -31,6 +24,10 @@
                                 <h5 class="fw-bold">@user.Username</h5>
                                 <p class="mb-1"><i class="bi bi-envelope-fill"></i> Email: @user.Email</p>
                                 <p class="mb-1"><i class="bi bi-person-badge-fill"></i> Role: <span class="badge bg-info text-dark">@user.Role</span></p>
+                                <p class="mb-1"><i class="bi bi-person-badge-fill"></i> Permissions :</p>
+                                @foreach (var permission in @user.Permissions)
+                                {<p class="mb-1"><i class="bi bi-person-badge-fill"></i><span class="badge bg-info text-dark">@permission</span></p>}                                    
+                                                          
                             </div>
                             <button type="button" class="btn btn-outline-primary btn-sm align-self-center">Edit</button>
                         </li>

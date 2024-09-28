@@ -48,16 +48,16 @@ namespace DivarClone.Services
                 cmd.Parameters.AddWithValue("@Password", e.Password);
                 cmd.Parameters.AddWithValue("@Email", e.Email);
                 cmd.Parameters.AddWithValue("@Phone", e.PhoneNumber);
-                cmd.Parameters.AddWithValue("@Role", "User");
                 cmd.Parameters.AddWithValue("@status", "INSERT");
 
                 await cmd.ExecuteNonQueryAsync();
 
+                _logger.LogDebug("User Registered Successfully");
                 return true;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error creating listing");
+                _logger.LogError(ex, "Error Registering User");
                 return false;
             }
             finally
@@ -74,60 +74,95 @@ namespace DivarClone.Services
                 {
                     con.Open();
                 }
-                var cmd = new SqlCommand("SP_LogUserIn", con);
+				_logger.LogTrace("connection to db opened");
+				
+				var cmd = new SqlCommand("SP_LogUserIn", con);
                 cmd.CommandType = System.Data.CommandType.StoredProcedure;
-
                 cmd.Parameters.AddWithValue("@Email", e.Email);
                 cmd.Parameters.AddWithValue("@Password", e.Password);
 
                 using (SqlDataReader rdr = await cmd.ExecuteReaderAsync())
                 {
-                    if (rdr.Read())
+                    try
                     {
-                        var role = rdr["Role"].ToString();
-                        var username = rdr["Username"].ToString();
-                        // Create claims for the authenticated user
-                        var claims = new List<Claim>
-                        
+                        if (rdr.Read())
+                        {
+                            var userId = rdr["ID"].ToString();
+                            var username = rdr["Username"].ToString();
+
+                            var claims = new List<Claim>
                         {
                             new Claim(ClaimTypes.Name, username),
-                            new Claim(ClaimTypes.Email, e.Email),       // User's email as claim
-                            new Claim(ClaimTypes.Role, role)      // Example user 
+                            new Claim(ClaimTypes.Email, e.Email)
                         };
 
-                        var identity = new ClaimsIdentity(claims, "Login"); // Create identity with claims
-                        var principal = new ClaimsPrincipal(identity);      // Create principal
+                            _logger.LogTrace("Base Claims added for user : " + username);
 
-                        cmd = new SqlCommand("SP_AddLogToDb", con);
-                        cmd.CommandType = System.Data.CommandType.StoredProcedure;
+                            var roleCmd = new SqlCommand("SP_GetRoleFromUserRoles", con);
+                            roleCmd.CommandType = CommandType.StoredProcedure;
+                            roleCmd.Parameters.AddWithValue("@UserId", userId);
 
-                        cmd.Parameters.AddWithValue("@Operation", "LOGIN");
-                        cmd.Parameters.AddWithValue("@Details", "User LOGGED IN with email address = " + e.Email + " and Role : " + role);
-                        cmd.Parameters.AddWithValue("@LogDate", DateTime.Now);
+                            using (SqlDataReader roleReader = await roleCmd.ExecuteReaderAsync())
+                            {
+                                while (roleReader.Read())
+                                {
+                                    var role = roleReader["RoleName"].ToString();
+                                    claims.Add(new Claim(ClaimTypes.Role, role));
+                                    _logger.LogTrace($"{role}");
+                                    System.Diagnostics.Debug.WriteLine($"{role}");
+								}
+                            }
 
-                        cmd.ExecuteNonQuery();
+                            var permCmd = new SqlCommand("SP_GetUserPermissions", con);
+							permCmd.CommandType = CommandType.StoredProcedure;
+							permCmd.Parameters.AddWithValue("@UserId", userId);
 
-                        // Sign in the user using the claims principal
-                        return principal;
-                    }
-                    else
+							using (SqlDataReader permReader = await permCmd.ExecuteReaderAsync())
+							{
+								while (permReader.Read())
+								{
+									var permission = permReader["PermissionName"].ToString();
+                                    claims.Add(new Claim(CustomClaims.Permission, permission));
+
+                                    _logger.LogTrace($"{permission}");
+								}
+							}
+
+							// Get special permissions
+							var specialPermCmd = new SqlCommand("SP_GetSpecialUserPermissions", con); // Your new stored procedure
+							specialPermCmd.CommandType = CommandType.StoredProcedure;
+							specialPermCmd.Parameters.AddWithValue("@UserId", userId);
+
+							using (SqlDataReader specialPermReader = await specialPermCmd.ExecuteReaderAsync())
+							{
+								while (specialPermReader.Read())
+								{
+									var specialPermission = specialPermReader["PermissionName"].ToString();
+									claims.Add(new Claim(CustomClaims.Permission, specialPermission)); // Append to existing permissions
+									_logger.LogTrace($"Special permission added: {specialPermission}");
+								}
+							}
+
+							var identity = new ClaimsIdentity(claims, "Login");
+                            var principal = new ClaimsPrincipal(identity);
+
+                            _logger.LogTrace("User logged in successfully");
+
+                            return principal;
+                        }
+                        else { 
+                            return null;
+                        }
+                    } catch (Exception ex)
                     {
-                        cmd = new SqlCommand("SP_AddLogToDb", con);
-                        cmd.CommandType = System.Data.CommandType.StoredProcedure;
-
-                        cmd.Parameters.AddWithValue("@Operation", "LOGIN");
-                        cmd.Parameters.AddWithValue("@Details", "User login FAILED with Role = " + rdr["Role"].ToString());
-                        cmd.Parameters.AddWithValue("@LogDate", DateTime.Now);
-
-                        cmd.ExecuteNonQuery();
-
-                        return null;
-                    }
+						_logger.LogError(ex, "Error logging user in");
+						return null;
+					}
                 }
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error Logging user in");
+                _logger.LogError(ex, "Error logging user in");
                 return null;
             }
             finally
@@ -135,5 +170,6 @@ namespace DivarClone.Services
                 con.Close();
             }
         }
+
     }
 }
