@@ -9,6 +9,10 @@ namespace DivarClone.Services
     public interface IAdminService
     {
         public List<Enroll> GetAllUsers();
+
+        //public async Task<bool> ChangeUserRoles(int Id);
+
+        //public async Task<bool> GiveUserSpecialPermission(int Id);
     }
     public class AdminService : IAdminService
     {
@@ -79,14 +83,15 @@ namespace DivarClone.Services
 					cmdbps.Parameters.AddWithValue("@UserId", ID);
 
 					SqlDataReader sperRdr = cmdbps.ExecuteReader();
+					List<string> specialPermissions = new List<string>();
 
 					while (sperRdr.Read())
 					{
-						permissions.Add(sperRdr["PermissionName"].ToString());
+						specialPermissions.Add(sperRdr["PermissionName"].ToString());
 					}
 					sperRdr.Close();
 
-					Enroll list = new Enroll
+                    Enroll list = new Enroll
                     {
                         ID = ID,
                         FirstName = rdr["FirstName"].ToString(),
@@ -95,7 +100,8 @@ namespace DivarClone.Services
                         Password = rdr["Password"].ToString(),
                         PhoneNumber = rdr["Phone"].ToString(),
                         Role = role,
-                        Permissions = permissions
+                        Permissions = permissions,
+                        SpecialPermissions = specialPermissions
                     };
                     UsersList.Add(list);
                     
@@ -111,5 +117,39 @@ namespace DivarClone.Services
             }
             finally { con.Close(); }
         }
+
+        //public async Task<bool> ChangeUserRoles(int Id)
+        //{
+        //    try
+        //    {
+        //        if (con != null && con.State == ConnectionState.Closed)
+        //        {
+        //            con.Open();
+        //        }
+        //        return true;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        _logger.LogError(ex, "Failed to change users role");
+        //        return false;
+        //    }
+        //}
+
+        //public async Task<bool> GiveUserSpecialPermission(int Id)
+        //{
+        //    try
+        //    {
+        //        if (con != null && con.State == ConnectionState.Closed)
+        //        {
+        //            con.Open();
+        //        }
+        //        return true;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        _logger.LogError(ex, "Failed to give user special permission");
+        //        return false;
+        //    }
+        //}
     }
 }

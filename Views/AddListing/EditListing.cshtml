@@ -49,5 +49,13 @@
 
 	<input type="hidden" asp-for="Poster" value="@Model.Poster" />
     <input type="hidden" asp-for="Id" value="@Model.Id"/>
-    <button type="submit" class="btn btn-primary">ثبت</button>
+    <button type="submit" class="btn btn-primary" onClick="checkInput()">ثبت</button>
 </form>
+
+<script>
+    function checkInput() {
+        if ($('#ImageFile')[0].files.length === 0) {
+            Alert("reverting image path to default");
+        }
+    }
+</script>

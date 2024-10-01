@@ -3,38 +3,90 @@
 
 @model IEnumerable<DivarClone.Models.Enroll>
 
-@{    
+@{
+    <style>
+    .badge {
+        padding: 5px 10px;
+        font-size: 0.9rem;
+    }
 
-    <div class="container mt-4">
+    #editMenu {
+        display: none;
+        position: absolute;
+        background-color: #f8f9fa;
+        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        padding: 10px;
+    }
+
+    .dropdown-menu.show {
+        display: block;
+    }
+    </style>
+
+    <div class="container mt-4" id="adminDash">
         <div class="card shadow-lg">
             <div class="card-header bg-primary text-white">
-				<h4 class="mb-0">User Management</h4>
+			    <h4 class="mb-0">User Management</h4>
                 <div class="input-group" style="width:300px;">
-					<input id="" type="text" class="form-control" placeholder="User" aria-label="Recipient's username" aria-describedby="button-addon2">
-					<button class="btn" type="button" id="button-addon2" onclick="" style="background-color:red;">search</button>
-				</div>
+				    <input id="" type="text" class="form-control" placeholder="User" aria-label="Recipient's username" aria-describedby="button-addon2">
+				    <button class="btn" type="button" id="button-addon2" onclick="" style="background-color:red;">search</button>
+			    </div>
             </div>
 
             <div class="card-body p-4">
                 <ol class="list-group list-group-flush">
                     @foreach (var user in Model)
                     {
-                        <li class="list-group-item d-flex justify-content-between align-items-start py-3">
-                            <div class="ms-2">
-                                <h5 class="fw-bold">@user.Username</h5>
-                                <p class="mb-1"><i class="bi bi-envelope-fill"></i> Email: @user.Email</p>
-                                <p class="mb-1"><i class="bi bi-person-badge-fill"></i> Role: <span class="badge bg-info text-dark">@user.Role</span></p>
-                                <p class="mb-1"><i class="bi bi-person-badge-fill"></i> Permissions :</p>
-                                @foreach (var permission in @user.Permissions)
-                                {<p class="mb-1"><i class="bi bi-person-badge-fill"></i><span class="badge bg-info text-dark">@permission</span></p>}                                    
-                                                          
+                    <li class="list-group-item d-flex justify-content-between align-items-start py-3 border-bottom">
+                        <div class="ms-2">
+                            <h5 class="fw-bold">@user.Username</h5>
+                            <p class="mb-1"><i class="bi bi-envelope-fill"></i> Email: @user.Email</p>
+                            <p class="mb-1"><i class="bi bi-person-badge-fill"></i> Role: <span class="badge bg-info text-dark">@user.Role</span></p>
+
+                            <div class="mt-2">
+                                <h6 class="fw-bold">Permissions:</h6>
+                                <div class="border rounded p-2" style="background-color:lightgray;">
+                                    @foreach (var permission in @user.Permissions)
+                                    {
+                                        <span class="badge bg-primary text-white me-1" style="font-size: 0.90rem;">@permission</span>
+                                    }
+                                </div>
                             </div>
-                            <button type="button" class="btn btn-outline-primary btn-sm align-self-center">Edit</button>
-                        </li>
+
+                            @if (@user.SpecialPermissions.Count >= 1){
+                            <div class="mt-2">
+                                <h6 class="fw-bold">Special Permissions:</h6>
+                                    <div class="border rounded p-2" style="background-color:lightgray;">
+                                    @foreach (var specialPermission in @user.SpecialPermissions)
+                                    {
+                                        <span class="badge bg-danger text-white me-1" style="font-size: 0.90rem;">@specialPermission</span>
+                                    }
+                                    </div>
+                            </div>
+                            }
+
+                        <div class="ms-2">
+                            <h5 class="fw-bold">change role to:</h5>
+                            <button>Admin</button>
+                            <button>User</button>
+                            <button>Privilaged User</button>
+                        </div>
+
+                        <div class="ms-2">
+                            <h5 class="fw-bold">Give Special Permission:</h5>
+                            <button>CanViewDashboard</button>
+                            <button>CanEditListings</button>
+                            <button>CanDeleteListings</button>
+                            <button>CanViewSpecialListing</button>
+                            <button>CanCreateListing</button>
+                        </div>
+                    </li>
                     }
                 </ol>
             </div>
+
         </div>
     </div>
-
+    <script>
+    </script>
 }

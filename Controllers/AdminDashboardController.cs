@@ -19,12 +19,26 @@ namespace DivarClone.Controllers
             _service = service;
         }
 
-        //[Authorize(Policy = "AdminOrPermittedDashView")]
-        [Authorize(Policy = "ViewDashboardPolicy")]
+        [Authorize(Policy = "AdminOrPermittedDashView")]
+        //[Authorize(Policy = "ViewDashboardPolicy")]
 		public IActionResult Index()
         {
             var Users = _service.GetAllUsers();
             return View(Users);
         }
+
+        //public async Task<IActionResult> ChangeUserRole(int Id)
+        //{
+        //    await _service.ChangeUserRoles(Id);
+
+        //    return RedirectToAction("Index");
+        //}
+
+        //public async Task<IActionResult> GiveUserSpecialPermission(int Id)
+        //{
+        //    await _service.GiveUserSpecialPermission(Id);
+
+        //    return RedirectToAction("Index");
+        //}
     }
 }
