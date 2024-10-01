@@ -27,18 +27,24 @@ namespace DivarClone.Controllers
             return View(Users);
         }
 
-        //public async Task<IActionResult> ChangeUserRole(int Id)
-        //{
-        //    await _service.ChangeUserRoles(Id);
+        [Authorize(Policy = "AdminOrPermittedDashView")]
+        [HttpPost]
+        public async Task<IActionResult> ChangeUserRole(int Id, int Role)
+        {
+            await _service.ChangeUserRoles(Id, Role);
 
-        //    return RedirectToAction("Index");
-        //}
+            return RedirectToAction("Index");
+        }
 
-        //public async Task<IActionResult> GiveUserSpecialPermission(int Id)
-        //{
-        //    await _service.GiveUserSpecialPermission(Id);
+        [Authorize(Policy = "AdminOrPermittedDashView")]
+        [HttpPost]
+        public async Task<IActionResult> GiveUserSpecialPermission(int Id, int PermissionId)
+        {
+            await _service.GiveUserSpecialPermission(Id, PermissionId);
 
-        //    return RedirectToAction("Index");
-        //}
+            return RedirectToAction("Index");
+        }
+
+        //public async Task<IActionResult> RemoveUserSpecialPermission(int Id, int PermissionId) { }
     }
 }

@@ -67,18 +67,20 @@
 
                         <div class="ms-2">
                             <h5 class="fw-bold">change role to:</h5>
-                            <button>Admin</button>
-                            <button>User</button>
-                            <button>Privilaged User</button>
+
+                            <button onclick="ChangeUserRole(1, @user.ID)">Admin</button>
+							<button onclick="ChangeUserRole(2, @user.ID)">Privilaged User</button>
+                            <button onclick="ChangeUserRole(3, @user.ID)">RegularUser</button>
                         </div>
 
                         <div class="ms-2">
                             <h5 class="fw-bold">Give Special Permission:</h5>
-                            <button>CanViewDashboard</button>
-                            <button>CanEditListings</button>
-                            <button>CanDeleteListings</button>
-                            <button>CanViewSpecialListing</button>
-                            <button>CanCreateListing</button>
+
+                            <button onclick="GiveUserSpecialPermission(1, @user.ID)">CanViewDashboard</button>
+                            <button onclick="GiveUserSpecialPermission(2, @user.ID)">CanEditListings</button>
+                            <button onclick="GiveUserSpecialPermission(3, @user.ID)">CanDeleteListings</button>
+                            <button onclick="GiveUserSpecialPermission(4, @user.ID)">CanViewSpecialListing</button>
+                            <button onclick="GiveUserSpecialPermission(5, @user.ID)">CanCreateListing</button>
                         </div>
                     </li>
                     }
@@ -88,5 +90,40 @@
         </div>
     </div>
     <script>
+        function ChangeUserRole(RoleId, UserId) {
+            $.ajax({
+                url: "@Url.Action("ChangeUserRole", "AdminDashboard")",
+                type: "POST",
+                data: {
+                    Role: RoleId,
+                    Id: UserId
+                },
+
+                success: function (result, status, xhr) {
+                    alert("Result: " + status + " " + xhr.status + " " + xhr.statusText)
+                },
+                error: function (xhr, status, error) {
+                    alert("Result: " + status + " " + error + " " + xhr.status + " " + xhr.statusText)
+                }
+            });
+        }
+
+        function GiveUserSpecialPermission(PermissionId, UserId) {
+            $.ajax({
+                url: "@Url.Action("GiveUserSpecialPermission", "AdminDashboard")",
+                type:"POST",
+                data: {
+                    PermissionId: PermissionId,
+                    Id: UserId
+                },
+
+                success: function (result, status, xhr) {
+                    alert("Result: " + status + " " + xhr.status + " " + xhr.statusText)
+                },
+                error: function (xhr, status, error) {
+                    alert("Result: " + status + " " + error + " " + xhr.status + " " + xhr.statusText)
+                }
+            });
+        }
     </script>
 }

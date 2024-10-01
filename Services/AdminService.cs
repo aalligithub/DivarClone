@@ -10,9 +10,9 @@ namespace DivarClone.Services
     {
         public List<Enroll> GetAllUsers();
 
-        //public async Task<bool> ChangeUserRoles(int Id);
+        Task<bool> ChangeUserRoles(int Id, int Role);
 
-        //public async Task<bool> GiveUserSpecialPermission(int Id);
+        Task<bool> GiveUserSpecialPermission(int Id, int Role);
     }
     public class AdminService : IAdminService
     {
@@ -118,38 +118,55 @@ namespace DivarClone.Services
             finally { con.Close(); }
         }
 
-        //public async Task<bool> ChangeUserRoles(int Id)
-        //{
-        //    try
-        //    {
-        //        if (con != null && con.State == ConnectionState.Closed)
-        //        {
-        //            con.Open();
-        //        }
-        //        return true;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        _logger.LogError(ex, "Failed to change users role");
-        //        return false;
-        //    }
-        //}
+        public async Task<bool> ChangeUserRoles(int Id, int Role)
+        {
+            try
+            {
+                if (con != null && con.State == ConnectionState.Closed)
+                {
+                    con.Open();
+                }
+                var cmd = new SqlCommand("SP_ChangeUserRole", con);
+                cmd.CommandType = System.Data.CommandType.StoredProcedure;
 
-        //public async Task<bool> GiveUserSpecialPermission(int Id)
-        //{
-        //    try
-        //    {
-        //        if (con != null && con.State == ConnectionState.Closed)
-        //        {
-        //            con.Open();
-        //        }
-        //        return true;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        _logger.LogError(ex, "Failed to give user special permission");
-        //        return false;
-        //    }
-        //}
+                cmd.Parameters.AddWithValue("@UserId", Id);
+                cmd.Parameters.AddWithValue("@Role", Role);
+
+                await cmd.ExecuteNonQueryAsync();
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to change users role");
+                System.Diagnostics.Debug.WriteLine(ex.ToString());
+                return false;
+            }
+        }
+
+        public async Task<bool> GiveUserSpecialPermission(int Id, int PermissionId)
+        {
+            try
+            {
+                if (con != null && con.State == ConnectionState.Closed)
+                {
+                    con.Open();
+                }
+                var cmd = new SqlCommand("SP_GiveUserSpecialPermission", con);
+                cmd.CommandType = System.Data.CommandType.StoredProcedure;
+
+                cmd.Parameters.AddWithValue("@UserId", Id);
+                cmd.Parameters.AddWithValue("@PermissionId", PermissionId);
+
+                await cmd.ExecuteNonQueryAsync();
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to give user special permission");
+                return false;
+            }
+        }
     }
 }

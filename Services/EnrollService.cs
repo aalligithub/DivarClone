@@ -150,7 +150,6 @@ namespace DivarClone.Services
                                     } else
                                     {
                                         System.Diagnostics.Debug.WriteLine("\nError Message : Permission already granted by Role : " + specialPermission);
-                                        var delSpecialPer = new SqlCommand("SP_DeleteSpecialPermission", con);
                                     }
                                     
 
