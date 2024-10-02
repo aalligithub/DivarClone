@@ -21,10 +21,17 @@ namespace DivarClone.Controllers
 
         [Authorize(Policy = "AdminOrPermittedDashView")]
         //[Authorize(Policy = "ViewDashboardPolicy")]
-		public IActionResult Index()
+		public async Task<IActionResult> IndexAsync()
         {
             var Users = _service.GetAllUsers();
-            return View(Users);
+            var AllPossiblePermissions = await _service.GetAllPossiblePermissions();
+            var AllPossibleRoles = await _service.GetAllPossibleRoles();
+
+            ViewBag.Users = Users;
+            ViewBag.AllPossiblePermissions = AllPossiblePermissions;
+            ViewBag.AllPossibleRoles = AllPossibleRoles;
+
+            return View();
         }
 
         [Authorize(Policy = "AdminOrPermittedDashView")]

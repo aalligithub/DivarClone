@@ -3,6 +3,7 @@ using System.Data;
 using DivarClone.Controllers;
 using DivarClone.Models;
 using System.Reflection;
+using Microsoft.CodeAnalysis.Elfie.Serialization;
 
 namespace DivarClone.Services
 {
@@ -13,6 +14,10 @@ namespace DivarClone.Services
         Task<bool> ChangeUserRoles(int Id, int Role);
 
         Task<bool> GiveUserSpecialPermission(int Id, int Role);
+
+        Task<Dictionary<String, String>> GetAllPossibleRoles();
+
+        Task<Dictionary<String, String>> GetAllPossiblePermissions();
     }
     public class AdminService : IAdminService
     {
@@ -166,6 +171,83 @@ namespace DivarClone.Services
             {
                 _logger.LogError(ex, "Failed to give user special permission");
                 return false;
+            }
+        }
+
+        public async Task<Dictionary<String, String>> GetAllPossibleRoles()
+        {
+            try
+            {
+                if (con != null && con.State == ConnectionState.Closed)
+                {
+                    con.Open();
+                }
+                var cmd = new SqlCommand("SP_GetAllPossibleRoles", con);
+                cmd.CommandType = System.Data.CommandType.StoredProcedure;
+
+                SqlDataReader rdr = await cmd.ExecuteReaderAsync();
+
+                Dictionary<string, string> AllPossibleRoles = new Dictionary<string, string>();
+
+                while (rdr.Read()) {
+                    var RoleId = rdr["RoleId"].ToString();
+                    var RoleName = rdr["RoleName"].ToString();
+
+                    AllPossibleRoles.Add(RoleId, RoleName);
+                }
+
+                return AllPossibleRoles;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to Get All Possible Roles");
+                return null;
+            }
+            finally
+            {
+                if (con != null && con.State == ConnectionState.Open)
+                {
+                    con.Close();
+                }
+            }
+        }
+
+        public async Task<Dictionary<String, String>> GetAllPossiblePermissions()
+        {
+            try
+            {
+                if (con != null && con.State == ConnectionState.Closed)
+                {
+                    con.Open();
+                }
+                var cmd = new SqlCommand("SP_GetAllPossiblePermissions", con);
+                cmd.CommandType = System.Data.CommandType.StoredProcedure;
+
+                SqlDataReader rdr = await cmd.ExecuteReaderAsync();
+
+                Dictionary<string, string> AllPossiblePermissions = new Dictionary<string, string>();
+
+                while (rdr.Read())
+                {
+                    var permissionId = (rdr["PermissionId"].ToString());
+                    var permissionName = (rdr["PermissionName"].ToString());
+
+                    AllPossiblePermissions.Add(permissionId, permissionName);
+                }
+
+                return AllPossiblePermissions;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to Get all Permissions");
+                return null;
+            }
+            finally
+            {
+                if (con != null && con.State == ConnectionState.Open)
+                {
+                    con.Close();
+                }
             }
         }
     }

@@ -4,6 +4,11 @@
 @model IEnumerable<DivarClone.Models.Enroll>
 
 @{
+    var users = ViewBag.Users as List<Enroll>;
+    var roles = ViewBag.AllPossibleRoles as Dictionary<string, string>;
+    var permissions = ViewBag.AllPossiblePermissions as Dictionary<string, string>;
+
+
     <style>
     .badge {
         padding: 5px 10px;
@@ -35,7 +40,7 @@
 
             <div class="card-body p-4">
                 <ol class="list-group list-group-flush">
-                    @foreach (var user in Model)
+                    @foreach (var user in users)
                     {
                     <li class="list-group-item d-flex justify-content-between align-items-start py-3 border-bottom">
                         <div class="ms-2">
@@ -67,20 +72,20 @@
 
                         <div class="ms-2">
                             <h5 class="fw-bold">change role to:</h5>
+                            @foreach (var role in roles)
+                            {
+                                <button onclick="ChangeUserRole(@role.Key, @user.ID)">@role.Value</button>
+                            }
 
-                            <button onclick="ChangeUserRole(1, @user.ID)">Admin</button>
-							<button onclick="ChangeUserRole(2, @user.ID)">Privilaged User</button>
-                            <button onclick="ChangeUserRole(3, @user.ID)">RegularUser</button>
                         </div>
 
                         <div class="ms-2">
                             <h5 class="fw-bold">Give Special Permission:</h5>
+                            @foreach (var permission in permissions)
+                            {
+                                <button onclick="GiveUserSpecialPermission(@permission.Key, @user.ID)">@permission.Value</button>
+                            }
 
-                            <button onclick="GiveUserSpecialPermission(1, @user.ID)">CanViewDashboard</button>
-                            <button onclick="GiveUserSpecialPermission(2, @user.ID)">CanEditListings</button>
-                            <button onclick="GiveUserSpecialPermission(3, @user.ID)">CanDeleteListings</button>
-                            <button onclick="GiveUserSpecialPermission(4, @user.ID)">CanViewSpecialListing</button>
-                            <button onclick="GiveUserSpecialPermission(5, @user.ID)">CanCreateListing</button>
                         </div>
                     </li>
                     }
