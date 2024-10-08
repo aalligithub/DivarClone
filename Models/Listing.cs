@@ -34,6 +34,6 @@ namespace DivarClone.Models //مدل اگهی های ما که محتوایی ک
 
         public DateTime DateTimeOfPosting { get; set; }
 
-        public string? ImagePath { get; set; }  //این فیلد محل ذخیره سازی عکس هارو سیو میکنه که برای نشون دادن نیازشون داریم چون عکس الزامی نیست nullable
-    }
+		public List<byte[]> Images { get; set; } = new List<byte[]>();
+	}
 }

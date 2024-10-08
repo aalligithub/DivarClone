@@ -37,31 +37,31 @@ namespace DivarClone.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Listing listing, IFormFile? ImageFile)
         {
-            bool imageProcessed = await _service.ProcessImageAsync(listing, ImageFile);
-            if (!imageProcessed)
-            {
-                ModelState.AddModelError("", "Image processing error. ");
-            }
+            int? newListingId = null;
 
             if (ModelState.IsValid)
             {
-                bool createlisting = await _service.CreateListingAsync(listing);
-                if (!createlisting)
-                {
-                    ModelState.AddModelError("", "Data integrity error. ");
-                }
-                else
-                {
-                    return RedirectToAction("Index", "Home");
-                }
-            }
+                newListingId = await _service.CreateListingAsync(listing);
 
-            var errors = ModelState.Values.SelectMany(v => v.Errors);
+                if (ImageFile != null && ImageFile.Length !< 1) {
+
+                    try
+                    {
+                        await _service.InsertImageIntoDB(newListingId, ImageFile);
+                    }
+                    catch (Exception ex) {
+						ModelState.AddModelError(ex.Message, "Image Insertion error. ");
+                    }
+				}
+			}
+
+			var errors = ModelState.Values.SelectMany(v => v.Errors);
             foreach (var error in errors)
             {
                 _logger.LogError(error.ErrorMessage);
                 ViewBag.ModelStateErrors += error.ErrorMessage + "\n";
             }
+
             return View("Index", listing);
         }
 

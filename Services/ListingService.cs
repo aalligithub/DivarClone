@@ -3,6 +3,10 @@ using System.Data;
 using DivarClone.Controllers;
 using DivarClone.Models;
 using Microsoft.CodeAnalysis.Elfie.Diagnostics;
+using System.Collections.Generic;
+using System.Runtime.Intrinsics.Arm;
+using System.Reflection;
+using System.Security.Cryptography;
 
 namespace DivarClone.Services
 {
@@ -10,7 +14,7 @@ namespace DivarClone.Services
     {
         public List<Listing> GetAllListings();
 
-        Task<bool> ProcessImageAsync(Listing listing, IFormFile? ImageFile);
+        //Task<bool> ProcessImageAsync(Listing listing, IFormFile? ImageFile
 
         List<Listing> FilterResult(object categoryEnum);
 
@@ -20,12 +24,18 @@ namespace DivarClone.Services
 
         Task DeleteUserListing(int id);
 
-        Task<bool> CreateListingAsync(Listing listing);
+        Task<int?> CreateListingAsync(Listing listing);
 
         public Listing GetSpecificListing(int id);
 
         Task<bool> UpdateListingAsync(Listing listing);
-    }
+
+        List<Listing> RetrieveListingWithImages(SqlDataReader rdr);
+
+        Task<bool> InsertImageIntoDB(int? ListingId, IFormFile? ImageFile);
+
+        Task<List<string>> GetImagesFromDBForListing(int ListingId);
+	}
 
     public class ListingService : IListingService
     {
@@ -45,83 +55,221 @@ namespace DivarClone.Services
             con = new SqlConnection(Constr);
         }
 
+		private string ComputeImageHash(byte[] imageData)
+		{
+			using (var sha256 = SHA256.Create())
+			{
+				var hashBytes = sha256.ComputeHash(imageData);
+				return BitConverter.ToString(hashBytes).Replace("-", "").ToLower();
+			}
+		}
 
-        public List<Listing> GetAllListings()
-        {
-            List<Listing> listingsList = new List<Listing>();
+
+        public async Task<bool> InsertImageIntoDB(int? listingId, IFormFile? ImageFile)
+        {            
+			if (con != null && con.State == ConnectionState.Closed)
+			{
+				con.Open();
+			}
             try
             {
-                if (con != null && con.State == ConnectionState.Closed) {
-                    con.Open();
+                var cmd = new SqlCommand("SP_InsertImageIntoImages", con);
+                cmd.CommandType = System.Data.CommandType.StoredProcedure;
+
+                cmd.Parameters.AddWithValue("@ListingId", listingId);
+
+                using (var memoryStream = new MemoryStream())
+                {
+                    try
+                    {
+                        await ImageFile.CopyToAsync(memoryStream);
+
+                        byte[] imageData = memoryStream.ToArray();
+                        cmd.Parameters.AddWithValue("@ImageData", imageData);
+
+                        string imageHashed = ComputeImageHash(imageData);
+                        cmd.Parameters.AddWithValue("@ImageHash", imageHashed);
+                    }
+                    catch (Exception ex) {
+                        _logger.LogError(ex, " Failed to compile Image into byte array");
+                        return false;
+                    }
                 }
 
-                var cmd = new SqlCommand("SP_GetListings", con);
+                cmd.ExecuteNonQuery();
+
+                return true;
+
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+            finally {
+                System.Diagnostics.Debug.WriteLine("\n Successfully added image to db");
+			}
+		}
+
+		public async Task<List<string>> GetImagesFromDBForListing(int ListingId)
+		{
+			if (con != null && con.State == ConnectionState.Closed)
+			{
+				con.Open();
+			}
+            try
+            {
+                var cmd = new SqlCommand("SP_GetListingImages", con);
+                cmd.CommandType = System.Data.CommandType.StoredProcedure;
+
+                cmd.Parameters.AddWithValue("@ListingId", ListingId);
+
+                SqlDataReader rdr = cmd.ExecuteReader();
+
+                List<string> images = new List<string>();
+
+                if (rdr.Read())
+                {
+                    images.Add(rdr["ImageData"].ToString());
+                }
+
+                return images;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, " Error getting image data from db");
+                return null;
+            }
+		}
+
+		//public async Task<List<Listing>> RetrieveListingAsync(SqlDataReader rdr)
+		//{
+		//	List<Listing> listingsList = new List<Listing>();
+
+		//	while (await rdr.ReadAsync())
+		//	{
+		//		Listing list = new Listing
+		//		{
+		//			Id = rdr.GetInt32("Id"),
+		//			Name = rdr["Name"].ToString(),
+		//			Description = rdr["Description"].ToString(),
+		//			Price = Convert.ToInt32(rdr["Price"]),
+		//			Poster = rdr["Poster"].ToString(),
+		//			Category = (Category)Enum.Parse(typeof(Category), rdr["Category"].ToString()),
+		//			DateTimeOfPosting = Convert.ToDateTime(rdr["DateTimeOfPosting"]),
+		//		};
+
+		//		// Fetch associated images for this listing
+		//		list.Images.Add(await GetImagesFromDBForListing(list.Id));
+
+		//		listingsList.Add(list);
+		//	}
+
+		//	return listingsList;
+		//}
+		public List<Listing> RetrieveListingWithImages(SqlDataReader rdr)
+		{
+			var listingsDictionary = new Dictionary<int, Listing>();
+
+			while (rdr.Read())
+			{
+				int listingId = rdr.GetInt32("Id");
+
+				// Check if the listing is already added to the dictionary
+				if (!listingsDictionary.TryGetValue(listingId, out Listing listing))
+				{
+					listing = new Listing
+					{
+						Id = listingId,
+						Name = rdr["Name"].ToString(),
+						Description = rdr["Description"].ToString(),
+						Price = Convert.ToInt32(rdr["Price"]),
+						Poster = rdr["Poster"].ToString(),
+						Category = (Category)Enum.Parse(typeof(Category), rdr["Category"].ToString()),
+						DateTimeOfPosting = Convert.ToDateTime(rdr["DateTimeOfPosting"]),
+						Images = new List<byte[]>()
+					};
+					listingsDictionary[listingId] = listing;
+				}
+
+				// Handle image data if available
+				if (!rdr.IsDBNull(rdr.GetOrdinal("ImageData")))
+				{
+					byte[] imageData = (byte[])rdr["ImageData"];
+					listing.Images.Add(imageData);
+				}
+			}
+			return listingsDictionary.Values.ToList();
+		}
+
+		public List<Listing> GetAllListings()
+        {
+			List<Listing> listingsList = new List<Listing>();
+
+			if (con != null && con.State == ConnectionState.Closed) {
+                con.Open();
+            }
+
+            try
+            {
+                var cmd = new SqlCommand("SP_GetListingsWithImages", con);
+
                 cmd.CommandType = System.Data.CommandType.StoredProcedure;
 
                 SqlDataReader rdr = cmd.ExecuteReader();
 
-                while (rdr.Read()) {
-                    Listing list = new Listing {
-                        Id = rdr.GetInt32("Id"),
-                        Name = rdr["Name"].ToString(),
-                        Description = rdr["Description"].ToString(),
-                        Price = Convert.ToInt32(rdr["Price"]),
-                        Poster = rdr["Poster"].ToString(),
-                        Category = (Category)Enum.Parse(typeof(Category), rdr["Category"].ToString()),
-                        DateTimeOfPosting = Convert.ToDateTime(rdr["DateTimeOfPosting"]),
-                        ImagePath = rdr["ImagePath"].ToString(),
-                    };
-
-                    listingsList.Add(list);
-                }
-
-                return listingsList.ToList();
-
-            }
-            catch (Exception ex) {
-                _logger.LogError(ex, "Error creating listing");
+				listingsList = RetrieveListingWithImages(rdr);
+			}
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, " Error Getting Listing list from Listings table");
                 throw;
             }
-            finally { con.Close(); }
-        }
-
-
-        public async Task<bool> ProcessImageAsync(Listing listing, IFormFile? ImageFile)
-        {
-            if (ImageFile == null)
+            finally
             {
-                listing.ImagePath = "/images/" + "No_Image_Available.jpg";
-                return true;
+                con.Close();
             }
 
-            if (ImageFile != null && ImageFile.Length > 0)
-            {
-                var uploadDir = Path.Combine(_webHostEnvironment.WebRootPath, "images");
-                Directory.CreateDirectory(uploadDir);
-
-                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(ImageFile.FileName);
-                var filePath = Path.Combine(uploadDir, fileName);
-
-                try
-                {
-                    using (var stream = new FileStream(filePath, FileMode.Create))
-                    {
-                        await ImageFile.CopyToAsync(stream);
-                    }
-
-                    listing.ImagePath = "/images/" + fileName;
-                    return true;
-                }
-                catch
-                {
-                    return false;
-                }
-               
-            } return false;
+            return listingsList;
+                
         }
 
 
-        public async Task<bool> CreateListingAsync(Listing listing)
+        //public async Task<bool> ProcessImageAsync(Listing listing, IFormFile? ImageFile)
+        //{
+        //    if (ImageFile == null)
+        //    {
+        //        //listing.ImagePath = "/images/" + "No_Image_Available.jpg";
+        //        return true;
+        //    }
+
+        //    if (ImageFile != null && ImageFile.Length > 0)
+        //    {
+        //        var uploadDir = Path.Combine(_webHostEnvironment.WebRootPath, "images");
+        //        Directory.CreateDirectory(uploadDir);
+
+        //        var fileName = Guid.NewGuid().ToString() + Path.GetExtension(ImageFile.FileName);
+        //        var filePath = Path.Combine(uploadDir, fileName);
+        //        try
+        //        {
+        //            using (var stream = new FileStream(filePath, FileMode.Create))
+        //            {
+        //                await ImageFile.CopyToAsync(stream);
+        //            }
+
+ 
+        //            return true;
+        //        }
+        //        catch
+        //        {
+        //            return false;
+        //        }
+
+        //    }
+        //    return false;
+        //}
+
+
+        public async Task<int?> CreateListingAsync(Listing listing)
         {
             try
             {
@@ -138,16 +286,17 @@ namespace DivarClone.Services
                 cmd.Parameters.AddWithValue("@Poster", listing.Poster);
                 cmd.Parameters.AddWithValue("@Category", (int)listing.Category);
                 cmd.Parameters.AddWithValue("@DateTimeOfPosting", DateTime.Now);
-                cmd.Parameters.AddWithValue("@ImagePath", listing.ImagePath);
 
                 await cmd.ExecuteNonQueryAsync();
 
-                return true;
+				int newListingId = Convert.ToInt32(await cmd.ExecuteScalarAsync());
+
+				return newListingId;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error creating listing");
-                return false;
+                return null;
             }
             finally { 
                 con.Close();
@@ -157,8 +306,8 @@ namespace DivarClone.Services
 
         public Listing GetSpecificListing(int id)
         {
-            Listing listing = null;
-            try
+			Listing listing = null;
+			try
             {
                 con.Open();
                 var cmd = new SqlCommand("SP_GetSpecificListing", con);
@@ -168,22 +317,22 @@ namespace DivarClone.Services
 
                 SqlDataReader rdr = cmd.ExecuteReader();
 
-                if (rdr.Read())
-                {
-                    listing = new Listing
-                    {
-                        Id = rdr.GetInt32("Id"),
-                        Name = rdr["Name"].ToString(),
-                        Description = rdr["Description"].ToString(),
-                        Price = Convert.ToInt32(rdr["Price"]),
-                        Poster = rdr["Poster"].ToString(),
-                        Category = (Category)Enum.Parse(typeof(Category), rdr["Category"].ToString()),
-                        DateTimeOfPosting = Convert.ToDateTime(rdr["DateTimeOfPosting"]),
-                        ImagePath = rdr["ImagePath"].ToString(),
-                    };
-                }
+				if (rdr.Read())
+				{
+					listing = new Listing
+					{
+						Id = rdr.GetInt32("Id"),
+						Name = rdr["Name"].ToString(),
+						Description = rdr["Description"].ToString(),
+						Price = Convert.ToInt32(rdr["Price"]),
+						Poster = rdr["Poster"].ToString(),
+						Category = (Category)Enum.Parse(typeof(Category), rdr["Category"].ToString()),
+						DateTimeOfPosting = Convert.ToDateTime(rdr["DateTimeOfPosting"]),
+						ImagePath = rdr["ImagePath"].ToString(),
+					};
+				}
 
-                return listing;
+				return listing;
 
             }
             catch (Exception)
@@ -267,7 +416,6 @@ namespace DivarClone.Services
 
         public List<Listing> FilterResult(object categoryEnum)
         {
-            List<Listing> listingsList = new List<Listing>();
             try
             {
                 if (con != null && con.State == ConnectionState.Closed)
@@ -282,24 +430,9 @@ namespace DivarClone.Services
 
                 SqlDataReader rdr = cmd.ExecuteReader();
 
-                while (rdr.Read())
-                {
-                    Listing list = new Listing
-                    {
-                        Id = rdr.GetInt32("Id"),
-                        Name = rdr["Name"].ToString(),
-                        Description = rdr["Description"].ToString(),
-                        Price = Convert.ToInt32(rdr["Price"]),
-                        Poster = rdr["Poster"].ToString(),
-                        Category = (Category)Enum.Parse(typeof(Category), rdr["Category"].ToString()),
-                        DateTimeOfPosting = Convert.ToDateTime(rdr["DateTimeOfPosting"]),
-                        ImagePath = rdr["ImagePath"].ToString(),
-                    };
+				var listingsList = RetrieveListing(rdr);
 
-                    listingsList.Add(list);
-                }
-
-                return listingsList.ToList();
+				return listingsList.ToList();
 
             }
             catch (Exception ex)
@@ -312,7 +445,6 @@ namespace DivarClone.Services
 
         public List<Listing> SearchResult(string textToSearch)
         {
-            List<Listing> listingsList = new List<Listing>();
             try
             {
                 if (con != null && con.State == ConnectionState.Closed)
@@ -327,24 +459,9 @@ namespace DivarClone.Services
 
                 SqlDataReader rdr = cmd.ExecuteReader();
 
-                while (rdr.Read())
-                {
-                    Listing list = new Listing
-                    {
-                        Id = rdr.GetInt32("Id"),
-                        Name = rdr["Name"].ToString(),
-                        Description = rdr["Description"].ToString(),
-                        Price = Convert.ToInt32(rdr["Price"]),
-                        Poster = rdr["Poster"].ToString(),
-                        Category = (Category)Enum.Parse(typeof(Category), rdr["Category"].ToString()),
-                        DateTimeOfPosting = Convert.ToDateTime(rdr["DateTimeOfPosting"]),
-                        ImagePath = rdr["ImagePath"].ToString(),
-                    };
+				var listingsList = RetrieveListing(rdr);
 
-                    listingsList.Add(list);
-                }
-
-                return listingsList.ToList();
+				return listingsList.ToList();
 
             }
             catch (Exception ex)
@@ -357,7 +474,6 @@ namespace DivarClone.Services
 
         public List<Listing> ShowUserListings(string Username)
         {
-            List<Listing> listingsList = new List<Listing>();
             try
             {
                 if (con != null && con.State == ConnectionState.Closed)
@@ -372,24 +488,9 @@ namespace DivarClone.Services
 
                 SqlDataReader rdr = cmd.ExecuteReader();
 
-                while (rdr.Read())
-                {
-                    Listing list = new Listing
-                    {
-                        Id = rdr.GetInt32("Id"),
-                        Name = rdr["Name"].ToString(),
-                        Description = rdr["Description"].ToString(),
-                        Price = Convert.ToInt32(rdr["Price"]),
-                        Poster = rdr["Poster"].ToString(),
-                        Category = (Category)Enum.Parse(typeof(Category), rdr["Category"].ToString()),
-                        DateTimeOfPosting = Convert.ToDateTime(rdr["DateTimeOfPosting"]),
-                        ImagePath = rdr["ImagePath"].ToString(),
-                    };
+				var listingsList = RetrieveListing(rdr);
 
-                    listingsList.Add(list);
-                }
-
-                return listingsList.ToList();
+				return listingsList.ToList();
 
             }
             catch (Exception ex)
