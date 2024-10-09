@@ -43,16 +43,19 @@ namespace DivarClone.Controllers
             {
                 newListingId = await _service.CreateListingAsync(listing);
 
-                if (ImageFile != null && ImageFile.Length !< 1) {
+                if (newListingId.HasValue) { 
 
-                    try
-                    {
-                        await _service.InsertImageIntoDB(newListingId, ImageFile);
-                    }
-                    catch (Exception ex) {
-						ModelState.AddModelError(ex.Message, "Image Insertion error. ");
-                    }
-				}
+                    if (ImageFile != null && ImageFile.Length > 0) {
+
+                        try
+                        {
+                            await _service.InsertImageIntoDB(newListingId, ImageFile);
+                        }
+                        catch (Exception ex) {
+						    ModelState.AddModelError(ex.Message, "Image Insertion error. ");
+                        }
+				    }
+                }
 			}
 
 			var errors = ModelState.Values.SelectMany(v => v.Errors);
@@ -80,11 +83,11 @@ namespace DivarClone.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Update(Listing listing, IFormFile? ImageFile)
         {
-            bool imageProcessed = await _service.ProcessImageAsync(listing, ImageFile);
-            if (!imageProcessed)
-            {
-                ModelState.AddModelError("", "Image processing error. ");
-            }
+            //bool imageProcessed = await _service.ProcessImageAsync(listing, ImageFile);
+            //if (!imageProcessed)
+            //{
+            //    ModelState.AddModelError("", "Image processing error. ");
+            //}
 
             if (ModelState.IsValid)
             {

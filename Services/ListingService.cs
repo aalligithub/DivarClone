@@ -90,19 +90,23 @@ namespace DivarClone.Services
                         string imageHashed = ComputeImageHash(imageData);
                         cmd.Parameters.AddWithValue("@ImageHash", imageHashed);
                     }
-                    catch (Exception ex) {
+                    catch (Exception ex)
+                    {
                         _logger.LogError(ex, " Failed to compile Image into byte array");
-                        return false;
+						System.Diagnostics.Debug.WriteLine(ex, " Failed to compile Image into byte array");
+						return false;
+                    }
+                    finally {
+                        cmd.ExecuteNonQuery();
                     }
                 }
-
-                cmd.ExecuteNonQuery();
 
                 return true;
 
             }
             catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine(ex, "failed to add image to db");
                 return false;
             }
             finally {
@@ -287,10 +291,9 @@ namespace DivarClone.Services
                 cmd.Parameters.AddWithValue("@Category", (int)listing.Category);
                 cmd.Parameters.AddWithValue("@DateTimeOfPosting", DateTime.Now);
 
-                await cmd.ExecuteNonQueryAsync();
-
 				int newListingId = Convert.ToInt32(await cmd.ExecuteScalarAsync());
 
+                System.Diagnostics.Debug.WriteLine("New Listing Created with Listing Id : "+ newListingId);
 				return newListingId;
             }
             catch (Exception ex)
@@ -328,7 +331,7 @@ namespace DivarClone.Services
 						Poster = rdr["Poster"].ToString(),
 						Category = (Category)Enum.Parse(typeof(Category), rdr["Category"].ToString()),
 						DateTimeOfPosting = Convert.ToDateTime(rdr["DateTimeOfPosting"]),
-						ImagePath = rdr["ImagePath"].ToString(),
+						//ImagePath = rdr["ImagePath"].ToString(),
 					};
 				}
 
@@ -360,7 +363,7 @@ namespace DivarClone.Services
                 cmd.Parameters.AddWithValue("@Poster", listing.Poster);
                 cmd.Parameters.AddWithValue("@Category", (int)listing.Category);
                 cmd.Parameters.AddWithValue("@DateTime", DateTime.Now);
-                cmd.Parameters.AddWithValue("@ImagePath", listing.ImagePath);
+                //cmd.Parameters.AddWithValue("@ImagePath", listing.ImagePath);
 
                 await cmd.ExecuteNonQueryAsync();
 
@@ -377,7 +380,7 @@ namespace DivarClone.Services
                 cmd.CommandType = System.Data.CommandType.StoredProcedure;
 
                 cmd.Parameters.AddWithValue("@Operation", "LISTING UPDATE");
-                cmd.Parameters.AddWithValue("@Details", "Listing updated FAILED with details : " + listing.Id + " " + listing.Name + " " + listing.Description + " " + listing.Price + " " + listing.Poster + " " + (int)listing.Category + " " + DateTime.Now + " " + listing.ImagePath);
+                cmd.Parameters.AddWithValue("@Details", "Listing updated FAILED with details : " + listing.Id + " " + listing.Name + " " + listing.Description + " " + listing.Price + " " + listing.Poster + " " + (int)listing.Category + " " + DateTime.Now + " ");
                 cmd.Parameters.AddWithValue("@LogDate", DateTime.Now);
 
                 await cmd.ExecuteNonQueryAsync();
@@ -430,7 +433,7 @@ namespace DivarClone.Services
 
                 SqlDataReader rdr = cmd.ExecuteReader();
 
-				var listingsList = RetrieveListing(rdr);
+				var listingsList = RetrieveListingWithImages(rdr);
 
 				return listingsList.ToList();
 
@@ -459,7 +462,7 @@ namespace DivarClone.Services
 
                 SqlDataReader rdr = cmd.ExecuteReader();
 
-				var listingsList = RetrieveListing(rdr);
+				var listingsList = RetrieveListingWithImages(rdr);
 
 				return listingsList.ToList();
 
@@ -488,7 +491,7 @@ namespace DivarClone.Services
 
                 SqlDataReader rdr = cmd.ExecuteReader();
 
-				var listingsList = RetrieveListing(rdr);
+				var listingsList = RetrieveListingWithImages(rdr);
 
 				return listingsList.ToList();
 

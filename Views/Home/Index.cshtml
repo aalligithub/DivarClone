@@ -80,18 +80,7 @@
             <div class="col-md-4" style="margin-bottom:25px;">
                 <div class="card h-100">
 
-                @if (listing.ImagePath == null || listing.ImagePath == "/images/No_Image_Available.jpg")
-                {
-                    listing.ImagePath = "/images/No_Image_Available.jpg";
-                    <img src="@listing.ImagePath" class="card-img-top" id="myimage"/>
-                    
-                }
-                else
-                {
-                    <figure class="zoom" onmousemove="zoom(event)" id="listing-img-figure" style="background-image: url('@listing.ImagePath');">
-                        <img src="@listing.ImagePath" class="card-img-top" id="myimage"/>
-                    </figure>
-                }
+
 
                 <div class="card-body">
                     <h5 class="card-title">@listing.Name</h5>
