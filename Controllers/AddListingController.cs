@@ -49,7 +49,7 @@ namespace DivarClone.Controllers
 
                         try
                         {
-                            await _service.InsertImageIntoDB(newListingId, ImageFile);
+                            await _service.UploadImageToFTP(newListingId, ImageFile);
                         }
                         catch (Exception ex) {
 						    ModelState.AddModelError(ex.Message, "Image Insertion error. ");

@@ -34,6 +34,6 @@ namespace DivarClone.Models //مدل اگهی های ما که محتوایی ک
 
         public DateTime DateTimeOfPosting { get; set; }
 
-		public List<byte[]> Images { get; set; } = new List<byte[]>();
+		public List<string> Images { get; set; } = new List<string>();
 	}
 }
