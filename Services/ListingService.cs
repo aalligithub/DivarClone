@@ -82,9 +82,10 @@ namespace DivarClone.Services
 					throw new ArgumentNullException("ImageFile or ListingId cannot be null.");
 				}
 
-                string ftpHost = Environment.GetEnvironmentVariable("FTP_HOST");
+                //string ftpHost = Environment.GetEnvironmentVariable("FTP_HOST");
+				string ftpHost = "ftp://127.0.0.1:21";
 
-                string imageExtension = Path.GetExtension(ImageFile.FileName);
+				string imageExtension = Path.GetExtension(ImageFile.FileName);
 				string ftpFolder = "/Images/Listings/";
 				string imageName = Guid.NewGuid().ToString();
 				ftpUrl = ftpHost + ftpFolder + imageName + imageExtension; // Full path with the image name
@@ -96,8 +97,9 @@ namespace DivarClone.Services
 				ftpRequest.EnableSsl = false;
 				ftpRequest.Method = WebRequestMethods.Ftp.UploadFile;
 				ftpRequest.Credentials = new NetworkCredential(
-                    Environment.GetEnvironmentVariable("FTP_USERNAME"),
-                    Environment.GetEnvironmentVariable("FTP_PASSWORD")
+                    "Ali","Ak362178"
+                    //Environment.GetEnvironmentVariable("FTP_USERNAME"),
+                    //Environment.GetEnvironmentVariable("FTP_PASSWORD")
                 );
 
                 System.Diagnostics.Debug.WriteLine(ftpUrl);

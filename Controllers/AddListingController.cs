@@ -36,7 +36,7 @@ namespace DivarClone.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Listing listing, IFormFile? ImageFile)
+        public async Task<IActionResult> Create(Listing listing, List<IFormFile>? ImageFiles)
         {
             int? newListingId = null;
 
@@ -48,16 +48,19 @@ namespace DivarClone.Controllers
 
                     if (newListingId.HasValue)
                     {
-                        if (ImageFile != null && ImageFile.Length > 0)
+                        if (ImageFiles != null && ImageFiles.Any())
                         {
-                            try
+                            foreach (var ImageFile in ImageFiles)
                             {
-                                await _service.UploadImageToFTP(newListingId, ImageFile);
-                            }
-                            catch (Exception ex)
-                            {
-								_logger.LogError(ex, "_service.UploadImageToFTP Image Upload Error ");
-								ModelState.AddModelError(ex.Message, "Image Upload Error ");
+                                try
+                                {
+                                    await _service.UploadImageToFTP(newListingId, ImageFile);
+                                }
+                                catch (Exception ex)
+                                {
+                                    _logger.LogError(ex, "_service.UploadImageToFTP Image Upload Error ");
+                                    ModelState.AddModelError(ex.Message, "Image Upload Error ");
+                                }
                             }
                         }
                     }

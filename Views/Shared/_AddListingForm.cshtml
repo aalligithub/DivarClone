@@ -26,13 +26,28 @@
         </select>
     </div>
 
-    <div class="mb-3">
+    @* <div class="mb-3">
+
         <label for="ImageFile">بارگذاری تصویر</label>
+
         <div class="custom-file-upload">
             <label for="ImageFile" id="customLabel">فایل را انتخاب کنید</label>
-            <input type="file" id="ImageFile" name="ImageFile" style="display: none;" onchange="updateLabel()">
+            <input type="file" id="ImageFile" name="ImageFile" style="display: none;" onchange="updateLabel()" multiple>
             <button type="button" onclick="document.getElementById('ImageFile').click()">انتخاب فایل</button>
         </div>
+
+        <div class="custom-file-upload">
+            <label for="ImageFile" id="customLabel">فایل را انتخاب کنید</label>
+            <input type="file" id="ImageFile" name="ImageFile" style="display: none;" onchange="updateLabel()" multiple>
+            <button type="button" onclick="document.getElementById('ImageFile').click()">انتخاب فایل</button>
+        </div>
+
+        <div class="custom-file-upload">
+            <label for="ImageFile" id="customLabel">فایل را انتخاب کنید</label>
+            <input type="file" id="ImageFile" name="ImageFile" style="display: none;" onchange="updateLabel()" multiple>
+            <button type="button" onclick="document.getElementById('ImageFile').click()">انتخاب فایل</button>
+        </div>
+
         <style>
             .custom-file-upload {
                 display: inline-block;
@@ -56,8 +71,8 @@
         </style>
         <script>
             function updateLabel() {
-                var fileInput = document.getElementById('ImageFile');
-                var label = document.getElementById('customLabel');
+                const fileInput = document.getElementById('ImageFile');
+                const label = document.getElementById('customLabel');
 
                 // Check if a file is selected
                 if (fileInput.files.length > 0) {
@@ -68,7 +83,71 @@
             }
 
         </script>
+    </div> *@
+
+    <div class="mb-3">
+
+        <!-- First File Upload -->
+        <div class="custom-file-upload">
+            <label for="ImageFile1" id="customLabel1">فایل را انتخاب کنید</label>
+            <input type="file" id="ImageFile1" name="ImageFiles" style="display: none;" onchange="updateLabel(1)" multiple>
+            <button type="button" onclick="document.getElementById('ImageFile1').click()">انتخاب فایل</button>
+        </div>
+
+        <!-- Second File Upload -->
+        <div class="custom-file-upload">
+            <label for="ImageFile2" id="customLabel2">فایل را انتخاب کنید</label>
+            <input type="file" id="ImageFile2" name="ImageFiles" style="display: none;" onchange="updateLabel(2)" multiple>
+            <button type="button" onclick="document.getElementById('ImageFile2').click()">انتخاب فایل</button>
+        </div>
+
+        <!-- Third File Upload -->
+        <div class="custom-file-upload">
+            <label for="ImageFile3" id="customLabel3">فایل را انتخاب کنید</label>
+            <input type="file" id="ImageFile3" name="ImageFiles" style="display: none;" onchange="updateLabel(3)" multiple>
+            <button type="button" onclick="document.getElementById('ImageFile3').click()">انتخاب فایل</button>
+        </div>
+
+        <style>
+            .custom-file-upload {
+                display: inline-block;
+                position: relative;
+                margin-bottom: 10px;
+            }
+
+                .custom-file-upload button {
+                    background-color: #dc3545; /* Customize the button color */
+                    color: white;
+                    padding: 8px 16px;
+                    border: none;
+                    cursor: pointer;
+                    border-radius: 5px;
+                }
+
+            #customLabel1, #customLabel2, #customLabel3 {
+                margin-left: 10px;
+                font-size: 14px;
+                color: #555; /* Customize label color */
+            }
+        </style>
+
+        <script>
+            function updateLabel(index) {
+                var fileInput = document.getElementById('ImageFile' + index);
+                var label = document.getElementById('customLabel' + index);
+
+                // Check if files are selected
+                if (fileInput.files.length > 0) {
+                    label.innerText = fileInput.files.length > 1
+                        ? fileInput.files.length + ' فایل انتخاب شد' // For multiple files
+                        : fileInput.files[0].name; // For a single file
+                } else {
+                    label.innerText = 'هیچ فایلی انتخاب نشده است'; // Default message
+                }
+            }
+        </script>
     </div>
+
 
     <input type="hidden" asp-for="Poster" value="@User.Identity.Name" />
     <button type="submit" class="btn btn-primary">ثبت آگهی</button>
