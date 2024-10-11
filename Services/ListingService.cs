@@ -19,8 +19,6 @@ namespace DivarClone.Services
     {
         public List<Listing> GetAllListings();
 
-        //Task<bool> ProcessImageAsync(Listing listing, IFormFile? ImageFile
-
         List<Listing> FilterResult(object categoryEnum);
 
         List<Listing> SearchResult(string textToSearch);
@@ -86,7 +84,6 @@ namespace DivarClone.Services
 
                 string ftpHost = Environment.GetEnvironmentVariable("FTP_HOST");
 
-
                 string imageExtension = Path.GetExtension(ImageFile.FileName);
 				string ftpFolder = "/Images/Listings/";
 				string imageName = Guid.NewGuid().ToString();
@@ -95,13 +92,12 @@ namespace DivarClone.Services
 				ServicePointManager.ServerCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true;
 
 				ftpRequest = (FtpWebRequest)WebRequest.Create(ftpUrl);
-				ftpRequest.UsePassive = true;
-				ftpRequest.EnableSsl = true;
+				ftpRequest.UsePassive = false;
+				ftpRequest.EnableSsl = false;
 				ftpRequest.Method = WebRequestMethods.Ftp.UploadFile;
 				ftpRequest.Credentials = new NetworkCredential(
-
-                Environment.GetEnvironmentVariable("FTP_USERNAME"),
-                Environment.GetEnvironmentVariable("FTP_PASSWORD")
+                    Environment.GetEnvironmentVariable("FTP_USERNAME"),
+                    Environment.GetEnvironmentVariable("FTP_PASSWORD")
                 );
 
                 System.Diagnostics.Debug.WriteLine(ftpUrl);
@@ -110,24 +106,24 @@ namespace DivarClone.Services
                 _logger.LogError(ex ," Error connecting to ftp server, unresponsive host or wrong credentials");
                 return false;
             }
+
             try
             {
                 using (Stream ftpStream = ftpRequest.GetRequestStream())
                 {
-					await ImageFile.CopyToAsync(ftpStream);
-
-					PathToImage.Add(ftpUrl);
+                    await ImageFile.CopyToAsync(ftpStream);
+                    PathToImage.Add(ftpUrl);
 				}
-
-            }
+			}
             catch (Exception ex)
             {
                 _logger.LogError(ex, " Error uploading to ftp server, file transfer failed");
                 return false;
             }
+
             try
             {
-                if (await InsertImagePathIntoDB(ListingId, PathToImage))
+                if (await InsertImagePathIntoDB(ListingId, PathToImage) == true)
                 {
                     return true;
                 }

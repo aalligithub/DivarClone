@@ -3,6 +3,7 @@ using DivarClone.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 
 namespace DivarClone.Controllers
@@ -41,31 +42,46 @@ namespace DivarClone.Controllers
 
             if (ModelState.IsValid)
             {
-                newListingId = await _service.CreateListingAsync(listing);
+                try
+                {
+                    newListingId = await _service.CreateListingAsync(listing);
 
-                if (newListingId.HasValue) { 
-
-                    if (ImageFile != null && ImageFile.Length > 0) {
-
-                        try
+                    if (newListingId.HasValue)
+                    {
+                        if (ImageFile != null && ImageFile.Length > 0)
                         {
-                            await _service.UploadImageToFTP(newListingId, ImageFile);
+                            try
+                            {
+                                await _service.UploadImageToFTP(newListingId, ImageFile);
+                            }
+                            catch (Exception ex)
+                            {
+								_logger.LogError(ex, "_service.UploadImageToFTP Image Upload Error ");
+								ModelState.AddModelError(ex.Message, "Image Upload Error ");
+                            }
                         }
-                        catch (Exception ex) {
-						    ModelState.AddModelError(ex.Message, "Image Insertion error. ");
-                        }
-				    }
+                    }
                 }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "AddListingController, Failed to create listing ");
+					ModelState.AddModelError(ex.Message, "Failed to create listing");
+				}
 			}
-
 			var errors = ModelState.Values.SelectMany(v => v.Errors);
             foreach (var error in errors)
             {
                 _logger.LogError(error.ErrorMessage);
                 ViewBag.ModelStateErrors += error.ErrorMessage + "\n";
             }
-
-            return View("Index", listing);
+            if (ModelState.ErrorCount == 0)
+            {
+                return RedirectToAction("Index", "Home");
+            }
+            else
+            {
+                return View("Index", listing);
+            }
         }
 
         [Authorize]
