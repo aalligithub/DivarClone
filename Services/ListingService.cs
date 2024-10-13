@@ -39,7 +39,7 @@ namespace DivarClone.Services
 
         Task<bool> UploadImageToFTP(int? ListingId, IFormFile? ImageFile);
 
-        Task<List<string>> GetImagesFromDBForListing(int ListingId);
+        Task<byte[]> GetImagesFromFTPForListing(string ImagePath);
 	}
 
     public class ListingService : IListingService
@@ -172,38 +172,72 @@ namespace DivarClone.Services
 			}
 		}
 
-		public async Task<List<string>> GetImagesFromDBForListing(int ListingId)
+		public async Task<byte[]> GetImagesFromFTPForListing(string ImagePath)
 		{
-			if (con != null && con.State == ConnectionState.Closed)
-			{
-				con.Open();
-			}
+            FtpWebRequest ftpRequest = null;
+            FtpWebResponse ftpResponse = null;
+            byte[] imageBytes = null;
+
             try
             {
-                var cmd = new SqlCommand("SP_GetListingImages", con);
-                cmd.CommandType = System.Data.CommandType.StoredProcedure;
+                //string ftpHost = Environment.GetEnvironmentVariable("FTP_HOST");
+                string ftpHost = "ftp://127.0.0.1:21";
 
-                cmd.Parameters.AddWithValue("@ListingId", ListingId);
+                ftpRequest = (FtpWebRequest)WebRequest.Create(ImagePath);
+                ftpRequest.Method = WebRequestMethods.Ftp.DownloadFile;
 
-                SqlDataReader rdr = cmd.ExecuteReader();
+                ftpRequest.Credentials = new NetworkCredential(
+                    "Ali", "Ak362178"
+                //Environment.GetEnvironmentVariable("FTP_USERNAME"),
+                //Environment.GetEnvironmentVariable("FTP_PASSWORD")
+                );
 
-                List<string> images = new List<string>();
+                ftpRequest.EnableSsl = false;
+                ftpRequest.UsePassive = false;
+                ftpRequest.UseBinary = false;
 
-                if (rdr.Read())
+                using (ftpResponse = (FtpWebResponse)await ftpRequest.GetResponseAsync())
+                using (Stream responseStream = ftpResponse.GetResponseStream())
+                using (MemoryStream memoryStream = new MemoryStream())
                 {
-                    images.Add(rdr["ImageData"].ToString());
+                    // Copy the FTP response stream to memory stream
+                    await responseStream.CopyToAsync(memoryStream);
+
+                    // Convert memory stream to byte array
+                    imageBytes = memoryStream.ToArray();
                 }
 
-                return images;
+                _logger.LogTrace($"Download Complete, status: {ftpResponse.StatusDescription}");
+                System.Diagnostics.Debug.WriteLine($"Download Complete, status: {ftpResponse.StatusDescription} ImageByte : {imageBytes}");
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, " Error getting image data from db");
-                return null;
+                _logger.LogError(ex, " Failed to convert Image into byte array ");
+                ftpResponse?.Close();
+                return Array.Empty<byte>();
             }
+            finally
+            {
+                ftpResponse?.Close();
+            }
+
+            return imageBytes;
 		}
 
-		public List<Listing> RetrieveListingWithImages(SqlDataReader rdr)
+        public async Task<string> DownloadImageAsBase64(string imagePath)
+        {
+            byte[] imageBytes = await GetImagesFromFTPForListing(imagePath);
+
+            if (imageBytes != null)
+            {
+                // Convert byte array to Base64 string
+                string base64Image = Convert.ToBase64String(imageBytes);
+                return $"data:image/jpeg;base64,{base64Image}"; // Assuming the image is JPEG
+            }
+            return null;
+        }
+
+        public List<Listing> RetrieveListingWithImages(SqlDataReader rdr)
 		{
 			var listingsDictionary = new Dictionary<int, Listing>();
 
@@ -223,18 +257,35 @@ namespace DivarClone.Services
 						Poster = rdr["Poster"].ToString(),
 						Category = (Category)Enum.Parse(typeof(Category), rdr["Category"].ToString()),
 						DateTimeOfPosting = Convert.ToDateTime(rdr["DateTimeOfPosting"]),
-						Images = new List<string>()
+						ImagePath = new List<string>()
 					};
 					listingsDictionary[listingId] = listing;
 				}
 
-				// Handle image data if available
-				if (!rdr.IsDBNull(rdr.GetOrdinal("ImagePath")))
-				{
-					string imagePath = (rdr["ImagePath"].ToString());
-					listing.Images.Add(imagePath);
-				}
-			}
+                // Handle image data if available
+                if (!rdr.IsDBNull(rdr.GetOrdinal("ImagePath")))
+                {
+                    string imagePath = (rdr["ImagePath"].ToString());
+                    listing.ImagePath.Add(imagePath);
+                }
+                else {
+                    //Environment.GetEnvironmentVariable("PATH_TO_DEFAULT_IMAGE")
+                    listing.ImagePath.Add("ftp://127.0.0.1/Images/Listings/No_Image_Available.jpg");
+                }
+                foreach (string imagePath in listing.ImagePath)
+                {
+                    try
+                    {
+                        //listing.ImageData.Add(GetImagesFromFTPForListing(imagePath).Result);
+                        listing.ImageData.Add(DownloadImageAsBase64(imagePath).Result);
+                        
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, " Failed to turn Image " + imagePath + " into bytes");
+                    }
+                }
+            }
 			return listingsDictionary.Values.ToList();
 		}
 
@@ -266,45 +317,16 @@ namespace DivarClone.Services
                 con.Close();
             }
 
+            //foreach (var listing in listingsList)
+            //{
+            //    System.Diagnostics.Debug.WriteLine("\n\n\n\n" + listing.Name);
+            //    foreach (var image in listing.ImagePath)
+            //    {
+            //        System.Diagnostics.Debug.WriteLine(image);
+            //    }
+            //}
             return listingsList;
-                
         }
-
-
-        //public async Task<bool> ProcessImageAsync(Listing listing, IFormFile? ImageFile)
-        //{
-        //    if (ImageFile == null)
-        //    {
-        //        //listing.ImagePath = "/images/" + "No_Image_Available.jpg";
-        //        return true;
-        //    }
-
-        //    if (ImageFile != null && ImageFile.Length > 0)
-        //    {
-        //        var uploadDir = Path.Combine(_webHostEnvironment.WebRootPath, "images");
-        //        Directory.CreateDirectory(uploadDir);
-
-        //        var fileName = Guid.NewGuid().ToString() + Path.GetExtension(ImageFile.FileName);
-        //        var filePath = Path.Combine(uploadDir, fileName);
-        //        try
-        //        {
-        //            using (var stream = new FileStream(filePath, FileMode.Create))
-        //            {
-        //                await ImageFile.CopyToAsync(stream);
-        //            }
-
- 
-        //            return true;
-        //        }
-        //        catch
-        //        {
-        //            return false;
-        //        }
-
-        //    }
-        //    return false;
-        //}
-
 
         public async Task<int?> CreateListingAsync(Listing listing)
         {
@@ -338,7 +360,6 @@ namespace DivarClone.Services
                 con.Close();
             }
         }
-
 
         public Listing GetSpecificListing(int id)
         {
