@@ -1,8 +1,10 @@
 ﻿@using Microsoft.AspNetCore.Identity
 @using DivarClone.Areas.Identity.Data
+@using Microsoft.JSInterop
 
 @inject SignInManager<DivarCloneUser> SignInManager
 @inject UserManager<DivarCloneUser> UserManager
+@inject IJSRuntime jsRuntime
 
 @{
     ViewData["Title"] = "دیوار";
@@ -77,10 +79,22 @@
         } else {
             @foreach (var listing in Model)
             {
+            int listingId = listing.Id;
+
             <div class="col-md-4" style="margin-bottom:25px;">
                 <div class="card h-100">
 
-                <img src="@listing.ImageData[0]" alt="no img"/>
+                @if (listing.ImageData.Count > 1){
+
+                    @foreach(var image in listing.ImageData){
+                        <img class="mySlides-@listing.Id" src="@image" alt="no img" style="display:none;"/>
+                    }
+                    <button class="w3-button w3-display-left" onclick="plusDivs(-1, @listingId)">&#10094;</button>
+                    <button class="w3-button w3-display-right" onclick="plusDivs(+1, @listingId)">&#10095;</button>
+
+                } else { //only the defualt image
+                    <img src="@listing.ImageData[0]" alt="no img"/>
+                }
 
                 <div class="card-body">
                     <h5 class="card-title">@listing.Name</h5>
@@ -106,8 +120,27 @@
 
             }
         }`)
-  
+        var slideIndex = 1;
+        showDivs(slideIndex, listingId);
 
+        function plusDivs(n, listingId) {
+            showDivs(slideIndex += n, listingId);
+        }
+
+        function showDivs(n, listingId) {
+            var i;
+            var slides = document.getElementsByClassName("mySlides-" + listingId);
+
+            if (n > slides.length) { slideIndex = 1; }
+            if (n < 1) { slideIndex = slides.length; }
+
+            for (i = 0; i < slides.length; i++) {
+                slides[i].style.display = "none";
+            }
+            slides[slideIndex - 1].style.display = "block";
+        }
+    </script>
+    <script>
         function deleteListing(listingId) {
             window.location.href = `@Url.Action("DeleteUserListing", "Home")?id=${listingId}`;
         }
@@ -132,5 +165,7 @@
             var y = (offsetY / zoomer.offsetHeight) * 100;
             zoomer.style.backgroundPosition = x + '% ' + y + '%';
         }
-    </script>
+
+
+	</script>
 }

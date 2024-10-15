@@ -208,7 +208,6 @@ namespace DivarClone.Services
                 }
 
                 _logger.LogTrace($"Download Complete, status: {ftpResponse.StatusDescription}");
-                System.Diagnostics.Debug.WriteLine($"Download Complete, status: {ftpResponse.StatusDescription} ImageByte : {imageBytes}");
             }
             catch (Exception ex)
             {
@@ -276,9 +275,7 @@ namespace DivarClone.Services
                 {
                     try
                     {
-                        //listing.ImageData.Add(GetImagesFromFTPForListing(imagePath).Result);
                         listing.ImageData.Add(DownloadImageAsBase64(imagePath).Result);
-                        
                     }
                     catch (Exception ex)
                     {
