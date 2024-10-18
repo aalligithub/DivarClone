@@ -258,39 +258,40 @@ namespace DivarClone.Services
 						DateTimeOfPosting = Convert.ToDateTime(rdr["DateTimeOfPosting"]),
 						ImagePath = new List<string>()
 					};
-					listingsDictionary[listingId] = listing;
-				}
+                    System.Diagnostics.Debug.WriteLine("\n\nImageDate count of " + listing.Description + " Is " + listing.ImageData.Count + " Just got started");
 
-                // Handle image data if available
+                    listingsDictionary[listingId] = listing;
+				}
+                System.Diagnostics.Debug.WriteLine("\n\nImageDate count of "+ listing.Description + " Is " + listing.ImageData.Count + " Listing Dictionairy added by RetrieveListingWithImages");
+
                 if (!rdr.IsDBNull(rdr.GetOrdinal("ImagePath")))
                 {
                     //System.Diagnostics.Debug.WriteLine("\n\n A new ImagePath was added for : " + listing.Description);
                     string imagePath = (rdr["ImagePath"].ToString());
-                    listing.ImagePath.Add(imagePath);
+                    if (!listing.ImagePath.Contains(imagePath))
+                    {
+                        listing.ImagePath.Add(imagePath);
+                    }
+                    System.Diagnostics.Debug.WriteLine("ImageDate count of " + listing.Description + " Is " + listing.ImageData.Count + " ImagePath just got added");
                 } 
                 else {
                     //Environment.GetEnvironmentVariable("PATH_TO_DEFAULT_IMAGE")
                     listing.ImagePath.Add("ftp://127.0.0.1/Images/Listings/No_Image_Available.jpg");
+                    System.Diagnostics.Debug.WriteLine("ImageDate count of " + listing.Description + " Is " + listing.ImageData.Count + " ImagePath got the default Image");
                 }
-                //foreach (string imagePath in listing.ImagePath)
-                //{
-                //    System.Diagnostics.Debug.WriteLine("\n\n The listing path so far : " + listing.Description + "  " + imagePath);
-                //}
+
+                //listing.ImageData.Clear();
                 foreach (string imagePath in listing.ImagePath)
                 {
-                    System.Diagnostics.Debug.WriteLine(listing.ImagePath.Count);
-                    System.Diagnostics.Debug.WriteLine("ImagePath: " + imagePath);
-                    System.Diagnostics.Debug.WriteLine("Description : " + listing.Description);
-
                     try
                     {
-                        // Await the async method properly to avoid blocking and concurrency issues
                         var base64Image = DownloadImageAsBase64(imagePath).Result;
 
                         // Only add if the image was successfully downloaded
-                        if (!string.IsNullOrEmpty(base64Image))
-                        {
+                        if (!string.IsNullOrEmpty(base64Image) && !listing.ImageData.Contains(base64Image))
+                        { 
                             listing.ImageData.Add(base64Image);
+                            System.Diagnostics.Debug.WriteLine("ImageDate count of " + listing.Description + " Is " + listing.ImageData.Count + " IMAGEDATA JUST GOT ADDED");
                         }
                     }
                     catch (Exception ex)
@@ -298,6 +299,7 @@ namespace DivarClone.Services
                         _logger.LogError(ex, " Failed to turn Image " + imagePath + " into bytes");
                     }
                 }
+                System.Diagnostics.Debug.WriteLine("ImageDate count of " + listing.Description + " Is " + listing.ImageData.Count + " FINISHED, FINAL COUNT");
             }
             return listingsDictionary.Values.ToList();
         }
@@ -306,7 +308,7 @@ namespace DivarClone.Services
         {
 			List<Listing> listingsList = new List<Listing>();
 
-			if (con != null && con.State == ConnectionState.Closed) {
+            if (con != null && con.State == ConnectionState.Closed) {
                 con.Open();
             }
 
