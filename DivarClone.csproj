@@ -10,6 +10,7 @@
     <Content Remove="Views\AddListing\EditListing.cshtml" />
     <Content Remove="Views\AddListing\_AddListingForm.cshtml" />
     <Content Remove="Views\Enrollement\login.cshtml" />
+    <Content Remove="Views\Home\Details.cshtml" />
   </ItemGroup>
 
   <ItemGroup>
@@ -34,11 +35,13 @@
     <_ContentIncludedByDefault Remove="Views\AddListing\EditListing.cshtml" />
     <_ContentIncludedByDefault Remove="Views\AddListing\_AddListingForm.cshtml" />
     <_ContentIncludedByDefault Remove="Views\Enrollement\login.cshtml" />
+    <_ContentIncludedByDefault Remove="Views\Home\Details.cshtml" />
   </ItemGroup>
 
   <ItemGroup>
     <None Include="Views\AddListing\EditListing.cshtml" />
     <None Include="Views\Enrollement\login.cshtml" />
+    <None Include="Views\Home\Details.cshtml" />
     <None Include="Views\Shared\_AddListingForm.cshtml" />
   </ItemGroup>
 
@@ -48,6 +51,10 @@
 
   <ItemGroup>
     <UpToDateCheckInput Remove="Views\Enrollement\login.cshtml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <UpToDateCheckInput Remove="Views\Home\Details.cshtml" />
   </ItemGroup>
 
 </Project>

@@ -29,6 +29,17 @@ namespace DivarClone.Controllers
             return View(listings);
         }
 
+        [HttpGet("/Listings/Details/{id}")]
+        public IActionResult Details(int id)
+        {
+            var listing = _service.GetSpecificListing(id);
+            if (listing == null)
+            {
+                return NotFound();
+            }
+
+            return View(listing);
+        }
 
         public IActionResult FilterResults(string category)
         {

@@ -29,7 +29,7 @@ namespace DivarClone.Services
 
         Task<int?> CreateListingAsync(Listing listing);
 
-        public Listing GetSpecificListing(int id);
+        public List<Listing> GetSpecificListing(int id);
 
         Task<bool> UpdateListingAsync(Listing listing);
 
@@ -264,18 +264,34 @@ namespace DivarClone.Services
                 // Handle image data if available
                 if (!rdr.IsDBNull(rdr.GetOrdinal("ImagePath")))
                 {
+                    //System.Diagnostics.Debug.WriteLine("\n\n A new ImagePath was added for : " + listing.Description);
                     string imagePath = (rdr["ImagePath"].ToString());
                     listing.ImagePath.Add(imagePath);
-                }
+                } 
                 else {
                     //Environment.GetEnvironmentVariable("PATH_TO_DEFAULT_IMAGE")
                     listing.ImagePath.Add("ftp://127.0.0.1/Images/Listings/No_Image_Available.jpg");
                 }
+                //foreach (string imagePath in listing.ImagePath)
+                //{
+                //    System.Diagnostics.Debug.WriteLine("\n\n The listing path so far : " + listing.Description + "  " + imagePath);
+                //}
                 foreach (string imagePath in listing.ImagePath)
                 {
+                    System.Diagnostics.Debug.WriteLine(listing.ImagePath.Count);
+                    System.Diagnostics.Debug.WriteLine("ImagePath: " + imagePath);
+                    System.Diagnostics.Debug.WriteLine("Description : " + listing.Description);
+
                     try
                     {
-                        listing.ImageData.Add(DownloadImageAsBase64(imagePath).Result);
+                        // Await the async method properly to avoid blocking and concurrency issues
+                        var base64Image = DownloadImageAsBase64(imagePath).Result;
+
+                        // Only add if the image was successfully downloaded
+                        if (!string.IsNullOrEmpty(base64Image))
+                        {
+                            listing.ImageData.Add(base64Image);
+                        }
                     }
                     catch (Exception ex)
                     {
@@ -283,8 +299,8 @@ namespace DivarClone.Services
                     }
                 }
             }
-			return listingsDictionary.Values.ToList();
-		}
+            return listingsDictionary.Values.ToList();
+        }
 
 		public List<Listing> GetAllListings()
         {
@@ -314,14 +330,6 @@ namespace DivarClone.Services
                 con.Close();
             }
 
-            //foreach (var listing in listingsList)
-            //{
-            //    System.Diagnostics.Debug.WriteLine("\n\n\n\n" + listing.Name);
-            //    foreach (var image in listing.ImagePath)
-            //    {
-            //        System.Diagnostics.Debug.WriteLine(image);
-            //    }
-            //}
             return listingsList;
         }
 
@@ -358,9 +366,9 @@ namespace DivarClone.Services
             }
         }
 
-        public Listing GetSpecificListing(int id)
+        public List<Listing> GetSpecificListing(int id)
         {
-			Listing listing = null;
+			List<Listing> listing = null;
 			try
             {
                 con.Open();
@@ -371,22 +379,24 @@ namespace DivarClone.Services
 
                 SqlDataReader rdr = cmd.ExecuteReader();
 
-				if (rdr.Read())
-				{
-					listing = new Listing
-					{
-						Id = rdr.GetInt32("Id"),
-						Name = rdr["Name"].ToString(),
-						Description = rdr["Description"].ToString(),
-						Price = Convert.ToInt32(rdr["Price"]),
-						Poster = rdr["Poster"].ToString(),
-						Category = (Category)Enum.Parse(typeof(Category), rdr["Category"].ToString()),
-						DateTimeOfPosting = Convert.ToDateTime(rdr["DateTimeOfPosting"]),
-						//ImagePath = rdr["ImagePath"].ToString(),
-					};
-				}
+                listing = RetrieveListingWithImages(rdr);
 
-				return listing;
+                //if (rdr.Read())
+                //{
+                //	listing = new Listing
+                //	{
+                //		Id = rdr.GetInt32("Id"),
+                //		Name = rdr["Name"].ToString(),
+                //		Description = rdr["Description"].ToString(),
+                //		Price = Convert.ToInt32(rdr["Price"]),
+                //		Poster = rdr["Poster"].ToString(),
+                //		Category = (Category)Enum.Parse(typeof(Category), rdr["Category"].ToString()),
+                //		DateTimeOfPosting = Convert.ToDateTime(rdr["DateTimeOfPosting"]),
+                //		//ImagePath = rdr["ImagePath"].ToString(),
+                //	};
+                //}
+
+                return listing;
 
             }
             catch (Exception)

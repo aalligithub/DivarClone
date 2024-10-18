@@ -79,25 +79,16 @@
         } else {
             @foreach (var listing in Model)
             {
-            int listingId = listing.Id;
-
             <div class="col-md-4" style="margin-bottom:25px;">
                 <div class="card h-100">
 
-                @if (listing.ImageData.Count > 1){
-
-                    @foreach(var image in listing.ImageData){
-                        <img class="mySlides-@listing.Id" src="@image" alt="no img" style="display:none;"/>
-                    }
-                    <button class="w3-button w3-display-left" onclick="plusDivs(-1, @listingId)">&#10094;</button>
-                    <button class="w3-button w3-display-right" onclick="plusDivs(+1, @listingId)">&#10095;</button>
-
-                } else { //only the defualt image
-                    <img src="@listing.ImageData[0]" alt="no img"/>
-                }
+                <img src="@listing.ImageData[0]" class="card-img-top" style="width:100%; height:300px; object-fit:cover; alt="no img"/>
 
                 <div class="card-body">
-                    <h5 class="card-title">@listing.Name</h5>
+
+                <h5 class="card-title">
+                    <a href="@Url.Action("Details", "Listings", new { id = listing.Id })">@listing.Name</a>
+                </h5>
                     <p class="card-text">@listing.Description</p>
                 </div>
                 <ul class="list-group list-group-flush">
@@ -120,25 +111,7 @@
 
             }
         }`)
-        var slideIndex = 1;
-        showDivs(slideIndex, listingId);
 
-        function plusDivs(n, listingId) {
-            showDivs(slideIndex += n, listingId);
-        }
-
-        function showDivs(n, listingId) {
-            var i;
-            var slides = document.getElementsByClassName("mySlides-" + listingId);
-
-            if (n > slides.length) { slideIndex = 1; }
-            if (n < 1) { slideIndex = slides.length; }
-
-            for (i = 0; i < slides.length; i++) {
-                slides[i].style.display = "none";
-            }
-            slides[slideIndex - 1].style.display = "block";
-        }
     </script>
     <script>
         function deleteListing(listingId) {
