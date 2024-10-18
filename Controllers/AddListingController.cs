@@ -48,19 +48,48 @@ namespace DivarClone.Controllers
 
                     if (newListingId.HasValue)
                     {
-                        if (ImageFiles != null && ImageFiles.Any())
+                        if (ImageFiles == null || !ImageFiles.Any())
                         {
-                            foreach (var ImageFile in ImageFiles)
+                            throw new ArgumentNullException("ImageFiles cannot be null or empty.");
+                        }
+
+                        var uniqueFiles = new List<IFormFile>();
+                        var fileHashes = new HashSet<string>();
+
+                        foreach (var ImageFile in ImageFiles)
+                        {
+                            //Making Images in individual listings distinct
+                            try
                             {
-                                try
+                                string fileHash = _service.ComputeImageHash(ImageFile.FileName);
+
+                                if (!fileHashes.Contains(fileHash))
                                 {
-                                    await _service.UploadImageToFTP(newListingId, ImageFile);
+                                    fileHashes.Add(fileHash);
+                                    uniqueFiles.Add(ImageFile);
                                 }
-                                catch (Exception ex)
-                                {
-                                    _logger.LogError(ex, "_service.UploadImageToFTP Image Upload Error ");
-                                    ModelState.AddModelError(ex.Message, "Image Upload Error ");
-                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                _logger.LogError(ex, "Error computing hash for ImageFile");
+                                throw;
+                            }
+                        }
+
+                        if (!uniqueFiles.Any()) {
+                            throw new ArgumentNullException("Couldnt Hash Images Upload Failed");
+                        }
+
+                        foreach (var uniqueFile in uniqueFiles)
+                        {
+                            try
+                            {
+                                await _service.UploadImageToFTP(newListingId, uniqueFile);
+                            }
+                            catch (Exception ex)
+                            {
+                                _logger.LogError(ex, "_service.UploadImageToFTP Image Upload Error ");
+                                ModelState.AddModelError(ex.Message, "Image Upload Error ");
                             }
                         }
                     }

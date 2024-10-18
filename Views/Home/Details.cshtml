@@ -19,7 +19,7 @@
                 {
                     @foreach (var image in listing.ImageData)
                     {
-                        <img class="mySlides-@listing.Id" src="@image" alt="no img" style="display:block; width:100%; height:500px; object-fit:contain;" />
+                        <img class="mySlides-@listing.Id" src="@image" alt="no img" style="display:none; width:100%; height:500px; object-fit:contain;" />
                     }
                     <button class="w3-button w3-display-left" onclick="plusDivs(-1, @listingId)">&#10094;</button>
                     <button class="w3-button w3-display-right" onclick="plusDivs(+1, @listingId)">&#10095;</button>

@@ -40,7 +40,10 @@ namespace DivarClone.Services
         Task<bool> UploadImageToFTP(int? ListingId, IFormFile? ImageFile);
 
         Task<byte[]> GetImagesFromFTPForListing(string ImagePath);
-	}
+
+        public string ComputeImageHash(string path);
+
+    }
 
     public class ListingService : IListingService
     {
@@ -60,7 +63,7 @@ namespace DivarClone.Services
             con = new SqlConnection(Constr);
         }
 
-		private string ComputeImageHash(string path)
+		public string ComputeImageHash(string path)
 		{
 			using (var sha256 = SHA256.Create())
 			{

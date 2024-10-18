@@ -108,6 +108,27 @@
             <button type="button" onclick="document.getElementById('ImageFile3').click()">انتخاب فایل</button>
         </div>
 
+        <!-- Fourth File Upload -->
+        <div class="custom-file-upload">
+            <label for="ImageFile4" id="customLabel4">فایل را انتخاب کنید</label>
+            <input type="file" id="ImageFile4" name="ImageFiles" style="display: none;" onchange="updateLabel(4)" multiple>
+            <button type="button" onclick="document.getElementById('ImageFile4').click()">انتخاب فایل</button>
+        </div>
+
+        <!-- Fifth File Upload -->
+        <div class="custom-file-upload">
+            <label for="ImageFile5" id="customLabel5">فایل را انتخاب کنید</label>
+            <input type="file" id="ImageFile5" name="ImageFiles" style="display: none;" onchange="updateLabel(5)" multiple>
+            <button type="button" onclick="document.getElementById('ImageFile5').click()">انتخاب فایل</button>
+        </div>
+
+        <!-- Sixth File Upload -->
+        <div class="custom-file-upload">
+            <label for="ImageFile6" id="customLabel6">فایل را انتخاب کنید</label>
+            <input type="file" id="ImageFile6" name="ImageFiles" style="display: none;" onchange="updateLabel(6)" multiple>
+            <button type="button" onclick="document.getElementById('ImageFile6').click()">انتخاب فایل</button>
+        </div>
+
         <style>
             .custom-file-upload {
                 display: inline-block;
@@ -115,14 +136,14 @@
                 margin-bottom: 10px;
             }
 
-                .custom-file-upload button {
-                    background-color: #dc3545; /* Customize the button color */
-                    color: white;
-                    padding: 8px 16px;
-                    border: none;
-                    cursor: pointer;
-                    border-radius: 5px;
-                }
+            .custom-file-upload button {
+                background-color: #dc3545; /* Customize the button color */
+                color: white;
+                padding: 8px 16px;
+                border: none;
+                cursor: pointer;
+                border-radius: 5px;
+            }
 
             #customLabel1, #customLabel2, #customLabel3 {
                 margin-left: 10px;
