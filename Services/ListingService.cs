@@ -258,40 +258,36 @@ namespace DivarClone.Services
 						DateTimeOfPosting = Convert.ToDateTime(rdr["DateTimeOfPosting"]),
 						ImagePath = new List<string>()
 					};
-                    System.Diagnostics.Debug.WriteLine("\n\nImageDate count of " + listing.Description + " Is " + listing.ImageData.Count + " Just got started");
 
                     listingsDictionary[listingId] = listing;
 				}
-                System.Diagnostics.Debug.WriteLine("\n\nImageDate count of "+ listing.Description + " Is " + listing.ImageData.Count + " Listing Dictionairy added by RetrieveListingWithImages");
-
-                if (!rdr.IsDBNull(rdr.GetOrdinal("ImagePath")))
+                if (!rdr.IsDBNull(rdr.GetOrdinal("ImagePaths")))
                 {
-                    //System.Diagnostics.Debug.WriteLine("\n\n A new ImagePath was added for : " + listing.Description);
-                    string imagePath = (rdr["ImagePath"].ToString());
-                    if (!listing.ImagePath.Contains(imagePath))
+                    string concatenatedPaths = rdr["ImagePaths"].ToString();
+                    var imagePaths = concatenatedPaths.Split(',');
+
+                    foreach (var imagePath in imagePaths)
                     {
-                        listing.ImagePath.Add(imagePath);
+                        if (!listing.ImagePath.Contains(imagePath))
+                        {
+                            listing.ImagePath.Add(imagePath);
+                        }
                     }
-                    System.Diagnostics.Debug.WriteLine("ImageDate count of " + listing.Description + " Is " + listing.ImageData.Count + " ImagePath just got added");
-                } 
-                else {
+                }
+                else if (!listing.ImagePath.Contains("ftp://127.0.0.1/Images/Listings/No_Image_Available.jpg")) {
                     //Environment.GetEnvironmentVariable("PATH_TO_DEFAULT_IMAGE")
                     listing.ImagePath.Add("ftp://127.0.0.1/Images/Listings/No_Image_Available.jpg");
-                    System.Diagnostics.Debug.WriteLine("ImageDate count of " + listing.Description + " Is " + listing.ImageData.Count + " ImagePath got the default Image");
                 }
 
-                //listing.ImageData.Clear();
                 foreach (string imagePath in listing.ImagePath)
                 {
                     try
                     {
                         var base64Image = DownloadImageAsBase64(imagePath).Result;
 
-                        // Only add if the image was successfully downloaded
                         if (!string.IsNullOrEmpty(base64Image) && !listing.ImageData.Contains(base64Image))
                         { 
                             listing.ImageData.Add(base64Image);
-                            System.Diagnostics.Debug.WriteLine("ImageDate count of " + listing.Description + " Is " + listing.ImageData.Count + " IMAGEDATA JUST GOT ADDED");
                         }
                     }
                     catch (Exception ex)
@@ -299,7 +295,6 @@ namespace DivarClone.Services
                         _logger.LogError(ex, " Failed to turn Image " + imagePath + " into bytes");
                     }
                 }
-                System.Diagnostics.Debug.WriteLine("ImageDate count of " + listing.Description + " Is " + listing.ImageData.Count + " FINISHED, FINAL COUNT");
             }
             return listingsDictionary.Values.ToList();
         }
@@ -382,21 +377,6 @@ namespace DivarClone.Services
                 SqlDataReader rdr = cmd.ExecuteReader();
 
                 listing = RetrieveListingWithImages(rdr);
-
-                //if (rdr.Read())
-                //{
-                //	listing = new Listing
-                //	{
-                //		Id = rdr.GetInt32("Id"),
-                //		Name = rdr["Name"].ToString(),
-                //		Description = rdr["Description"].ToString(),
-                //		Price = Convert.ToInt32(rdr["Price"]),
-                //		Poster = rdr["Poster"].ToString(),
-                //		Category = (Category)Enum.Parse(typeof(Category), rdr["Category"].ToString()),
-                //		DateTimeOfPosting = Convert.ToDateTime(rdr["DateTimeOfPosting"]),
-                //		//ImagePath = rdr["ImagePath"].ToString(),
-                //	};
-                //}
 
                 return listing;
 
