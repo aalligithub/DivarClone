@@ -1,6 +1,7 @@
 ﻿@model IEnumerable<DivarClone.Models.Listing>
 
-@foreach (var listing in Model){
+@foreach (var listing in Model)
+{
     int listingId = @listing.Id;
 
     <h2>@listing.Name</h2>
@@ -51,7 +52,7 @@
         function showDivs(n, listingId) {
             var i;
             var slides = document.getElementsByClassName("mySlides-" + listingId);
-            
+
             if (n > slides.length) { slideIndex = 1; }
             if (n < 1) { slideIndex = slides.length; }
 
@@ -62,3 +63,4 @@
         }
     </script>
 }
+

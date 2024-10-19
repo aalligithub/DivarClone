@@ -35,9 +35,9 @@ namespace DivarClone.Services
 
         List<Listing> RetrieveListingWithImages(SqlDataReader rdr);
 
-        Task<bool> InsertImagePathIntoDB(int? ListingId, List<string> PathToImageFTP);
+        Task<bool> InsertImagePathIntoDB(int? ListingId, List<string> PathToImageFTP, string imageHash);
 
-        Task<bool> UploadImageToFTP(int? ListingId, IFormFile? ImageFile);
+        Task<bool> UploadImageToFTP(int? ListingId, IFormFile? ImageFile, string fileHash);
 
         Task<byte[]> GetImagesFromFTPForListing(string ImagePath);
 
@@ -72,7 +72,7 @@ namespace DivarClone.Services
 			}
 		}
 
-        public async Task<bool> UploadImageToFTP(int? ListingId, IFormFile? ImageFile)
+        public async Task<bool> UploadImageToFTP(int? ListingId, IFormFile? ImageFile, string fileHash)
         {
 			FtpWebRequest ftpRequest = null;
 			string ftpUrl = null;
@@ -128,7 +128,8 @@ namespace DivarClone.Services
 
             try
             {
-                if (await InsertImagePathIntoDB(ListingId, PathToImage) == true)
+                if (await InsertImagePathIntoDB(ListingId, PathToImage, fileHash) == true)
+
                 {
                     return true;
                 }
@@ -141,7 +142,7 @@ namespace DivarClone.Services
 			}
         }
 
-		public async Task<bool> InsertImagePathIntoDB(int? listingId, List<string> PathToImageFTP)
+		public async Task<bool> InsertImagePathIntoDB(int? listingId, List<string> PathToImageFTP, string fileHash)
 		{            
 			if (con != null && con.State == ConnectionState.Closed)
 			{
@@ -156,8 +157,7 @@ namespace DivarClone.Services
 					cmd.Parameters.AddWithValue("@ListingId", listingId);
                     cmd.Parameters.AddWithValue("@ImagePath", path);
 
-					string imageHashed = ComputeImageHash(path);
-					cmd.Parameters.AddWithValue("@ImageHash", imageHashed);
+                    cmd.Parameters.AddWithValue("@ImageHash", fileHash);
 
 					await cmd.ExecuteNonQueryAsync();
 					cmd.Parameters.Clear();

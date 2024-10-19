@@ -39,6 +39,7 @@ namespace DivarClone.Controllers
         public async Task<IActionResult> Create(Listing listing, List<IFormFile>? ImageFiles)
         {
             int? newListingId = null;
+            string fileHash = "";
 
             if (ModelState.IsValid)
             {
@@ -61,7 +62,7 @@ namespace DivarClone.Controllers
                             //Making Images in individual listings distinct
                             try
                             {
-                                string fileHash = _service.ComputeImageHash(ImageFile.FileName);
+                                fileHash = _service.ComputeImageHash(ImageFile.FileName);
 
                                 if (!fileHashes.Contains(fileHash))
                                 {
@@ -84,7 +85,7 @@ namespace DivarClone.Controllers
                         {
                             try
                             {
-                                await _service.UploadImageToFTP(newListingId, uniqueFile);
+                                await _service.UploadImageToFTP(newListingId, uniqueFile, fileHash);
                             }
                             catch (Exception ex)
                             {
