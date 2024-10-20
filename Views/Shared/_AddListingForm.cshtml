@@ -26,65 +26,6 @@
         </select>
     </div>
 
-    @* <div class="mb-3">
-
-        <label for="ImageFile">بارگذاری تصویر</label>
-
-        <div class="custom-file-upload">
-            <label for="ImageFile" id="customLabel">فایل را انتخاب کنید</label>
-            <input type="file" id="ImageFile" name="ImageFile" style="display: none;" onchange="updateLabel()" multiple>
-            <button type="button" onclick="document.getElementById('ImageFile').click()">انتخاب فایل</button>
-        </div>
-
-        <div class="custom-file-upload">
-            <label for="ImageFile" id="customLabel">فایل را انتخاب کنید</label>
-            <input type="file" id="ImageFile" name="ImageFile" style="display: none;" onchange="updateLabel()" multiple>
-            <button type="button" onclick="document.getElementById('ImageFile').click()">انتخاب فایل</button>
-        </div>
-
-        <div class="custom-file-upload">
-            <label for="ImageFile" id="customLabel">فایل را انتخاب کنید</label>
-            <input type="file" id="ImageFile" name="ImageFile" style="display: none;" onchange="updateLabel()" multiple>
-            <button type="button" onclick="document.getElementById('ImageFile').click()">انتخاب فایل</button>
-        </div>
-
-        <style>
-            .custom-file-upload {
-                display: inline-block;
-                position: relative;
-            }
-
-            .custom-file-upload button {
-                background-color: #dc3545; /* Customize the button color */
-                color: white;
-                padding: 8px 16px;
-                border: none;
-                cursor: pointer;
-                border-radius: 5px;
-            }
-
-            #customLabel {
-                margin-left: 10px;
-                font-size: 14px;
-                color: #555; /* Customize label color */
-            }
-        </style>
-        <script>
-            function updateLabel() {
-                const fileInput = document.getElementById('ImageFile');
-                const label = document.getElementById('customLabel');
-
-                // Check if a file is selected
-                if (fileInput.files.length > 0) {
-                    label.innerText = fileInput.files[0].name; // Show selected file name
-                } else {
-                    label.innerText = 'هیچ فایلی انتخاب نشده است'; // Default message
-                }
-            }
-
-        </script>
-    </div> *@
-
     <div class="mb-3">
 
         <!-- First File Upload -->

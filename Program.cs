@@ -46,14 +46,19 @@ builder.Services.AddAuthorizationBuilder()
     .AddPolicy("EditListingPolicy", policy => policy.RequireClaim("Permission", "CanEditListings"))
     .AddPolicy("DeleteListingsPolicy", policy => policy.RequireClaim("Permission", "CanDeleteListings"))
     .AddPolicy("ViewSpecialListingPolicy", policy => policy.RequireClaim("Permission", "CanViewSpecialListing"))
-    .AddPolicy("CreateListingPolicy", policy => policy.RequireClaim("Permission", "CanCreateListing"))
+    .AddPolicy("CreateListingPolicy", policy => policy.RequireClaim("Permission", "CanCreateListing"));
 
-	.AddPolicy("AdminOrPermittedDashView", policy => {
-		policy.RequireAssertion(context =>
-			context.User.HasClaim(c =>
-				(c.Type == ClaimTypes.Role && c.Value == "Admin") ||
-				(c.Type == "Permission" && c.Value == "CanViewDashboard"))); 
-    });
+    //.AddPolicy("AdminOrAdminPermissions", policy => {
+    //    policy.RequireAssertion(context =>
+    //        context.User.HasClaim(c =>
+    //            (c.Type == ClaimTypes.Role && c.Value == "Admin") ||
+    //            (c.Type == "Permission" && c.Value == "CanViewDashboard"
+    //            && c.Value == "CanEditListing"
+    //            && c.Value == "CanDeleteListings"
+    //            && c.Value == "CanViewSpecialListing"
+    //            && c.Value == "CanViewSpecialListing"
+    //            && c.Value == "CanCreateListing")));
+    //});
 
 
 var app = builder.Build();

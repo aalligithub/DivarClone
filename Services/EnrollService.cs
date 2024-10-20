@@ -94,7 +94,8 @@ namespace DivarClone.Services
                             var claims = new List<Claim>
                         {
                             new Claim(ClaimTypes.Name, username),
-                            new Claim(ClaimTypes.Email, e.Email)
+                            new Claim(ClaimTypes.Email, e.Email),
+                            new Claim(ClaimTypes.NameIdentifier, userId)
                         };
 
                             _logger.LogTrace("Base Claims added for user : " + username);

@@ -19,7 +19,9 @@ namespace DivarClone.Services
     {
         public List<Listing> GetAllListings();
 
-        List<Listing> FilterResult(object categoryEnum);
+        public List<Listing> GetSecretListings(int UserId);
+
+		List<Listing> FilterResult(object categoryEnum);
 
         List<Listing> SearchResult(string textToSearch);
 
@@ -302,6 +304,40 @@ namespace DivarClone.Services
             return listingsDictionary.Values.ToList();
         }
 
+        public List<Listing> GetSecretListings(int UserId)
+        {
+			List<Listing> listingsList = new List<Listing>();
+
+			if (con != null && con.State == ConnectionState.Closed)
+			{
+				con.Open();
+			}
+
+			try
+			{
+				var cmd = new SqlCommand("SP_GetAllSecretListingsWithImages", con);
+
+				cmd.CommandType = System.Data.CommandType.StoredProcedure;
+
+                cmd.Parameters.AddWithValue("@UserId", UserId);
+
+				SqlDataReader rdr = cmd.ExecuteReader();
+
+				listingsList = RetrieveListingWithImages(rdr);
+			}
+			catch (Exception ex)
+			{
+				_logger.LogError(ex, " Error Getting Listing list from Listings table");
+                return null;
+			}
+			finally
+			{
+				con.Close();
+			}
+
+			return listingsList;
+		}
+
 		public List<Listing> GetAllListings()
         {
 			List<Listing> listingsList = new List<Listing>();
@@ -409,7 +445,6 @@ namespace DivarClone.Services
                 cmd.Parameters.AddWithValue("@Poster", listing.Poster);
                 cmd.Parameters.AddWithValue("@Category", (int)listing.Category);
                 cmd.Parameters.AddWithValue("@DateTime", DateTime.Now);
-                //cmd.Parameters.AddWithValue("@ImagePath", listing.ImagePath);
 
                 await cmd.ExecuteNonQueryAsync();
 

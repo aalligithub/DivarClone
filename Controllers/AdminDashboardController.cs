@@ -2,6 +2,7 @@
 using DivarClone.Models;
 using DivarClone.Services;
 using Microsoft.AspNetCore.Authorization;
+using DivarClone.Attributes;
 
 
 namespace DivarClone.Controllers
@@ -19,9 +20,9 @@ namespace DivarClone.Controllers
             _service = service;
         }
 
-        [Authorize(Policy = "AdminOrPermittedDashView")]
+        [RoleOrPermissionAuthorize(Role = "Admin", Permission = "CanViewDashboard")]
         //[Authorize(Policy = "ViewDashboardPolicy")]
-		public async Task<IActionResult> IndexAsync()
+        public async Task<IActionResult> IndexAsync()
         {
             var Users = _service.GetAllUsers();
             var AllPossiblePermissions = await _service.GetAllPossiblePermissions();

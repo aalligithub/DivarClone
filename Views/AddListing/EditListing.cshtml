@@ -1,4 +1,4 @@
-﻿@model DivarClone.Models.Listing
+﻿@model IEnumerable<DivarClone.Models.Listing>
 
 @if (ViewBag.ModelStateErrors != null)
 {
@@ -11,28 +11,31 @@
     var categories = Enum.GetValues(typeof(Category)).Cast<Category>();
 }
 
+@foreach (var listing in Model)
+{
+
 <form asp-action="Update" enctype="multipart/form-data" method="post">
     <div class="mb-3">
         <label for="Name">تیتر آگهی</label>
-        <input class="form-control" type="text" id="Name" name="Name" placeholder=@Model.Name asp-for="Name" />
+        <input class="form-control" type="text" id="Name" name="Name" placeholder="@listing.Name" asp-for="@listing.Name" />
     </div>
 
     <div class="mb-3">
         <label for="Description">توضیحات آگهی</label>
-        <textarea class="form-control" id="Description" name="Description" asp-for="Description">@Model.Description </textarea>
+            <textarea class="form-control" id="Description" name="Description" asp-for="@listing.Description">@listing.Description</textarea>
     </div>
 
     <div class="mb-3">
         <label for="Price">قیمت</label>
-        <input class="form-control" type="text" id="Price" name="Price" placeholder=@Model.Price asp-for="Price" />
+            <input class="form-control" type="text" id="Price" name="Price" placeholder="@listing.Price" asp-for="@listing.Price" />
     </div>
 
     <div class="mb-3">
         <label for="Category">دسته بندی</label>
-        <select id="Category" name="Category" class="form-select" asp-for="Category">
+            <select id="Category" name="Category" class="form-select" asp-for="@listing.Category">
             @foreach (var category in categories)
             {
-                <option value="@category">@category</option>
+                <option value=@category>@category</option>
             }
         </select>
     </div>
@@ -42,15 +45,11 @@
         <input type="file" class="form-control" id="ImageFile" name="ImageFile">
     </div>
 
-    @if (Model.ImagePath != null && Model.ImagePath != "/images/No_Image_Available.jpg")
-    {
-        <img src="@Model.ImagePath" class="card-img-top" style="width:100%; height:300px; object-fit:cover;">
-    }
-
-	<input type="hidden" asp-for="Poster" value="@Model.Poster" />
-    <input type="hidden" asp-for="Id" value="@Model.Id"/>
+        <input type="hidden" asp-for="@listing.Poster" value="@listing.Poster" />
+		<input type="hidden" asp-for="@listing.Id" value="@listing.Id" />
     <button type="submit" class="btn btn-primary" onClick="checkInput()">ثبت</button>
 </form>
+}
 
 <script>
     function checkInput() {

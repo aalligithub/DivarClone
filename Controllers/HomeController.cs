@@ -29,6 +29,21 @@ namespace DivarClone.Controllers
             return View(listings);
         }
 
+        //[Authorize(Role = "Admin" || Permission = "CanViewDashBoard")]
+        [HttpGet("/SecretListings")]
+        public IActionResult SecretListings() {
+
+            int UserId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+
+            var listing = _service.GetSecretListings(UserId);
+			if (listing == null)
+			{
+				return NotFound();
+			}
+
+			return View("Index", listing);
+		}
+
         [HttpGet("/Listings/Details/{id}")]
         public IActionResult Details(int id)
         {
@@ -41,7 +56,18 @@ namespace DivarClone.Controllers
             return View(listing);
         }
 
-        public IActionResult FilterResults(string category)
+		public IActionResult SpecialListings(int id)
+		{
+			var listing = _service.GetSpecificListing(id);
+			if (listing == null)
+			{
+				return NotFound();
+			}
+
+			return View(listing);
+		}
+
+		public IActionResult FilterResults(string category)
         {
             if (Enum.TryParse(typeof(Category), category, out var categoryEnum))
             {
@@ -71,7 +97,6 @@ namespace DivarClone.Controllers
             var listings = _service.ShowUserListings(Username);
             return View("index", listings);
         }
-
 
         [Authorize(Roles = "Admin, User")]
         public async Task<IActionResult> DeleteUserListing(int id)

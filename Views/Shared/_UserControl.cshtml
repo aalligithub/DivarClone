@@ -21,14 +21,28 @@
 	<div class="list-group">
         <a href="#" class="list-group-item list-group-item-action user-control-menu" onclick=userListings('@UserManager.GetUserName(User)')>آگهی های من</a>
 
-        <a href="#" class="list-group-item list-group-item-action user-control-menu">گزینه اول</a>
-        <a href="#" class="list-group-item list-group-item-action user-control-menu">گزینه دوم</a>
-        <a href="#" class="list-group-item list-group-item-action user-control-menu">گزینه سوم</a>
+        <a href="#" class="list-group-item list-group-item-action user-control-menu" onclick=GetSecretListings()>آگهی های خاص</a>
 	</div>
 </div>
 
 <script>
     function userListings(username) {
         window.location.href = `@Url.Action("ShowUserListings", "Home")?Username=${username}`;
+    }
+
+    function GetSecretListings() {
+        window.location.href = `@Url.Action("SecretListings", "Home")`;
+
+        // $.ajax({
+        //     url: "@Url.Action("SecretListings", "Home")",
+        //     type: "GET",
+
+            // success: function (result, status, xhr) {
+            //     alert("Result: " + status + " " + xhr.status + " " + xhr.statusText)
+            // },
+            // error: function (xhr, status, error) {
+            //     alert("Result: " + status + " " + error + " " + xhr.status + " " + xhr.statusText)
+            // }
+        // });
     }
 </script>

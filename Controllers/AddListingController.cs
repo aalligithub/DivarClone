@@ -49,12 +49,7 @@ namespace DivarClone.Controllers
 
                     if (newListingId.HasValue)
                     {
-                        if (ImageFiles == null || !ImageFiles.Any())
-                        {
-                            throw new ArgumentNullException("ImageFiles cannot be null or empty.");
-                        }
-
-                        var uniqueFiles = new List<IFormFile>();
+                        var uniqueFiles = new List<(IFormFile File, string Hash)>();
                         var fileHashes = new HashSet<string>();
 
                         foreach (var ImageFile in ImageFiles)
@@ -67,7 +62,7 @@ namespace DivarClone.Controllers
                                 if (!fileHashes.Contains(fileHash))
                                 {
                                     fileHashes.Add(fileHash);
-                                    uniqueFiles.Add(ImageFile);
+                                    uniqueFiles.Add((ImageFile, fileHash));
                                 }
                             }
                             catch (Exception ex)
@@ -77,15 +72,16 @@ namespace DivarClone.Controllers
                             }
                         }
 
-                        if (!uniqueFiles.Any()) {
-                            throw new ArgumentNullException("Couldnt Hash Images Upload Failed");
+                        if (!uniqueFiles.Any())
+                        {
+                            _logger.LogTrace("No Image File uploaded going for the default image");
                         }
 
-                        foreach (var uniqueFile in uniqueFiles)
+                        foreach (var (uniqueFile, filehash) in uniqueFiles)
                         {
                             try
                             {
-                                await _service.UploadImageToFTP(newListingId, uniqueFile, fileHash);
+                                await _service.UploadImageToFTP(newListingId, uniqueFile, filehash);
                             }
                             catch (Exception ex)
                             {
@@ -132,12 +128,6 @@ namespace DivarClone.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Update(Listing listing, IFormFile? ImageFile)
         {
-            //bool imageProcessed = await _service.ProcessImageAsync(listing, ImageFile);
-            //if (!imageProcessed)
-            //{
-            //    ModelState.AddModelError("", "Image processing error. ");
-            //}
-
             if (ModelState.IsValid)
             {
                 bool updateSuccess = await _service.UpdateListingAsync(listing);
@@ -157,7 +147,9 @@ namespace DivarClone.Controllers
                 _logger.LogError(error.ErrorMessage);
                 ViewBag.ModelStateErrors += error.ErrorMessage + "\n";
             }
-            return RedirectToAction("Index", "Home");
+
+            var listingToUpdate = _service.GetSpecificListing(listing.Id);
+            return View("EditListing", listingToUpdate);
 
         }
     }
