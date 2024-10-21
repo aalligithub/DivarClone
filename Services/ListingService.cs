@@ -31,7 +31,7 @@ namespace DivarClone.Services
 
         Task<int?> CreateListingAsync(Listing listing);
 
-        public List<Listing> GetSpecificListing(int id);
+        public Listing GetSpecificListing(int id);
 
         Task<bool> UpdateListingAsync(Listing listing);
 
@@ -41,7 +41,10 @@ namespace DivarClone.Services
 
         Task<bool> UploadImageToFTP(int? ListingId, IFormFile? ImageFile, string fileHash);
 
-        Task<byte[]> GetImagesFromFTPForListing(string ImagePath);
+        Task<bool> DeleteImageFromFTP(int? ListingId, IFormFile? ImageFile, string fileHash);
+
+
+		Task<byte[]> GetImagesFromFTPForListing(string ImagePath);
 
         public string ComputeImageHash(string path);
 
@@ -142,6 +145,11 @@ namespace DivarClone.Services
 				_logger.LogError(ex, " Error adding image path to images table but ftp was successful");
 				return false;
 			}
+        }
+
+		public async Task<bool> DeleteImageFromFTP(int? ListingId, IFormFile? ImageFile, string fileHash)
+        {
+            //logic here
         }
 
 		public async Task<bool> InsertImagePathIntoDB(int? listingId, List<string> PathToImageFTP, string fileHash)
@@ -402,12 +410,15 @@ namespace DivarClone.Services
             }
         }
 
-        public List<Listing> GetSpecificListing(int id)
+        public Listing GetSpecificListing(int id)
         {
-			List<Listing> listing = null;
+			Listing listing = null;
 			try
             {
-                con.Open();
+                if (con != null && con.State == ConnectionState.Closed)
+                {
+                    con.Open();
+                }
                 var cmd = new SqlCommand("SP_GetSpecificListing", con);
                 cmd.CommandType = System.Data.CommandType.StoredProcedure;
 
@@ -415,7 +426,7 @@ namespace DivarClone.Services
 
                 SqlDataReader rdr = cmd.ExecuteReader();
 
-                listing = RetrieveListingWithImages(rdr);
+                listing = RetrieveListingWithImages(rdr).FirstOrDefault();
 
                 return listing;
 
@@ -487,6 +498,10 @@ namespace DivarClone.Services
                 cmd.Parameters.AddWithValue("@Id", id);
 
                 await cmd.ExecuteNonQueryAsync();
+                try
+                {
+                    //delete the images from ftp aswell
+                }
             }
             catch (Exception ex)
             {
