@@ -1,4 +1,4 @@
-﻿@model IEnumerable<DivarClone.Models.Listing>
+﻿@model DivarClone.Models.Listing
 
 
 <style>
@@ -30,40 +30,39 @@
     }
 </style>
 
-@foreach (var listing in Model)
-{
-    int listingId = @listing.Id;
-
-    <h2>@listing.Name</h2>
+@{
+    int listingId = Model.Id;
+}
+    <h2>@Model.Name</h2>
 
     <div>
-        <p>@listing.Description</p>
-        <p>Price: @listing.Price</p>
-        <p>Category: @listing.Category</p>
-        <p>Posted by: @listing.Poster</p>
-        <p>Date of Posting: @listing.DateTimeOfPosting.ToString("MM/dd/yyyy HH:mm:ss")</p>
+        <p>@Model.Description</p>
+        <p>Price: @Model.Price</p>
+        <p>Category: @Model.Category</p>
+        <p>Posted by: @Model.Poster</p>
+        <p>Date of Posting: @Model.DateTimeOfPosting.ToString("MM/dd/yyyy HH:mm:ss")</p>
 
         <div>
-            @if (listing.ImageData != null && listing.ImageData.Any())
+        @if (Model.ImageData != null && Model.ImageData.Any())
             {
-                @if (listing.ImageData.Count > 1)
+            @if (Model.ImageData.Count > 1)
                 {
-                    @foreach (var image in listing.ImageData)
+                @foreach (var image in Model.ImageData)
                     {
-                        <figure class="zoom" onclick="toggleZoom(this)" id="listing-img-figure-@listing.Id" style="background-image: url('@image');">
-                            <img class="mySlides-@listing.Id" src="@image" alt="no img"/>
+                    <figure class="zoom" onclick="toggleZoom(this)" id="listing-img-figure-@Model.Id" style="background-image: url('@image');">
+                        <img class="mySlides-@Model.Id" src="@image" alt="no img" />
                         </figure>
                     }
                     <button class="w3-button w3-display-left" onclick="plusDivs(-1, @listingId)">&#10094;</button>
                     <button class="w3-button w3-display-right" onclick="plusDivs(+1, @listingId)">&#10095;</button>
 
                     <script>
-                        document.querySelector(".mySlides-@listing.Id").style.display = "block";
+                    document.querySelector(".mySlides-@Model.Id").style.display = "block";
                     </script>
                 }
                 else
                 {
-                    <img src="@listing.ImageData[0]" alt="no img" />
+                <img src="@Model.ImageData[0]" alt="no img" />
                 }
             }
             else
@@ -123,5 +122,4 @@
             console.log(zoomer.style.backgroundPosition);
         }
     </script>
-}
 

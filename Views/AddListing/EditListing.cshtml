@@ -1,4 +1,4 @@
-﻿@model IEnumerable<DivarClone.Models.Listing>
+﻿@model DivarClone.Models.Listing
 
 @if (ViewBag.ModelStateErrors != null)
 {
@@ -8,51 +8,111 @@
 }
 
 @{
-    var categories = Enum.GetValues(typeof(Category)).Cast<Category>();
+	var categories = Enum.GetValues(typeof(Category)).Cast<Category>();
+	
+	int allowedNumberOfImages = 6;
+
+	if (!Model.ImagePath.FirstOrDefault().Contains("No_Image_Available.jpg"))
+	{
+		allowedNumberOfImages = 6 - Model.ImageData.Count;
+	}
 }
 
-@foreach (var listing in Model)
-{
+<style>
+	.custom-file-upload {
+		display: inline-block;
+		position: relative;
+		margin-bottom: 10px;
+	}
 
-<form asp-action="Update" enctype="multipart/form-data" method="post">
-    <div class="mb-3">
-        <label for="Name">تیتر آگهی</label>
-        <input class="form-control" type="text" id="Name" name="Name" placeholder="@listing.Name" asp-for="@listing.Name" />
+	.custom-file-upload button {
+		background-color: #dc3545; /* Customize the button color */
+		color: white;
+		padding: 8px 16px;
+		border: none;
+		cursor: pointer;
+		border-radius: 5px;
+	}
+
+	#customLabel1, #customLabel2, #customLabel3 {
+		margin-left: 10px;
+		font-size: 14px;
+		color: #555; /* Customize label color */
+	}
+</style>
+
+<div class="container">
+    <div class="row">
+        <div class="col">
+			<form asp-action="Update" enctype="multipart/form-data" method="post">
+				<div class="mb-3">
+					<label for="Name">تیتر آگهی</label>
+					<input class="form-control" type="text" id="Name" name="Name" placeholder="نام" asp-for="Name" />
+				</div>
+
+				<div class="mb-3">
+					<label for="Description">توضیحات آگهی</label>
+					<textarea class="form-control" id="Description" name="Description" placeholder="توضیحات" asp-for="Description">Description</textarea>
+				</div>
+
+				<div class="mb-3">
+					<label for="Price">قیمت</label>
+					<input class="form-control" type="text" id="Price" name="Price" placeholder="قیمت" asp-for="Price" />
+				</div>
+
+				<div class="mb-3">
+					<label for="Category">دسته بندی</label>
+					<select id="Category" name="Category" class="form-select" asp-for="Category">
+						<option value="null">انتخاب کنید</option>
+						<option value="0">وسایل برقی</option>
+						<option value="1">املاک</option>
+						<option value="2">وسایل نقلیه</option>
+					</select>
+				</div>
+
+				<p>شما اجازه آپلود @allowedNumberOfImages عکس را دارید</p>
+
+				@for (int i = 0; i < allowedNumberOfImages; i++)
+				{
+					<div class="custom-file-upload">
+						<label for="ImageFile1" id="customLabel1">فایل را انتخاب کنید</label>
+						<input type="file" id="ImageFile@i" name="ImageFiles" style="display: none;" onchange="updateLabel(@i)" multiple>
+						<button type="button" onclick="document.getElementById('ImageFile@i').click()">انتخاب فایل</button>
+					</div>
+				}
+
+@* 				<div class="mb-3">
+					<label for="ImageFile">بارگذاری تصویر</label>
+					<input type="file" class="form-control" id="ImageFile" name="ImageFile">
+				</div> *@
+
+				<input type="hidden" asp-for="Poster" value="Poster" />
+				<input type="hidden" asp-for="Id" value="@Model.Id" />
+
+				<button type="submit" class="btn btn-primary" onClick="checkInput()">ثبت</button>
+			</form>
+        </div>
+        <div class="col">
+			@if (allowedNumberOfImages != 6)
+			{
+				@foreach (var image in Model.ImageData)
+				{
+					<div class="card" style="width: 18rem;">
+						<img class="mySlides-@Model.Id" src="@image" alt="no img" style="width: 100%; height: auto; object-fit:contain;" />
+						<div class="card-body">
+							<a href="#" class="card-link">حذف عکس</a>
+						</div>
+					</div>
+				}
+			}
+		</div>
     </div>
+</div>
 
-    <div class="mb-3">
-        <label for="Description">توضیحات آگهی</label>
-            <textarea class="form-control" id="Description" name="Description" asp-for="@listing.Description">@listing.Description</textarea>
-    </div>
-
-    <div class="mb-3">
-        <label for="Price">قیمت</label>
-            <input class="form-control" type="text" id="Price" name="Price" placeholder="@listing.Price" asp-for="@listing.Price" />
-    </div>
-
-    <div class="mb-3">
-        <label for="Category">دسته بندی</label>
-            <select id="Category" name="Category" class="form-select" asp-for="@listing.Category">
-            @foreach (var category in categories)
-            {
-                <option value=@category>@category</option>
-            }
-        </select>
-    </div>
-
-    <div class="mb-3">
-        <label for="ImageFile">بارگذاری تصویر</label>
-        <input type="file" class="form-control" id="ImageFile" name="ImageFile">
-    </div>
-
-        <input type="hidden" asp-for="@listing.Poster" value="@listing.Poster" />
-		<input type="hidden" asp-for="@listing.Id" value="@listing.Id" />
-    <button type="submit" class="btn btn-primary" onClick="checkInput()">ثبت</button>
-</form>
-}
 
 <script>
-    function checkInput() {
+    function checkInput() 
+{
         if ($('#ImageFile')[0].files.length === 0) {
             Alert("reverting image path to default");
         }

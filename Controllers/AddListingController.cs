@@ -121,7 +121,7 @@ namespace DivarClone.Controllers
             {
                 return View("EditListing", listing);
             }
-            else { return null; }
+            else { return NotFound(); }
         }
 
         [HttpPost]
@@ -133,7 +133,7 @@ namespace DivarClone.Controllers
                 bool updateSuccess = await _service.UpdateListingAsync(listing);
                 if (!updateSuccess)
                 {
-                    ModelState.AddModelError("", "Image processing error. ");
+                    ModelState.AddModelError("", "Error Updating listing ");
                 }
                 else
                 {
