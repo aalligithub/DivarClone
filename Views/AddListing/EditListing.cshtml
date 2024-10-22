@@ -95,12 +95,15 @@
         <div class="col">
 			@if (allowedNumberOfImages != 6)
 			{
-				@foreach (var image in Model.ImageData)
+				@for (var i = 0; i < Model.ImageData.Count; i++)
 				{
+					var image = Model.ImageData[i];
+					var path = Model.ImagePath[i];
+
 					<div class="card" style="width: 18rem;">
 						<img class="mySlides-@Model.Id" src="@image" alt="no img" style="width: 100%; height: auto; object-fit:contain;" />
 						<div class="card-body">
-							<a href="#" class="card-link">حذف عکس</a>
+							<button onclick="deleteListingImage('@path')">حذف عکس</button>
 						</div>
 					</div>
 				}
@@ -108,13 +111,32 @@
 		</div>
     </div>
 </div>
-
-
 <script>
-    function checkInput() 
-{
+	function deleteListingImage(imagePath) {
+		console.log(imagePath);
+		$.ajax({
+			url: "@Url.Action("DeleteListingImage", "AddListing")", // Ensure the URL is correct
+			type: "POST",
+			data: {
+				imagePath: imagePath
+			},
+			success: function (result, status, xhr) {
+				alert("Image deleted successfully! Status: " + status + " " + xhr.status + " " + xhr.statusText);
+				// Optionally, remove the image element from the DOM if needed
+				// e.g., $('#image-id').remove();
+			},
+			error: function (xhr, status, error) {
+				alert("Error deleting image. Status: " + status + " Error: " + error + " " + xhr.status + " " + xhr.statusText);
+				console.error("Error details:", xhr.responseText);
+			}
+		});
+	}
+
+	function checkInput() { 
+	
         if ($('#ImageFile')[0].files.length === 0) {
             Alert("reverting image path to default");
         }
     }
+
 </script>

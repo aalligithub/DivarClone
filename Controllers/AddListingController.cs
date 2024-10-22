@@ -1,4 +1,5 @@
-﻿using DivarClone.Models;
+﻿using System.Reflection;
+using DivarClone.Models;
 using DivarClone.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
@@ -151,6 +152,21 @@ namespace DivarClone.Controllers
             var listingToUpdate = _service.GetSpecificListing(listing.Id);
             return View("EditListing", listingToUpdate);
 
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteListingImage(string imagePath)
+        {
+            var delResult = await _service.DeleteImageFromFTP(imagePath);
+
+            if (delResult == true)
+            {
+                return RedirectToAction("Index", "Home");
+            }
+            else
+            {
+				return RedirectToAction("Index", "Home");
+			}
         }
     }
 }

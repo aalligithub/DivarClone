@@ -41,8 +41,7 @@ namespace DivarClone.Services
 
         Task<bool> UploadImageToFTP(int? ListingId, IFormFile? ImageFile, string fileHash);
 
-        Task<bool> DeleteImageFromFTP(int? ListingId, IFormFile? ImageFile, string fileHash);
-
+        Task<bool> DeleteImageFromFTP(string ImagePath);
 
 		Task<byte[]> GetImagesFromFTPForListing(string ImagePath);
 
@@ -147,9 +146,44 @@ namespace DivarClone.Services
 			}
         }
 
-		public async Task<bool> DeleteImageFromFTP(int? ListingId, IFormFile? ImageFile, string fileHash)
+		public async Task<bool> DeleteImageFromFTP(string imagePath)
         {
-            //logic here
+			FtpWebRequest ftpRequest = null;
+			FtpWebResponse ftpResponse = null;
+
+			try
+            {
+                ServicePointManager.ServerCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true;
+
+                ftpRequest = (FtpWebRequest)WebRequest.Create(imagePath);
+                ftpRequest.UsePassive = false;
+                ftpRequest.EnableSsl = false;
+                ftpRequest.Method = WebRequestMethods.Ftp.DeleteFile;
+                ftpRequest.Credentials = new NetworkCredential(
+                    "Ali", "Ak362178"
+                //Environment.GetEnvironmentVariable("FTP_USERNAME"),
+                //Environment.GetEnvironmentVariable("FTP_PASSWORD")
+                );
+
+				ftpResponse = (FtpWebResponse)await ftpRequest.GetResponseAsync();
+
+				if (ftpResponse.StatusCode == FtpStatusCode.FileActionOK)
+				{
+					_logger.LogInformation("Successfully deleted image from FTP: {ImagePath}", imagePath);
+					return true;
+				}
+				else
+				{
+					_logger.LogWarning("Failed to delete image from FTP. Status: {Status}", ftpResponse.StatusDescription);
+					return false;
+				}
+
+			}
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, " Error connecting to ftp server, unresponsive host or wrong credentials");
+                return false;
+            }
         }
 
 		public async Task<bool> InsertImagePathIntoDB(int? listingId, List<string> PathToImageFTP, string fileHash)
@@ -498,10 +532,10 @@ namespace DivarClone.Services
                 cmd.Parameters.AddWithValue("@Id", id);
 
                 await cmd.ExecuteNonQueryAsync();
-                try
-                {
-                    //delete the images from ftp aswell
-                }
+                //try
+                //{
+                //    //delete the images from ftp aswell
+                //}
             }
             catch (Exception ex)
             {
