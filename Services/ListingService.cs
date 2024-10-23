@@ -170,6 +170,32 @@ namespace DivarClone.Services
 				if (ftpResponse.StatusCode == FtpStatusCode.FileActionOK)
 				{
 					_logger.LogInformation("Successfully deleted image from FTP: {ImagePath}", imagePath);
+
+                    listing.ImagePath.Remove(imagePath);
+                    try
+                    {
+						if (con != null && con.State == ConnectionState.Closed)
+						{
+							con.Open();
+						}
+
+						var cmd = new SqlCommand("SP_RemoveDeletedImagePath", con);
+						cmd.CommandType = System.Data.CommandType.StoredProcedure;
+
+						cmd.Parameters.AddWithValue("@ImagePath", imagePath);
+
+						cmd.ExecuteNonQuery();
+					}
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex.Message, ex);
+                        return false;
+                    }
+                    finally { 
+                        ftpResponse.Close();
+                        _logger.LogInformation("Successfully removed image data from model: {ImageData}", imageData);
+                    }
+                    					
 					return true;
 				}
 				else
