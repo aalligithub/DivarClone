@@ -38,7 +38,10 @@ namespace DivarClone.Controllers
             var listing = _service.GetSecretListings(UserId);
 			if (listing == null)
 			{
-				return NotFound();
+                ViewBag.ModelStateErrors += "سطح دسترسی مورد نیاز را ندارید";
+
+                var listings = _service.GetAllListings();
+                return View("Index", listings);
 			}
 
 			return View("Index", listing);
@@ -55,17 +58,6 @@ namespace DivarClone.Controllers
 
             return View(listing);
         }
-
-		public IActionResult SpecialListings(int id)
-		{
-			var listing = _service.GetSpecificListing(id);
-			if (listing == null)
-			{
-				return NotFound();
-			}
-
-			return View(listing);
-		}
 
 		public IActionResult FilterResults(string category)
         {
@@ -94,6 +86,8 @@ namespace DivarClone.Controllers
         [Authorize]
         public IActionResult ShowUserListings(string Username)
         {
+            TempData["SuccessMessage"] = $"آگهی های کاربر : {User.Identity.Name}";
+
             var listings = _service.ShowUserListings(Username);
             return View("index", listings);
         }
@@ -101,7 +95,20 @@ namespace DivarClone.Controllers
         [Authorize(Roles = "Admin, User")]
         public async Task<IActionResult> DeleteUserListing(int id)
         {
-            await _service.DeleteUserListing(id);
+            try
+            {
+                await _service.DeleteUserListing(id);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "AddListingController, DeleteListingAsync, Failed to delete listing");
+                ModelState.AddModelError(ex.Message, "حذف آگهی موفقیت آمیز نبود");
+            }
+            finally
+            {
+                TempData["SuccessMessage"] = "آگهی با موفقیت حذف شد";
+            }
+            
             var listings = _service.GetAllListings();
             return View("Index", listings);
         }

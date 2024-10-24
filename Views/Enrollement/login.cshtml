@@ -32,6 +32,21 @@
 </head>
 
 <body>
+
+    @if (ViewBag.ModelStateErrors != null)
+    {
+        <div class="alert alert-danger">
+            <pre>@ViewBag.ModelStateErrors</pre>
+        </div>
+    }
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["SuccessMessage"]
+        </div>
+    }
+
     @using (Html.BeginForm("UserLogin", "Enrollement", FormMethod.Post))
     {
     @Html.AntiForgeryToken()

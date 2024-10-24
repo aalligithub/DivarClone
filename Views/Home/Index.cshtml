@@ -25,7 +25,7 @@
     </div>
 }
 
-<h1 class="custom-font">آگهی ها</h1>
+<h1 class="custom-font" id="title-header">آگهی ها</h1>
 <div class="row">
     @if (User.Identity.IsAuthenticated)
     {
@@ -77,6 +77,7 @@
                         {
                     <div class="card-footer">
                         <a class="btn btn-danger ms-2" onclick=deleteListing(@listing.Id)>حذف</a>
+                        <a class="btn btn-danger ms-2" onclick=confirmDelete(@listing.Id)> تایید حذف</a>
                         <a class="btn btn-danger ms-2" onclick=editListing(@listing.Id)>ویرایش</a>
                     </div>
                 }
@@ -88,6 +89,20 @@
 
     </script>
     <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            if (window.location.href.includes('Secret')) {
+                document.getElementById("title-header").innerText = "آگهی های خاص";
+            }
+        });
+
+        function confirmDelete(listingId) {
+            var userConfirmed = confirm("از بابت حذف این آگهی مطمعن هستید؟");
+
+            if (userConfirmed) {
+                window.location.href = `@Url.Action("DeleteUserListing", "Home")?id=${listingId}`;
+            }
+        }
+
         function deleteListing(listingId) {
             window.location.href = `@Url.Action("DeleteUserListing", "Home")?id=${listingId}`;
         }

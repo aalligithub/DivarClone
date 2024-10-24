@@ -209,16 +209,20 @@ namespace DivarClone.Controllers
         [HttpPost]
         public async Task<IActionResult> DeleteListingImage(string imagePath)
         {
-            var delResult = await _service.DeleteImageFromFTP(imagePath);
-
-            if (delResult == true)
+            try
             {
-                return RedirectToAction("Index", "Home");
+                await _service.DeleteImageFromFTP(imagePath);
             }
-            else
+            catch (Exception ex)
             {
-				return RedirectToAction("Index", "Home");
-			}
+                _logger.LogError(ex, "AddListingController, DeleteListingAsync, Failed to delete listing");
+                ModelState.AddModelError(ex.Message, "حذف عکس آگهی موفقیت آمیز نبود");
+            }
+            finally {
+                TempData["SuccessMessage"] = "عکس آگهی با موفقیت حذف شد";
+            }
+
+			return RedirectToAction("Index", "Home");
         }
     }
 }

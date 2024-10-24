@@ -32,6 +32,8 @@ namespace DivarClone.Controllers
             if (result)
             {
                 //Redirect to login
+                TempData["SuccessMessage"] = "با موفقیت عضو شدید";
+
                 return RedirectToAction("UserLogin", "Enrollement");
             }
             else {
@@ -64,7 +66,8 @@ namespace DivarClone.Controllers
                     return Redirect(returnUrl);
                 }
 
-				return RedirectToAction("Index", "Home");
+                TempData["SuccessMessage"] = "با موفقیت وارد شدید";
+                return RedirectToAction("Index", "Home");
             }
             else
             {
