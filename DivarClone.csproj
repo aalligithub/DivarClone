@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Remove="Views\AddListing\CreateSecret.cshtml" />
     <Content Remove="Views\AddListing\EditListing.cshtml" />
     <Content Remove="Views\AddListing\_AddListingForm.cshtml" />
     <Content Remove="Views\Enrollement\login.cshtml" />
@@ -40,6 +41,7 @@
 
   <ItemGroup>
     <None Include="Views\AddListing\EditListing.cshtml" />
+    <None Include="Views\AddListing\CreateSecret.cshtml" />
     <None Include="Views\Enrollement\login.cshtml" />
     <None Include="Views\Home\Details.cshtml" />
     <None Include="Views\Shared\_AddListingForm.cshtml" />

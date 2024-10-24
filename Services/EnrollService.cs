@@ -165,10 +165,10 @@ namespace DivarClone.Services
                                 claims.Add(new Claim(CustomClaims.Permission, permission));
                             }
 
-                            foreach (Claim claim in claims)
+							foreach (Claim claim in claims)
                             {
-                                System.Diagnostics.Debug.WriteLine(claim.Value);
-                            }
+								System.Diagnostics.Debug.WriteLine($"Claim Type: {claim.Type}, Claim Value: {claim.Value}");
+							}
 
                             var identity = new ClaimsIdentity(claims, "Login");
                             var principal = new ClaimsPrincipal(identity);

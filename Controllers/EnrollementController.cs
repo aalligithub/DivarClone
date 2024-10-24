@@ -46,7 +46,7 @@ namespace DivarClone.Controllers
         [HttpGet]
         public IActionResult UserLogin(string returnUrl = null)
         {
-            ViewData["ReturnUrl"] = returnUrl;
+			ViewData["ReturnUrl"] = returnUrl;
             return View("login");
         }
 
@@ -64,7 +64,7 @@ namespace DivarClone.Controllers
                     return Redirect(returnUrl);
                 }
 
-                return RedirectToAction("Index", "Home");
+				return RedirectToAction("Index", "Home");
             }
             else
             {

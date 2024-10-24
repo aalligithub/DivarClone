@@ -24,7 +24,7 @@ namespace DivarClone.Controllers
         //[Authorize(Policy = "ViewDashboardPolicy")]
         public async Task<IActionResult> IndexAsync()
         {
-            var Users = _service.GetAllUsers();
+			var Users = _service.GetAllUsers();
             var AllPossiblePermissions = await _service.GetAllPossiblePermissions();
             var AllPossibleRoles = await _service.GetAllPossibleRoles();
 

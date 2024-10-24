@@ -18,6 +18,13 @@
     </div>
 }
 
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["SuccessMessage"]
+    </div>
+}
+
 <h1 class="custom-font">آگهی ها</h1>
 <div class="row">
     @if (User.Identity.IsAuthenticated)

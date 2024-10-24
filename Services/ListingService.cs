@@ -29,6 +29,8 @@ namespace DivarClone.Services
 
         Task DeleteUserListing(int id);
 
+        Task<bool> CollectDistinctImages(int? newListingId, List<IFormFile>? ImageFiles);
+
         Task<int?> CreateListingAsync(Listing listing);
 
         public Listing GetSpecificListing(int id);
@@ -46,6 +48,8 @@ namespace DivarClone.Services
 		Task<byte[]> GetImagesFromFTPForListing(string ImagePath);
 
         public string ComputeImageHash(string path);
+
+        Task<bool> MakeListingSecret(int? listingId);
 
     }
 
@@ -75,6 +79,83 @@ namespace DivarClone.Services
 				return Convert.ToHexString(hashBytes);
 			}
 		}
+
+        public async Task<bool> MakeListingSecret(int? listingId)
+        {
+            try
+            {
+                _logger.LogInformation("Attempting to make listing with Id = {listingId} secret...", listingId);
+
+                if (con != null && con.State == ConnectionState.Closed)
+                {
+                    con.Open();
+                }
+
+                var cmd = new SqlCommand("SP_MakeListingSecret", con);
+                cmd.CommandType = System.Data.CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@listingId", listingId);
+
+                await cmd.ExecuteNonQueryAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error making listing with Id = {listingId} secret", listingId);
+
+                return false;
+            }
+            finally
+            {
+                con.Close();
+            }
+
+            return true;
+        }
+        public async Task<bool> CollectDistinctImages(int? newListingId, List<IFormFile>? ImageFiles)
+        {
+            string fileHash = "";
+            var uniqueFiles = new List<(IFormFile File, string Hash)>();
+            var fileHashes = new HashSet<string>();
+
+            foreach (var ImageFile in ImageFiles)
+            {
+                try
+                {
+                    fileHash = ComputeImageHash(ImageFile.FileName);
+
+                    if (!fileHashes.Contains(fileHash))
+                    {
+                        fileHashes.Add(fileHash);
+                        uniqueFiles.Add((ImageFile, fileHash));
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error computing hash for ImageFile");
+                    return false;
+                }
+            }
+
+            if (!uniqueFiles.Any())
+            {
+                _logger.LogTrace("No Image File uploaded going for the default image");
+                return true;
+            }
+
+            foreach (var (uniqueFile, filehash) in uniqueFiles)
+            {
+                try
+                {
+                    await UploadImageToFTP(newListingId, uniqueFile, filehash);
+                    _logger.LogTrace($"{uniqueFile.FileName} was uploaded to ftp");
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "_service.UploadImageToFTP Image Upload Error ");
+                    return false;
+                }
+            }
+            return true;
+        }
 
         public async Task<bool> UploadImageToFTP(int? ListingId, IFormFile? ImageFile, string fileHash)
         {
@@ -171,7 +252,6 @@ namespace DivarClone.Services
 				{
 					_logger.LogInformation("Successfully deleted image from FTP: {ImagePath}", imagePath);
 
-                    listing.ImagePath.Remove(imagePath);
                     try
                     {
 						if (con != null && con.State == ConnectionState.Closed)
@@ -193,7 +273,7 @@ namespace DivarClone.Services
                     }
                     finally { 
                         ftpResponse.Close();
-                        _logger.LogInformation("Successfully removed image data from model: {ImageData}", imageData);
+                        _logger.LogInformation("Successfully removed image data from listing");
                     }
                     					
 					return true;

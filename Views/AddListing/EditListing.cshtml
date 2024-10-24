@@ -44,6 +44,7 @@
 <div class="container">
     <div class="row">
         <div class="col">
+
 			<form asp-action="Update" enctype="multipart/form-data" method="post">
 				<div class="mb-3">
 					<label for="Name">تیتر آگهی</label>
@@ -75,40 +76,37 @@
 				@for (int i = 0; i < allowedNumberOfImages; i++)
 				{
 					<div class="custom-file-upload">
-						<label for="ImageFile1" id="customLabel1">فایل را انتخاب کنید</label>
-						<input type="file" id="ImageFile@i" name="ImageFiles" style="display: none;" onchange="updateLabel(@i)" multiple>
-						<button type="button" onclick="document.getElementById('ImageFile@i').click()">انتخاب فایل</button>
+						<label for="ImageFile@(i)" id="customLabel@(i)">فایل را انتخاب کنید</label>
+						<input type="file" id="ImageFile@(i)" name="ImageFiles" style="display: none;" onchange="updateLabel(@(i))" multiple>
+						<button type="button" onclick="document.getElementById('ImageFile@(i)').click()">انتخاب فایل</button>
 					</div>
 				}
-
-@* 				<div class="mb-3">
-					<label for="ImageFile">بارگذاری تصویر</label>
-					<input type="file" class="form-control" id="ImageFile" name="ImageFile">
-				</div> *@
 
 				<input type="hidden" asp-for="Poster" value="Poster" />
 				<input type="hidden" asp-for="Id" value="@Model.Id" />
 
 				<button type="submit" class="btn btn-primary" onClick="checkInput()">ثبت</button>
 			</form>
-        </div>
-        <div class="col">
-			@if (allowedNumberOfImages != 6)
-			{
-				@for (var i = 0; i < Model.ImageData.Count; i++)
-				{
-					var image = Model.ImageData[i];
-					var path = Model.ImagePath[i];
 
-					<div class="card" style="width: 18rem;">
-						<img class="mySlides-@Model.Id" src="@image" alt="no img" style="width: 100%; height: auto; object-fit:contain;" />
-						<div class="card-body">
-							<button onclick="deleteListingImage('@path')">حذف عکس</button>
+			<div class="col">
+				@if (allowedNumberOfImages != 6)
+				{
+					@for (var i = 0; i < Model.ImageData.Count; i++)
+					{
+						var image = Model.ImageData[i];
+						var path = Model.ImagePath[i];
+
+						<div class="card" style="width: 18rem;">
+							<img class="mySlides-@Model.Id" src="@image" alt="no img" style="width: 100%; height: auto; object-fit:contain;" />
+							<div class="card-body">
+								<button onclick="deleteListingImage('@path')">حذف عکس</button>
+							</div>
 						</div>
-					</div>
+					}
 				}
-			}
-		</div>
+			</div>
+
+        </div>
     </div>
 </div>
 <script>
@@ -139,4 +137,17 @@
         }
     }
 
+	function updateLabel(index) {
+		var fileInput = document.getElementById('ImageFile' + index);
+		var label = document.getElementById('customLabel' + index);
+
+		// Check if files are selected
+		if (fileInput.files.length > 0) {
+			label.innerText = fileInput.files.length > 1
+				? fileInput.files.length + ' فایل انتخاب شد' // For multiple files
+				: fileInput.files[0].name; // For a single file
+		} else {
+			label.innerText = 'هیچ فایلی انتخاب نشده است'; // Default message
+		}
+	}
 </script>

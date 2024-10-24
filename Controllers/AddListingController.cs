@@ -10,7 +10,7 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 namespace DivarClone.Controllers
 {
 
-    [Authorize(Roles = "Admin, User")]
+    //[Authorize(Roles = "Admin, User")]
     public class AddListingController : Controller
     {
         private readonly ILogger<AddListingController> _logger;
@@ -40,7 +40,6 @@ namespace DivarClone.Controllers
         public async Task<IActionResult> Create(Listing listing, List<IFormFile>? ImageFiles)
         {
             int? newListingId = null;
-            string fileHash = "";
 
             if (ModelState.IsValid)
             {
@@ -50,46 +49,17 @@ namespace DivarClone.Controllers
 
                     if (newListingId.HasValue)
                     {
-                        var uniqueFiles = new List<(IFormFile File, string Hash)>();
-                        var fileHashes = new HashSet<string>();
-
-                        foreach (var ImageFile in ImageFiles)
+                        try {
+                            if (await _service.CollectDistinctImages(newListingId, ImageFiles))
+                            {
+                                TempData["SuccessMessage"] = "آگهی با موفقیت ساخته شد";
+                                return RedirectToAction("Index", "Home");
+                            }
+                        } catch (Exception ex)
                         {
-                            //Making Images in individual listings distinct
-                            try
-                            {
-                                fileHash = _service.ComputeImageHash(ImageFile.FileName);
-
-                                if (!fileHashes.Contains(fileHash))
-                                {
-                                    fileHashes.Add(fileHash);
-                                    uniqueFiles.Add((ImageFile, fileHash));
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                _logger.LogError(ex, "Error computing hash for ImageFile");
-                                throw;
-                            }
-                        }
-
-                        if (!uniqueFiles.Any())
-                        {
-                            _logger.LogTrace("No Image File uploaded going for the default image");
-                        }
-
-                        foreach (var (uniqueFile, filehash) in uniqueFiles)
-                        {
-                            try
-                            {
-                                await _service.UploadImageToFTP(newListingId, uniqueFile, filehash);
-                            }
-                            catch (Exception ex)
-                            {
-                                _logger.LogError(ex, "_service.UploadImageToFTP Image Upload Error ");
-                                ModelState.AddModelError(ex.Message, "Image Upload Error ");
-                            }
-                        }
+                            _logger.LogError(ex, "AddListingController, CollectDistinctImages, Failed to create listing ");
+                            ModelState.AddModelError(ex.Message, "AddListingController, CollectDistinctImages, Failed to make images distinct");
+                        }                        
                     }
                 }
                 catch (Exception ex)
@@ -98,6 +68,7 @@ namespace DivarClone.Controllers
 					ModelState.AddModelError(ex.Message, "Failed to create listing");
 				}
 			}
+
 			var errors = ModelState.Values.SelectMany(v => v.Errors);
             foreach (var error in errors)
             {
@@ -114,7 +85,74 @@ namespace DivarClone.Controllers
             }
         }
 
-        [Authorize]
+
+        [HttpGet]
+        public IActionResult CreateSecret()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateSecret(Listing listing, List<IFormFile>? ImageFiles)
+        {
+            int? newListingId = null;
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    newListingId = await _service.CreateListingAsync(listing);
+
+                    if (newListingId.HasValue)
+                    {
+                        try
+                        {
+                            if (await _service.CollectDistinctImages(newListingId, ImageFiles))
+                            {
+                                try
+                                {
+                                    await _service.MakeListingSecret(newListingId);
+                                }
+                                catch (Exception ex) {
+                                    _logger.LogError(ex, "AddListingController, MakeListingSecret, Failed to make listing secret");
+                                    ModelState.AddModelError(ex.Message, "AddListingController, MakeListingSecret, Failed to make listing secret");
+                                }
+
+                                TempData["SuccessMessage"] = "آگهی با موفقیت ساخته شد";
+                                return RedirectToAction("Index", "Home");
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError(ex, "AddListingController, CollectDistinctImages, Failed to create listing ");
+                            ModelState.AddModelError(ex.Message, "AddListingController, CollectDistinctImages, Failed to make images distinct");
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "AddListingController, Failed to create listing ");
+                    ModelState.AddModelError(ex.Message, "Failed to create listing");
+                }
+            }
+
+            var errors = ModelState.Values.SelectMany(v => v.Errors);
+            foreach (var error in errors)
+            {
+                _logger.LogError(error.ErrorMessage);
+                ViewBag.ModelStateErrors += error.ErrorMessage + "\n";
+            }
+            if (ModelState.ErrorCount == 0)
+            {
+                return RedirectToAction("Index", "Home");
+            }
+            else
+            {
+                return View("Index", listing);
+            }
+        }
+
         public IActionResult EditListing(int id)
         {
             var listing = _service.GetSpecificListing(id);
@@ -127,18 +165,61 @@ namespace DivarClone.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Update(Listing listing, IFormFile? ImageFile)
+        public async Task<IActionResult> Update(Listing listing, List<IFormFile?> ImageFiles)
         {
             if (ModelState.IsValid)
             {
                 bool updateSuccess = await _service.UpdateListingAsync(listing);
-                if (!updateSuccess)
+                if (updateSuccess)
                 {
-                    ModelState.AddModelError("", "Error Updating listing ");
+                    var newListingId = listing.Id;
+					string fileHash = "";
+
+					var uniqueFiles = new List<(IFormFile File, string Hash)>();
+					var fileHashes = new HashSet<string>();
+
+					foreach (var ImageFile in ImageFiles)
+					{
+						//Making Images in individual listings distinct
+						try
+						{
+							fileHash = _service.ComputeImageHash(ImageFile.FileName);
+
+							if (!fileHashes.Contains(fileHash))
+							{
+								fileHashes.Add(fileHash);
+								uniqueFiles.Add((ImageFile, fileHash));
+							}
+						}
+						catch (Exception ex)
+						{
+							_logger.LogError(ex, "Error computing hash for ImageFile");
+							throw;
+						}
+					}
+
+					if (!uniqueFiles.Any())
+					{
+						_logger.LogTrace("No Image File uploaded going for the default image");
+					}
+
+					foreach (var (uniqueFile, filehash) in uniqueFiles)
+					{
+						try
+						{
+							await _service.UploadImageToFTP(newListingId, uniqueFile, filehash);
+						}
+						catch (Exception ex)
+						{
+							_logger.LogError(ex, "_service.UploadImageToFTP Image Upload Error ");
+							ModelState.AddModelError(ex.Message, "Image Upload Error ");
+						}
+					}
+					return RedirectToAction("Index", "Home");
                 }
                 else
                 {
-                    return RedirectToAction("Index", "Home");
+                    ModelState.AddModelError("", "Error Updating listing ");
                 }
             }
 
