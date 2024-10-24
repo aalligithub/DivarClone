@@ -173,49 +173,20 @@ namespace DivarClone.Controllers
                 if (updateSuccess)
                 {
                     var newListingId = listing.Id;
-					string fileHash = "";
 
-					var uniqueFiles = new List<(IFormFile File, string Hash)>();
-					var fileHashes = new HashSet<string>();
+                    try
+                    {
+                        await _service.CollectDistinctImages(newListingId, ImageFiles);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "AddListingController, MakeListingSecret, Failed to make listing secret");
+                        ModelState.AddModelError(ex.Message, "AddListingController, MakeListingSecret, Failed to make listing secret");
+                    }
 
-					foreach (var ImageFile in ImageFiles)
-					{
-						//Making Images in individual listings distinct
-						try
-						{
-							fileHash = _service.ComputeImageHash(ImageFile.FileName);
+                    TempData["SuccessMessage"] = "آگهی با موفقیت ویرایش شد";
 
-							if (!fileHashes.Contains(fileHash))
-							{
-								fileHashes.Add(fileHash);
-								uniqueFiles.Add((ImageFile, fileHash));
-							}
-						}
-						catch (Exception ex)
-						{
-							_logger.LogError(ex, "Error computing hash for ImageFile");
-							throw;
-						}
-					}
-
-					if (!uniqueFiles.Any())
-					{
-						_logger.LogTrace("No Image File uploaded going for the default image");
-					}
-
-					foreach (var (uniqueFile, filehash) in uniqueFiles)
-					{
-						try
-						{
-							await _service.UploadImageToFTP(newListingId, uniqueFile, filehash);
-						}
-						catch (Exception ex)
-						{
-							_logger.LogError(ex, "_service.UploadImageToFTP Image Upload Error ");
-							ModelState.AddModelError(ex.Message, "Image Upload Error ");
-						}
-					}
-					return RedirectToAction("Index", "Home");
+                    return RedirectToAction("Index", "Home");
                 }
                 else
                 {

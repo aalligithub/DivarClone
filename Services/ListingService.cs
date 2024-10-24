@@ -110,6 +110,7 @@ namespace DivarClone.Services
 
             return true;
         }
+       
         public async Task<bool> CollectDistinctImages(int? newListingId, List<IFormFile>? ImageFiles)
         {
             string fileHash = "";
