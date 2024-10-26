@@ -73,14 +73,18 @@
                 <div class="card-body">
                     <small class="text-muted">@listing.DateTimeOfPosting.ToString("MM/dd/yyyy HH:mm:ss")</small>
                 </div>
-                        @if (listing.Poster == @UserManager.GetUserName(User) || (User.IsInRole("Admin")))
-                        {
                     <div class="card-footer">
-                        <a class="btn btn-danger ms-2" onclick=deleteListing(@listing.Id)>حذف</a>
-                        <a class="btn btn-danger ms-2" onclick=confirmDelete(@listing.Id)> تایید حذف</a>
-                        <a class="btn btn-danger ms-2" onclick=editListing(@listing.Id)>ویرایش</a>
-                    </div>
-                }
+
+                        @if (User.IsInRole("PrivilagedUser") || User.HasClaim("Permission", "CanDeleteListings"))
+                        {
+                            <a class="btn btn-danger ms-2" onclick=confirmDelete(@listing.Id)> حذف</a>
+                        }
+
+                        @if (User.IsInRole("PrivilagedUser") || User.HasClaim("Permission", "CanEditListings"))
+                        {
+                            <a class="btn btn-danger ms-2" onclick=editListing(@listing.Id)>ویرایش</a>
+                        }
+                        </div>
                 </div>
             </div>
 
@@ -103,12 +107,12 @@
             }
         }
 
-        function deleteListing(listingId) {
-            window.location.href = `@Url.Action("DeleteUserListing", "Home")?id=${listingId}`;
-        }
-
         function editListing(listingId) {
-            window.location.href = `@Url.Action("EditListing", "AddListing")?id=${listingId}`;
+            var userConfirmed = confirm("از ویرایش این آگهی مطمعن هستید؟");
+
+            if (userConfirmed) {
+                window.location.href = `@Url.Action("EditListing", "AddListing")?id=${listingId}`;
+            }
         }
 	</script>
 }

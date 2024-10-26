@@ -33,93 +33,106 @@
 @{
     int listingId = Model.Id;
 }
-    <h2>@Model.Name</h2>
 
-    <div>
-        <p>@Model.Description</p>
-        <p>Price: @Model.Price</p>
-        <p>Category: @Model.Category</p>
-        <p>Posted by: @Model.Poster</p>
-        <p>Date of Posting: @Model.DateTimeOfPosting.ToString("MM/dd/yyyy HH:mm:ss")</p>
+<div class="container row" style="height: 85vh; width:100%;">
 
-        <div>
-        @if (Model.ImageData != null && Model.ImageData.Any())
-            {
-            @if (Model.ImageData.Count > 1)
-                {
-                @foreach (var image in Model.ImageData)
-                    {
-                    <figure class="zoom" onclick="toggleZoom(this)" id="listing-img-figure-@Model.Id" style="background-image: url('@image');">
-                        <img class="mySlides-@Model.Id" src="@image" alt="no img" />
-                        </figure>
-                    }
-                    <button class="w3-button w3-display-left" onclick="plusDivs(-1, @listingId)">&#10094;</button>
-                    <button class="w3-button w3-display-right" onclick="plusDivs(+1, @listingId)">&#10095;</button>
+	<div class="col">
+		@if (Model.ImageData != null && Model.ImageData.Any())
+		{
+			@if (Model.ImageData.Count >= 1)
+			{
+				@foreach (var image in Model.ImageData)
+				{
+					<figure class="zoom" onclick="toggleZoom(this)" id="listing-img-figure-@Model.Id" style="background-image: url('@image');">
+						<img class="mySlides-@Model.Id" src="@image" alt="no img" />
+					</figure>
+				}
 
-                    <script>
-                    document.querySelector(".mySlides-@Model.Id").style.display = "block";
-                    </script>
-                }
-                else
-                {
-                <img src="@Model.ImageData[0]" alt="no img" />
-                }
-            }
-            else
-            {
-                <p>No images available</p>
-            }
+                @if(Model.ImageData.Count > 1){
+				    <button class="w3-button w3-display-left" onclick="plusDivs(-1, @listingId)">&#10094;</button>
+					<button class="w3-button w3-display-right" onclick="plusDivs(+1, @listingId)">&#10095;</button>
+				}
+
+				<script>
+					document.querySelector(".mySlides-@Model.Id").style.display = "block";
+				</script>
+			}
+			else
+			{
+				<img src="@Model.ImageData[0]" alt="no img" />
+			}
+		}
+		else
+		{
+			<p>No images available</p>
+		}
+	</div>
+
+	<div class="col">
+        <div class="alert alert-secondary" style="margin-bottom:60px;">
+            <h2 class="alert-heading" style="text-align:center;">@Model.Name</h2>
         </div>
-    </div>
-    <script>
-        var slideIndex = 1;
+		<p>@Model.Description</p>
+        <hr>
+		<p>قیمت: @Model.Price</p>
+        <hr>
+        <p>دسته بندی: @Model.Category</p>
+        <hr>
+		<p>آگهی مطعلق به: @Model.Poster</p>
+        <hr>
+		<p>تاریخ آگهی: @Model.DateTimeOfPosting.ToString("MM/dd/yyyy HH:mm:ss")</p>
+	</div>
 
-        showDivs(slideIndex, listingId);
+</div>
 
-        function plusDivs(n, listingId) {
-            showDivs(slideIndex += n, listingId);
+<script>
+    var slideIndex = 1;
+
+    showDivs(slideIndex, listingId);
+
+    function plusDivs(n, listingId) {
+        showDivs(slideIndex += n, listingId);
+    }
+
+    function showDivs(n, listingId) {
+        var i;
+        var slides = document.getElementsByClassName("mySlides-" + listingId);
+
+        if (n > slides.length) { slideIndex = 1; }
+        if (n < 1) { slideIndex = slides.length; }
+
+        for (i = 0; i < slides.length; i++) {
+            slides[i].style.display = "none";
+        }
+        slides[slideIndex - 1].style.display = "block";
+    }
+
+    function toggleZoom(element) {
+        element.classList.toggle('active'); // Toggle the 'active' class to trigger the zoom effect
+
+        // If zoom is activated (active class added), add the mousemove listener
+        if (element.classList.contains('active')) {
+            element.addEventListener('mousemove', zoom);
+        } else {
+            element.removeEventListener('mousemove', zoom); // Remove the listener when zoom is deactivated
+        }
+    }
+
+    function zoom(e) {
+        var zoomer = e.currentTarget;
+        var offsetX, offsetY;
+
+        if (e.offsetX) {
+            offsetX = e.offsetX;
+            offsetY = e.offsetY;
+        } else if (e.touches) {
+            offsetX = e.touches[0].pageX - zoomer.offsetLeft;
+            offsetY = e.touches[0].pageY - zoomer.offsetTop;
         }
 
-        function showDivs(n, listingId) {
-            var i;
-            var slides = document.getElementsByClassName("mySlides-" + listingId);
-
-            if (n > slides.length) { slideIndex = 1; }
-            if (n < 1) { slideIndex = slides.length; }
-
-            for (i = 0; i < slides.length; i++) {
-                slides[i].style.display = "none";
-            }
-            slides[slideIndex - 1].style.display = "block";
-        }
-
-        function toggleZoom(element) {
-            element.classList.toggle('active'); // Toggle the 'active' class to trigger the zoom effect
-
-            // If zoom is activated (active class added), add the mousemove listener
-            if (element.classList.contains('active')) {
-                element.addEventListener('mousemove', zoom);
-            } else {
-                element.removeEventListener('mousemove', zoom); // Remove the listener when zoom is deactivated
-            }
-        }
-
-        function zoom(e) {
-            var zoomer = e.currentTarget;
-            var offsetX, offsetY;
-
-            if (e.offsetX) {
-                offsetX = e.offsetX;
-                offsetY = e.offsetY;
-            } else if (e.touches) {
-                offsetX = e.touches[0].pageX - zoomer.offsetLeft;
-                offsetY = e.touches[0].pageY - zoomer.offsetTop;
-            }
-
-            var x = (offsetX / zoomer.offsetWidth) * 100;
-            var y = (offsetY / zoomer.offsetHeight) * 100;
-            zoomer.style.backgroundPosition = x + '% ' + y + '%';
-            console.log(zoomer.style.backgroundPosition);
-        }
-    </script>
+        var x = (offsetX / zoomer.offsetWidth) * 100;
+        var y = (offsetY / zoomer.offsetHeight) * 100;
+        zoomer.style.backgroundPosition = x + '% ' + y + '%';
+    }
+</script>
 

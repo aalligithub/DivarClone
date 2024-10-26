@@ -21,7 +21,6 @@ namespace DivarClone.Controllers
         }
 
         [RoleOrPermissionAuthorize(Role = "Admin", Permission = "CanViewDashboard")]
-        //[Authorize(Policy = "ViewDashboardPolicy")]
         public async Task<IActionResult> IndexAsync()
         {
 			var Users = _service.GetAllUsers();
@@ -35,7 +34,7 @@ namespace DivarClone.Controllers
             return View();
         }
 
-        [Authorize(Policy = "AdminOrPermittedDashView")]
+        [RoleOrPermissionAuthorize(Role = "Admin", Permission = "CanViewDashboard")]
         [HttpPost]
         public async Task<IActionResult> ChangeUserRole(int Id, int Role)
         {
@@ -44,7 +43,7 @@ namespace DivarClone.Controllers
             return RedirectToAction("Index");
         }
 
-        [Authorize(Policy = "AdminOrPermittedDashView")]
+        [RoleOrPermissionAuthorize(Role = "Admin", Permission = "CanViewDashboard")]
         [HttpPost]
         public async Task<IActionResult> GiveUserSpecialPermission(int Id, int PermissionId)
         {

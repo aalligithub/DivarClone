@@ -1,6 +1,7 @@
 ﻿@using System.Security.Claims
 @model DivarClone.Models.Listing
 
+<div class="container" style="height:85vh;">
 <form asp-action="Create" enctype="multipart/form-data" method="post">
     <div class="mb-3">
         <label for="Name">تیتر آگهی</label>
@@ -114,4 +115,5 @@
 
     <input type="hidden" asp-for="Poster" value="@User.Identity.Name" />
     <button type="submit" class="btn btn-primary">ثبت آگهی</button>
-</form>
+	</form>
+</div>

@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization.Infrastructure;
 using static System.Runtime.InteropServices.JavaScript.JSType;
+using DivarClone.Attributes;
 
 
 namespace DivarClone.Controllers
@@ -29,7 +30,7 @@ namespace DivarClone.Controllers
             return View(listings);
         }
 
-        //[Authorize(Role = "Admin" || Permission = "CanViewDashBoard")]
+        [RoleOrPermissionAuthorize(Role = "PrivilagedUser", Permission = "CanViewSpecialListing")]
         [HttpGet("/SecretListings")]
         public IActionResult SecretListings() {
 
@@ -92,7 +93,7 @@ namespace DivarClone.Controllers
             return View("index", listings);
         }
 
-        [Authorize(Roles = "Admin, User")]
+        [RoleOrPermissionAuthorize(Role = "PrivilagedUser", Permission = "CanDeleteListings")]
         public async Task<IActionResult> DeleteUserListing(int id)
         {
             try

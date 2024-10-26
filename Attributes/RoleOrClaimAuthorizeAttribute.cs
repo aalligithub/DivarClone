@@ -14,7 +14,6 @@ namespace DivarClone.Attributes
         {
             var user = context.HttpContext.User;
 
-            // Check if the user is authenticated
             if (!user.Identity.IsAuthenticated)
             {
                 context.Result = new UnauthorizedResult();

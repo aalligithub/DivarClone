@@ -71,7 +71,7 @@ namespace DivarClone.Controllers
             }
             else
             {
-                ViewData["Message"] = "User Login Details Failed!!";
+                ViewData["Message"] = "اطلاعات کاربری اشتباه است";
                 ViewData["ReturnUrl"] = returnUrl;
                 return View("login");
             }
@@ -81,6 +81,7 @@ namespace DivarClone.Controllers
         public async Task<ActionResult> UserLogout()
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            TempData["SuccessMessage"] = "با موفقیت خارج شدید";
             return RedirectToAction("Index", "Home");
         }
 

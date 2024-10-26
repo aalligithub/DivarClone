@@ -21,13 +21,24 @@
 	<div class="list-group">
         <a href="#" class="list-group-item list-group-item-action user-control-menu" onclick=userListings('@UserManager.GetUserName(User)')>آگهی های من</a>
 
-        <a href="#" class="list-group-item list-group-item-action user-control-menu" onclick=GetSecretListings()>آگهی های خاص</a>
+        @if (User.IsInRole("PrivilagedUser") || User.HasClaim("Permission", "CanViewSpecialListing")) {
+			<a href="#" class="list-group-item list-group-item-action user-control-menu" onclick=GetSecretListings()>آگهی های خاص</a>
+		}
+
+        @if (User.IsInRole("Admin") || User.HasClaim("Permission", "CanViewDashboard"))
+        {
+            <a href="#" class="list-group-item list-group-item-action user-control-menu" onclick=viewDashboard()>داشبورد ادمین</a>
+        }
 	</div>
 </div>
 
 <script>
     function userListings(username) {
         window.location.href = `@Url.Action("ShowUserListings", "Home")?Username=${username}`;
+    }
+
+    function viewDashboard() {
+        window.location.href = `@Url.Action("index", "AdminDashboard")`;
     }
 
     function GetSecretListings() {
