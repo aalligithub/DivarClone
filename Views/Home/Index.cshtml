@@ -80,7 +80,7 @@
                             <a class="btn btn-danger ms-2" onclick=confirmDelete(@listing.Id)> حذف</a>
                         }
 
-                        @if (User.IsInRole("PrivilagedUser") || User.HasClaim("Permission", "CanEditListings"))
+                        @if (User.IsInRole("PrivilagedUser") || listing.Poster == @UserManager.GetUserName(User) && User.HasClaim("Permission", "CanEditListings"))
                         {
                             <a class="btn btn-danger ms-2" onclick=editListing(@listing.Id)>ویرایش</a>
                         }
