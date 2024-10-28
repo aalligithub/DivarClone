@@ -11,21 +11,8 @@
 }
 @model IEnumerable<DivarClone.Models.Listing>
 
-@if (ViewBag.ModelStateErrors != null)
-{
-    <div class="alert alert-danger">
-        <pre>@ViewBag.ModelStateErrors</pre>
-    </div>
-}
 
-@if (TempData["SuccessMessage"] != null)
-{
-    <div class="alert alert-success">
-        @TempData["SuccessMessage"]
-    </div>
-}
-
-<h1 class="custom-font" id="title-header">آگهی ها</h1>
+<h1 class="custom-font mb-3" id="title-header">آگهی ها</h1>
 <div class="row">
     @if (User.Identity.IsAuthenticated)
     {
@@ -51,44 +38,7 @@
         {
             <p>آگهی یافت نشد</p>
         } else {
-            @foreach (var listing in Model)
-            {
-            <div class="col-md-4" style="margin-bottom:25px;">
-                <div class="card h-100">
-
-                <img src="@listing.ImageData[0]" class="card-img-top" style="width:100%; height:300px; object-fit:contain; alt="no img"/>
-
-                <div class="card-body">
-
-                <h5 class="card-title">
-                    <a href="@Url.Action("Details", "Listings", new { id = listing.Id })">@listing.Name</a>
-                </h5>
-                    <p class="card-text">@listing.Description</p>
-                </div>
-                <ul class="list-group list-group-flush">
-                    <li class="list-group-item">Price : @listing.Price</li>
-                    <li class="list-group-item">Category : @listing.Category</li>
-                    <li class="list-group-item">Poster : @listing.Poster</li>
-                </ul>
-                <div class="card-body">
-                    <small class="text-muted">@listing.DateTimeOfPosting.ToString("MM/dd/yyyy HH:mm:ss")</small>
-                </div>
-                    <div class="card-footer">
-
-                        @if (User.IsInRole("PrivilagedUser") || User.HasClaim("Permission", "CanDeleteListings"))
-                        {
-                            <a class="btn btn-danger ms-2" onclick=confirmDelete(@listing.Id)> حذف</a>
-                        }
-
-                        @if (User.IsInRole("PrivilagedUser") || listing.Poster == @UserManager.GetUserName(User) && User.HasClaim("Permission", "CanEditListings"))
-                        {
-                            <a class="btn btn-danger ms-2" onclick=editListing(@listing.Id)>ویرایش</a>
-                        }
-                        </div>
-                </div>
-            </div>
-
-            }
+            @await Html.PartialAsync("_ListingPartial", Model)
         }`)
 
     </script>
@@ -103,7 +53,18 @@
             var userConfirmed = confirm("از بابت حذف این آگهی مطمعن هستید؟");
 
             if (userConfirmed) {
-                window.location.href = `@Url.Action("DeleteUserListing", "Home")?id=${listingId}`;
+                // window.location.href = `@Url.Action("DeleteUserListing", "Home")?id=${listingId}`;
+                $.ajax({
+                    url: '@Url.Action("DeleteUserListing", "Home")',
+                    type: 'GET',
+                    data: { id: listingId },
+                    success: function (result) {
+                        $('#listingCard').html(result);
+                    },
+                    error: function () {
+                        alert("آگهی مورد نظر حذف نشد");
+                    }
+                });
             }
         }
 
@@ -113,6 +74,34 @@
             if (userConfirmed) {
                 window.location.href = `@Url.Action("EditListing", "AddListing")?id=${listingId}`;
             }
+        }
+
+        function filterByText(text) {
+            $.ajax({
+                url: '@Url.Action("SearchResults", "Home")',
+                type: 'GET',
+                data: { textToSearch: text },
+                success: function (result) {
+                    $('#listingCard').html(result);
+                },
+                error: function () {
+                    alert("آگهی مورد نظر یافت نشد");
+                }
+            });
+        }
+
+        function filterByCategory(category) {
+            $.ajax({
+                url: '@Url.Action("FilterResults", "Home")',
+                type: 'GET',
+                data: { category: category },
+                success: function (result) {
+                    $('#listingCard').html(result);
+                },
+                error: function () {
+                    alert("آگهی مورد نظر یافت نشد");
+                }
+            });
         }
 	</script>
 }

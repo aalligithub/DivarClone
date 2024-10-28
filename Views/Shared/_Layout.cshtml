@@ -149,13 +149,6 @@
 </body>
 
 <script>
-    function filterByCategory(category) {
-        window.location.href = `@Url.Action("FilterResults", "Home")?category=${category}`;
-    }
-
-    function filterByText(text) {
-        window.location.href = `@Url.Action("SearchResults", "Home")?textToSearch=${text}`;
-    }
 
     function register() {
         window.location.href = `@Url.Action("RegisterationPage", "Enrollement")`;

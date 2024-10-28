@@ -34,7 +34,17 @@
 
 <script>
     function userListings(username) {
-        window.location.href = `@Url.Action("ShowUserListings", "Home")?Username=${username}`;
+        $.ajax({
+            url: '@Url.Action("ShowUserListings", "Home")',
+            type: 'GET',
+            data: { Username: username },
+            success: function (result) {
+                $('#listingCard').html(result);
+            },
+            error: function () {
+                alert("کاربر آگهی ندارد");
+            }
+        });
     }
 
     function viewDashboard() {
@@ -42,18 +52,15 @@
     }
 
     function GetSecretListings() {
-        window.location.href = `@Url.Action("SecretListings", "Home")`;
-
-        // $.ajax({
-        //     url: "@Url.Action("SecretListings", "Home")",
-        //     type: "GET",
-
-            // success: function (result, status, xhr) {
-            //     alert("Result: " + status + " " + xhr.status + " " + xhr.statusText)
-            // },
-            // error: function (xhr, status, error) {
-            //     alert("Result: " + status + " " + error + " " + xhr.status + " " + xhr.statusText)
-            // }
-        // });
+        $.ajax({
+            url: '@Url.Action("SecretListings", "Home")',
+            type: 'GET',
+            success: function (result) {
+                $('#listingCard').html(result);
+            },
+            error: function () {
+                alert("آگهی خاص وجود ندارد");
+            }
+        });
     }
 </script>

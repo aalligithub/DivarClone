@@ -1,0 +1,65 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using DivarClone.Areas.Identity.Data
+@using Microsoft.JSInterop
+
+@model IEnumerable<DivarClone.Models.Listing>
+
+@inject SignInManager<DivarCloneUser> SignInManager
+@inject UserManager<DivarCloneUser> UserManager
+@inject IJSRuntime jsRuntime
+
+@if (ViewBag.ModelStateErrors != null)
+{
+    <div class="alert alert-danger">
+        <pre>@ViewBag.ModelStateErrors</pre>
+    </div>
+}
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["SuccessMessage"]
+    </div>
+}
+
+ @foreach (var listing in Model)
+{
+    <div class="col-md-4" style="margin-bottom:25px;">
+        <div class="card h-100">
+
+            <img src="@listing.ImageData[0]" class="card-img-top" style="width:100%; height:300px; object-fit:contain; alt="no img"/>
+
+            <div class="card-body">
+
+                <h5 class="card-title">
+                    <a href="@Url.Action("Details", "Listings", new { id = listing.Id })">@listing.Name</a>
+                </h5>
+
+                <p class="card-text">@listing.Description</p>
+            </div>
+
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item">قیمت : @listing.Price</li>
+                <li class="list-group-item">دسته بندی : @listing.Category</li>
+                <li class="list-group-item">صاحب آگهی : @listing.Poster</li>
+            </ul>
+
+            <div class="card-body">
+                <small class="text-muted">@listing.DateTimeOfPosting.ToString("MM/dd/yyyy HH:mm:ss")</small>
+            </div>
+
+            <div class="card-footer">
+
+                @if (User.IsInRole("PrivilagedUser") || User.IsInRole("Admin") || listing.Poster == @UserManager.GetUserName(User) && User.HasClaim("Permission", "CanDeleteListings"))
+                {
+                    <a class="btn btn-danger ms-2" onclick=confirmDelete(@listing.Id)> حذف</a>
+                }
+
+                @if (User.IsInRole("PrivilagedUser") || User.IsInRole("Admin") || listing.Poster == @UserManager.GetUserName(User) && User.HasClaim("Permission", "CanEditListings"))
+                {
+                    <a class="btn btn-danger ms-2" onclick=editListing(@listing.Id)>ویرایش</a>
+                }
+            </div>
+        </div>
+    </div>
+}

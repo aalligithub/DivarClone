@@ -24,11 +24,13 @@ namespace DivarClone.Controllers
             _service = service;
         }
 
+
         public IActionResult Index()
         {
             var listings = _service.GetAllListings();
             return View(listings);
         }
+
 
         [RoleOrPermissionAuthorize(Role = "PrivilagedUser", Permission = "CanViewSpecialListing")]
         [HttpGet("/SecretListings")]
@@ -36,17 +38,23 @@ namespace DivarClone.Controllers
 
             int UserId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
 
-            var listing = _service.GetSecretListings(UserId);
-			if (listing == null)
+            var secretListings = new List<Listing>();
+
+            secretListings = _service.GetSecretListings(UserId);
+			if (secretListings.Count() > 0)
 			{
-                ViewBag.ModelStateErrors += "سطح دسترسی مورد نیاز را ندارید";
+                return PartialView("_ListingPartial", secretListings);
+            }
+            else
+            {
+                ViewBag.ModelStateErrors += "آگهی خاص یافت نشد";
 
                 var listings = _service.GetAllListings();
-                return View("Index", listings);
-			}
+                return PartialView("_ListingPartial", listings);
+            }
+            
+        }
 
-			return View("Index", listing);
-		}
 
         [HttpGet("/Listings/Details/{id}")]
         public IActionResult Details(int id)
@@ -60,29 +68,76 @@ namespace DivarClone.Controllers
             return View(listing);
         }
 
+
 		public IActionResult FilterResults(string category)
         {
+            var filteredListings = new List<Listing>();
+
             if (Enum.TryParse(typeof(Category), category, out var categoryEnum))
             {
-                var listings = _service.FilterResult(categoryEnum);
-                return View("index", listings);
+                try
+                {
+                    filteredListings = _service.FilterResult(categoryEnum);
+                    if (filteredListings.Count > 0)
+                    {
+                        return PartialView("_ListingPartial", filteredListings);
+                    }
+                    else {
+                        var listings = _service.GetAllListings;
+                        ViewBag.ModelStateErrors += "آگهی برای فیلتر یافت نشد";
+                        return PartialView("_ListingPartial", listings);
+                    }
+                }
+                catch (Exception ex) {
+                    _logger.LogError(ex ,"HomeController, FilterResults, couldnt get matching listings");
+                }
             }
+            ViewBag.ModelStateErrors += "فیلتر تعریف نشده است";
             return RedirectToAction("Index");
         }
+
 
         public IActionResult SearchResults(string textToSearch)
         {
             if (textToSearch != null)
             {
-                var listings = _service.SearchResult(textToSearch);
-                return View("index", listings);
+                var listings = new List<Listing>();
+
+                try { 
+                    listings = _service.SearchResult(textToSearch);
+                }
+                catch (Exception ex) {
+                    _logger.LogError(ex, "HomeController, SearchResults, Couldnt get searched listings");
+                    return RedirectToAction("Index");
+                };
+                
+                if ( listings.Count > 0) { 
+                    return PartialView("_ListingPartial", listings);
+                } 
+                else
+                {
+                    return NotFound();
+                }
             }
-            else { 
+            else
+            { 
                 ViewBag.ModelStateErrors += "برای جست و جو اسم آگهی مورد نظر را وارد کنید ";
-                var listings = _service.GetAllListings();
-                return View("Index", listings);
+                var listings = new List<Listing>();
+
+                try
+                {
+                   listings = _service.GetAllListings();
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "HomeController, SearchResults, Couldnt get searched listings");
+                    return RedirectToAction("Index");
+                };
+
+                return PartialView("_ListingPartial", listings);
             }
         }
+
 
         [Authorize]
         public IActionResult ShowUserListings(string Username)
@@ -90,8 +145,9 @@ namespace DivarClone.Controllers
             TempData["SuccessMessage"] = $"آگهی های کاربر : {User.Identity.Name}";
 
             var listings = _service.ShowUserListings(Username);
-            return View("index", listings);
+            return PartialView("_ListingPartial", listings);
         }
+
 
         [RoleOrPermissionAuthorize(Role = "PrivilagedUser", Permission = "CanDeleteListings")]
         public async Task<IActionResult> DeleteUserListing(int id)
@@ -111,13 +167,16 @@ namespace DivarClone.Controllers
             }
             
             var listings = _service.GetAllListings();
-            return View("Index", listings);
+            return PartialView("_ListingPartial", listings);
+            //return View("Index", listings);
         }
+
 
         [Authorize]
         public IActionResult UserControlPartial() {
             return PartialView("_UserControl");
         }
+
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
