@@ -14,7 +14,7 @@
     <link href="~/Content/StyleSheet.css" rel="stylesheet" />
 </head>
 <body>
-    <div class="container register">
+    <div class="container register m-3" style="height:70vh;">
         <div class="row">
             <div class="col-md-3 register-left">
                 <a class="nav-link text-dark"
@@ -26,8 +26,8 @@
                                   background-size: contain;
                                   background-repeat: no-repeat;">
                 </a>
-                <h3>خوش آمدید</h3>
-                <p>دیوار مرجع اصلی نیازمندی های رایگان و خرید و فروش کالای نو و دست دوم. نیازمندی های املاک، خودرو، استخدام، لوازم خانه، خدمات و سایر بخش های مورد نظر شما.</p>
+                <h2 style="text-align:end;">خوش آمدید</h2>
+                <p style="font-size:25px; text-align:end;">دیوار مرجع اصلی نیازمندی های رایگان و خرید و فروش کالای نو و دست دوم. نیازمندی های املاک، خودرو، استخدام، لوازم خانه، خدمات و سایر بخش های مورد نظر شما.</p>
             </div>
 
             <div class="col-md-9 register-right">
@@ -40,39 +40,39 @@
                     </li>
                 </ul>
 
-                <div class="tab-content" id="myTabContent">
+                <div class="tab-content mt-3" id="myTabContent" style="background-color:rgb(220, 53, 69); border-radius:20px;">
                     <div class="tab-pane fade show active" id="register" role="tabpanel">
-                        <h3 class="register-heading">عضویت به عنوان کاربر</h3>
+                        <h3 class="register-heading pt-4" style="text-align:center; color:white; text-shadow:0px 0px 3px white;">عضویت به عنوان کاربر</h3>
 
                         @using (Html.BeginForm("register", "Enrollement", FormMethod.Post))
                         {
                             @Html.AntiForgeryToken()
                             <div class="row register-form">
                                 <div class="col-md-6">
-                                    <div class="form-group">
+                                    <div class="form-group m-4" style="box-shadow:0px 0px 2px gray;">
                                         @Html.TextBoxFor(e => e.FirstName, new { @class = "form-control", placeholder = "نام" })
                                         @Html.ValidationMessageFor(e => e.FirstName)
                                     </div>
-                                    <div class="form-group">
+                                    <div class="form-group m-4" style="box-shadow:0px 0px 2px gray;">
                                         @Html.TextBoxFor(e => e.Username, new { @class = "form-control", placeholder = "نام کاربری", autocomplete = "new-username" })
                                         @Html.ValidationMessageFor(e => e.Username)
                                     </div>
-                                    <div class="form-group">
+                                    <div class="form-group m-4" style="box-shadow:0px 0px 2px gray;">
                                         @Html.PasswordFor(e => e.Password, new { id = "password", @class = "form-control", placeholder = "رمز عبور" })
                                         <span id="result"></span>
                                         @Html.ValidationMessageFor(e => e.Password)
                                     </div>
-                                    <div class="form-group">
+                                    <div class="form-group m-4" style="box-shadow:0px 0px 2px gray;">
                                         @Html.PasswordFor(e => e.Confirmpwd, new { @class = "form-control", placeholder = "تایید رمز عبور" })
                                         @Html.ValidationMessageFor(e => e.Confirmpwd)
                                     </div>
                                 </div>
                                 <div class="col-md-6">
-                                    <div class="form-group">
+                                    <div class="form-group m-4" style="box-shadow:0px 0px 2px gray;">
                                         @Html.TextBoxFor(e => e.Email, new { @class = "form-control", placeholder = "ایمیل", autocomplete = "username"})
                                         @Html.ValidationMessageFor(e => e.Email)
                                     </div>
-                                    <div class="form-group">
+                                    <div class="form-group m-4" style="box-shadow:0px 0px 2px gray;">
                                         @Html.TextBoxFor(e => e.PhoneNumber, new { @class = "form-control", placeholder = "شماره تماس" })
                                         @Html.ValidationMessageFor(e => e.PhoneNumber)
                                     </div>
