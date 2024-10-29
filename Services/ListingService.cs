@@ -50,7 +50,6 @@ namespace DivarClone.Services
         public string ComputeImageHash(string path);
 
         Task<bool> MakeListingSecret(int? listingId);
-
     }
 
     public class ListingService : IListingService
@@ -58,8 +57,10 @@ namespace DivarClone.Services
         public string Constr {  get; set; }
         public IConfiguration _configuration;
         public SqlConnection con;
+        private readonly ImageUploader _ImageUploader;
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly ILogger<AddListingController> _logger;
+
 
         public ListingService(IConfiguration configuration, IWebHostEnvironment webHostEnvironment, ILogger<AddListingController> logger)
         {
@@ -69,9 +70,187 @@ namespace DivarClone.Services
             _logger = logger;
 
             con = new SqlConnection(Constr);
+
+            _ImageUploader = new ImageUploader(con, logger);
         }
 
-		public string ComputeImageHash(string path)
+
+        internal class ImageUploader
+        {
+            private readonly SqlConnection _con;
+            private readonly ILogger _logger;
+
+            public ImageUploader(SqlConnection con, ILogger logger)
+            {
+                _con = con ?? throw new ArgumentNullException(nameof(con));
+                _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            }
+
+            public string ComputeImageHash(string path)
+            {
+                using (var sha256 = SHA256.Create())
+                {
+                    var hashBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(path));
+                    return Convert.ToHexString(hashBytes);
+                }
+            }
+
+            public async Task<bool> CollectDistinctImages(int? newListingId, List<IFormFile>? ImageFiles)
+            {
+                string fileHash = "";
+                var uniqueFiles = new List<(IFormFile File, string Hash)>();
+                var fileHashes = new HashSet<string>();
+
+                foreach (var ImageFile in ImageFiles)
+                {
+                    try
+                    {
+                        fileHash = ComputeImageHash(ImageFile.FileName);
+
+                        if (!fileHashes.Contains(fileHash))
+                        {
+                            fileHashes.Add(fileHash);
+                            uniqueFiles.Add((ImageFile, fileHash));
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Error computing hash for ImageFile");
+                        return false;
+                    }
+                }
+
+                if (!uniqueFiles.Any())
+                {
+                    _logger.LogTrace("No Image File uploaded going for the default image");
+                    return true;
+                }
+
+                foreach (var (uniqueFile, filehash) in uniqueFiles)
+                {
+                    try
+                    {
+                        await UploadImageToFTP(newListingId, uniqueFile, filehash);
+                        _logger.LogTrace($"{uniqueFile.FileName} was uploaded to ftp");
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "_service.UploadImageToFTP Image Upload Error ");
+                        return false;
+                    }
+                }
+                return true;
+            }
+
+            public async Task<bool> UploadImageToFTP(int? ListingId, IFormFile? ImageFile, string fileHash)
+            {
+                FtpWebRequest ftpRequest = null;
+                string ftpUrl = null;
+                List<string> PathToImage = new List<string>();
+
+                try
+                {
+                    if (ImageFile == null || ListingId == null)
+                    {
+                        throw new ArgumentNullException("ImageFile or ListingId cannot be null.");
+                    }
+
+                    //string ftpHost = Environment.GetEnvironmentVariable("FTP_HOST");
+                    string ftpHost = "ftp://127.0.0.1:21";
+
+                    string imageExtension = Path.GetExtension(ImageFile.FileName);
+                    string ftpFolder = "/Images/Listings/";
+                    string imageName = Guid.NewGuid().ToString();
+                    ftpUrl = ftpHost + ftpFolder + imageName + imageExtension; // Full path with the image name
+
+                    ServicePointManager.ServerCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true;
+
+                    ftpRequest = (FtpWebRequest)WebRequest.Create(ftpUrl);
+                    ftpRequest.UsePassive = false;
+                    ftpRequest.EnableSsl = false;
+                    ftpRequest.Method = WebRequestMethods.Ftp.UploadFile;
+                    ftpRequest.Credentials = new NetworkCredential(
+                        "Ali", "Ak362178"
+                    //Environment.GetEnvironmentVariable("FTP_USERNAME"),
+                    //Environment.GetEnvironmentVariable("FTP_PASSWORD")
+                    );
+
+                    System.Diagnostics.Debug.WriteLine(ftpUrl);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, " Error connecting to ftp server, unresponsive host or wrong credentials");
+                    return false;
+                }
+
+                try
+                {
+                    using (Stream ftpStream = ftpRequest.GetRequestStream())
+                    {
+                        await ImageFile.CopyToAsync(ftpStream);
+                        PathToImage.Add(ftpUrl);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, " Error uploading to ftp server, file transfer failed");
+                    return false;
+                }
+
+                try
+                {
+                    if (await InsertImagePathIntoDB(ListingId, PathToImage, fileHash) == true)
+
+                    {
+                        return true;
+                    }
+
+                    return false;
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, " Error adding image path to images table but ftp was successful");
+                    return false;
+                }
+            }
+
+            public async Task<bool> InsertImagePathIntoDB(int? listingId, List<string> PathToImageFTP, string fileHash)
+            {
+                if (_con != null && _con.State == ConnectionState.Closed)
+                {
+                    _con.Open();
+                }
+                try
+                {
+                    var cmd = new SqlCommand("SP_InsertImagePathIntoImages", _con);
+                    cmd.CommandType = System.Data.CommandType.StoredProcedure;
+
+                    foreach (var path in PathToImageFTP)
+                    {
+                        cmd.Parameters.AddWithValue("@ListingId", listingId);
+                        cmd.Parameters.AddWithValue("@ImagePath", path);
+
+                        cmd.Parameters.AddWithValue("@ImageHash", fileHash);
+
+                        await cmd.ExecuteNonQueryAsync();
+                        cmd.Parameters.Clear();
+                    }
+                    return true;
+
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine(ex, "failed to add image path to db");
+                    return false;
+                }
+                finally
+                {
+                    System.Diagnostics.Debug.WriteLine("\n Successfully added image path to db");
+                }
+            }
+        }
+
+        public string ComputeImageHash(string path)
 		{
 			using (var sha256 = SHA256.Create())
 			{
