@@ -9,82 +9,117 @@ var roles = ViewBag.AllPossibleRoles as Dictionary<string, string>;
 var permissions = ViewBag.AllPossiblePermissions as Dictionary<string, string>;
 
 
-    <style>
-    .badge {
-        padding: 5px 10px;
-        font-size: 0.9rem;
-    }
-
-    #editMenu {
-        display: none;
-        position: absolute;
-        background-color: #f8f9fa;
-        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-        padding: 10px;
-    }
-
-    .dropdown-menu.show {
-        display: block;
-    }
-    </style>
-
-    <div class="container mt-4" id="adminDash">
-        <div class="card shadow-lg">
-            <div class="card-header bg-primary text-white">
-                <h4 class="mb-0">User Management</h4>
-                @*
-        <div class="input-group mt-2" style="width:300px;">
-			<input id="" type="text" class="form-control" placeholder="User" aria-label="Recipient's username" aria-describedby="button-addon2">
-			<button class="btn" type="button" id="button-addon2" onclick="" style="background-color:red;">search</button>
-
-            <li>
-                <button class="btn btn-secondary" type="button" aria-expanded="false"> Add new Role </button>
-				<button class="btn btn-secondary" type="button" aria-expanded="false"> Add new Special Permission </button>
-			</li>
-		</div>*@
-            </div>
-
-            <div class="card-body p-4">
-                <ol class="list-group list-group-flush" id="users-container">
-                    @await Html.PartialAsync("_AdminUsersPartial", Model)
-                </ol>
-            </div>
-
-        </div>
-    </div>
-    @section scripts{
-    <script>
-        function ChangeUserRole(RoleId, UserId) {
-            var userConfirmed = confirm("از بابت تغییر نقش این کاربر مطمعن هستید؟");
-
-            if (userConfirmed) {
-                $.ajax({
-                    url: "@Url.Action("ChangeUserRole", "AdminDashboard")",
-                    type: "POST",
-                    data: {
-                        Role: RoleId,
-                        Id: UserId
-                    },
-                    success: function (result) {
-                        $('#users-container').html(result);
-                },
-                    error: function (xhr, status, error) {
-                        alert("Result: " + status + " " + error + " " + xhr.status + " " + xhr.statusText)
-                    }
-                });
-            }
+        <style>
+        .badge {
+            padding: 5px 10px;
+            font-size: 0.9rem;
         }
 
-        function GiveUserSpecialPermission(PermissionId, UserId) {
-            var userConfirmed = confirm("از دادن اجازه خاص به این کاربر مطمعن هستید؟");
+        #editMenu {
+            display: none;
+            position: absolute;
+            background-color: #f8f9fa;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 10px;
+        }
 
-            if (userConfirmed) {
+        .dropdown-menu.show {
+            display: block;
+        }
+        </style>
+
+        <div class="container mt-4" id="adminDash">
+            <div class="card shadow-lg">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">User Management</h4>
+
+                    <div class="input-group mt-2" style="width:300px;">
+                        <input id="username-search" type="text" class="form-control" placeholder="کاربر" aria-label="Recipient's username" aria-describedby="button-addon2">
+                        <button class="btn" type="button" id="button-addon2" onclick="SearchForUser(document.getElementById('username-search').value)" style="background-color:red; color:white;">جست و جو</button>
+                    </div>
+                        </div>
+
+                <div class="card-body p-4">
+                    <ol class="list-group list-group-flush" id="users-container">
+                        @await Html.PartialAsync("_AdminUsersPartial", Model)
+                    </ol>
+                </div>
+
+            </div>
+        </div>
+    @section scripts{
+        <script>
+            function ChangeUserRole(RoleId, UserId) {
+                var userConfirmed = confirm("از بابت تغییر نقش این کاربر مطمعن هستید؟");
+
+                if (userConfirmed) {
+                    $.ajax({
+                        url: "@Url.Action("ChangeUserRole", "AdminDashboard")",
+                        type: "POST",
+                        data: {
+                            Role: RoleId,
+                            Id: UserId
+                        },
+                        success: function (result) {
+                            $('#users-container').html(result);
+                    },
+                        error: function (xhr, status, error) {
+                            alert("Result: " + status + " " + error + " " + xhr.status + " " + xhr.statusText)
+                        }
+                    });
+                }
+            }
+
+            function GiveUserSpecialPermission(PermissionId, UserId) {
+                var userConfirmed = confirm("از دادن اجازه خاص به این کاربر مطمعن هستید؟");
+
+                if (userConfirmed) {
+                    $.ajax({
+                        url: "@Url.Action("GiveUserSpecialPermission", "AdminDashboard")",
+                        type:"POST",
+                        data: {
+                            PermissionId: PermissionId,
+                            Id: UserId
+                        },
+
+                        success: function (result, status, xhr) {
+                            $('#users-container').html(result);
+                        },
+                        error: function (xhr, status, error) {
+                            alert("Result: " + status + " " + error + " " + xhr.status + " " + xhr.statusText)
+                        }
+                    });
+                }
+            }
+
+            function RemoveUserSpecialPermission(PermissionName, UserId) {
+                var userConfirmed = confirm("از پاک کردن اجازه خاص این کاربر مطمعن هستید؟");
+
+                if (userConfirmed) {
+                    $.ajax({
+                        url: "@Url.Action("RemoveUserSpecialPermission", "AdminDashboard")",
+                        type: "POST",
+                        data: {
+                            PermissionName: PermissionName,
+                            Id: UserId
+                        },
+
+                        success: function (result, status, xhr) {
+                            $('#users-container').html(result);
+                        },
+                        error: function (xhr, status, error) {
+                            alert("Result: " + status + " " + error + " " + xhr.status + " " + xhr.statusText)
+                        }
+                    });
+                }
+            }
+
+            function SearchForUser(Username) {
                 $.ajax({
-                    url: "@Url.Action("GiveUserSpecialPermission", "AdminDashboard")",
-                    type:"POST",
+                    url: "@Url.Action("SearchUsers", "AdminDashboard")",
+                    type: "GET",
                     data: {
-                        PermissionId: PermissionId,
-                        Id: UserId
+                        Username: Username
                     },
 
                     success: function (result, status, xhr) {
@@ -95,7 +130,6 @@ var permissions = ViewBag.AllPossiblePermissions as Dictionary<string, string>;
                     }
                 });
             }
-        }
-    </script>
+        </script>
     }
 }

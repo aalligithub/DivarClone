@@ -35,6 +35,20 @@ namespace DivarClone.Controllers
         }
 
         [RoleOrPermissionAuthorize(Role = "Admin", Permission = "CanViewDashboard")]
+        public async Task<IActionResult> SearchUsers(string Username)
+        {
+            var Users = _service.SearchUsers(Username);
+            var AllPossiblePermissions = await _service.GetAllPossiblePermissions();
+            var AllPossibleRoles = await _service.GetAllPossibleRoles();
+
+            ViewBag.Users = Users;
+            ViewBag.AllPossiblePermissions = AllPossiblePermissions;
+            ViewBag.AllPossibleRoles = AllPossibleRoles;
+
+            return PartialView("_AdminUsersPartial");
+        }
+
+        [RoleOrPermissionAuthorize(Role = "Admin", Permission = "CanViewDashboard")]
         [HttpPost]
         public async Task<IActionResult> ChangeUserRole(int Id, int Role)
         {
@@ -97,6 +111,34 @@ namespace DivarClone.Controllers
 			return PartialView("_AdminUsersPartial");
 		}
 
-        //public async Task<IActionResult> RemoveUserSpecialPermission(int Id, int PermissionId) { }
+        [RoleOrPermissionAuthorize(Role = "Admin", Permission = "CanViewDashboard")]
+        public async Task<IActionResult> RemoveUserSpecialPermission(int Id, string PermissionName) {
+			TempData["UserId"] = Id.ToString();
+
+			try
+			{
+				await _service.RemoveUserSpecialPermission(Id, PermissionName);
+			}
+			catch (Exception ex)
+			{
+				_logger.LogError(ex, "AdminController, RemoveUserSpecialPermission, Failed to remove user special permission");
+
+				ViewBag.ModelStateErrors += "حذف کردن اجازه خاص از کاربر موفقیت آمیز نبود";
+			}
+			finally
+			{
+				TempData["SuccessMessage"] = "اجازه خاص حذف شد";
+			}
+
+			var Users = _service.GetAllUsers();
+			var AllPossiblePermissions = await _service.GetAllPossiblePermissions();
+			var AllPossibleRoles = await _service.GetAllPossibleRoles();
+
+			ViewBag.Users = Users;
+			ViewBag.AllPossiblePermissions = AllPossiblePermissions;
+			ViewBag.AllPossibleRoles = AllPossibleRoles;
+
+			return PartialView("_AdminUsersPartial");
+		}
     }
 }
