@@ -171,7 +171,7 @@
 					}
 				</div>
 
-				<input type="hidden" asp-for="Poster" value="Poster" />
+				<input type="hidden" asp-for="Poster" value="@User.Identity.Name" />
 				<input type="hidden" asp-for="Id" value="@Model.Id" />
 
 				<div class="submit-container">
