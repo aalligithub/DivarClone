@@ -38,19 +38,64 @@ namespace DivarClone.Controllers
         [HttpPost]
         public async Task<IActionResult> ChangeUserRole(int Id, int Role)
         {
-            await _service.ChangeUserRoles(Id, Role);
+			TempData["UserId"] = Id.ToString();
 
-            return RedirectToAction("Index");
+			try
+            {
+                await _service.ChangeUserRoles(Id, Role);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "AdminController, ChangeUserRole, Failed to change user's role");
+
+				ViewBag.ModelStateErrors += "تغییر نقش کاربر موفقیت آمیز نبود";
+			}
+            finally {
+                TempData["SuccessMessage"] = "نقش کاربر تغییر کرد";
+            }
+
+            var Users = _service.GetAllUsers();
+            var AllPossiblePermissions = await _service.GetAllPossiblePermissions();
+            var AllPossibleRoles = await _service.GetAllPossibleRoles();
+
+            ViewBag.Users = Users;
+            ViewBag.AllPossiblePermissions = AllPossiblePermissions;
+            ViewBag.AllPossibleRoles = AllPossibleRoles;
+
+            return PartialView("_AdminUsersPartial");
         }
 
         [RoleOrPermissionAuthorize(Role = "Admin", Permission = "CanViewDashboard")]
         [HttpPost]
         public async Task<IActionResult> GiveUserSpecialPermission(int Id, int PermissionId)
         {
-            await _service.GiveUserSpecialPermission(Id, PermissionId);
+			TempData["UserId"] = Id.ToString();
 
-            return RedirectToAction("Index");
-        }
+			try
+            {
+                await _service.GiveUserSpecialPermission(Id, PermissionId);
+            }
+            catch (Exception ex)
+            {
+				_logger.LogError(ex, "AdminController, ChangeUserRole, Failed to give user special permission");
+
+				ViewBag.ModelStateErrors += "اضافه کردن اجازه خاص به کاربر موفقیت آمیز نبود";
+			}
+			finally
+			{
+				TempData["SuccessMessage"] = "اجازه خاص اضافه شد";
+			}
+
+			var Users = _service.GetAllUsers();
+			var AllPossiblePermissions = await _service.GetAllPossiblePermissions();
+			var AllPossibleRoles = await _service.GetAllPossibleRoles();
+
+			ViewBag.Users = Users;
+			ViewBag.AllPossiblePermissions = AllPossiblePermissions;
+			ViewBag.AllPossibleRoles = AllPossibleRoles;
+
+			return PartialView("_AdminUsersPartial");
+		}
 
         //public async Task<IActionResult> RemoveUserSpecialPermission(int Id, int PermissionId) { }
     }
