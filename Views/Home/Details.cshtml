@@ -1,5 +1,10 @@
 ﻿@model DivarClone.Models.Listing
+@using Microsoft.AspNetCore.Identity
+@using DivarClone.Areas.Identity.Data
+@using Microsoft.JSInterop
 
+@inject SignInManager<DivarCloneUser> SignInManager
+@inject UserManager<DivarCloneUser> UserManager
 
 <style>
     figure.zoom {
@@ -17,12 +22,15 @@
         height: 500px;
         object-fit: contain;
         transition: opacity 0.8s, transform 0.8s ease-in-out;
-        display: none; 
+        display: none;
+        z-index: 10;
     }
 
     figure.zoom.active {
-        transform: scale(1.5);
+        transform: scale(1.5) translateX(150px) translateY(50px);
         background-size: 150%;
+        background-position: 100%;
+        z-index: 10;
     }
 
     figure.zoom.active img {
@@ -81,8 +89,18 @@
 		<p>آگهی مطعلق به: @Model.Poster</p>
         <hr>
 		<p>تاریخ آگهی: @Model.DateTimeOfPosting.ToString("MM/dd/yyyy HH:mm:ss")</p>
-	</div>
+        <div class="col">
+            @if (User.IsInRole("PrivilagedUser") || User.IsInRole("Admin") || Model.Poster == @UserManager.GetUserName(User) && User.HasClaim("Permission", "CanDeleteListings"))
+            {
+                <a class="btn btn-danger ms-2" onclick=confirmDelete(@Model.Id)> حذف</a>
+            }
 
+            @if (User.IsInRole("PrivilagedUser") || User.IsInRole("Admin") || Model.Poster == @UserManager.GetUserName(User) && User.HasClaim("Permission", "CanEditListings"))
+            {
+                <a class="btn btn-danger ms-2" onclick=editListing(@Model.Id)>ویرایش</a>
+            }
+        </div>
+	</div>
 </div>
 
 <script>
@@ -133,6 +151,33 @@
         var x = (offsetX / zoomer.offsetWidth) * 100;
         var y = (offsetY / zoomer.offsetHeight) * 100;
         zoomer.style.backgroundPosition = x + '% ' + y + '%';
+    }
+
+    function editListing(listingId) {
+        var userConfirmed = confirm("از ویرایش این آگهی مطمعن هستید؟");
+
+        if (userConfirmed) {
+            window.location.href = `@Url.Action("EditListing", "AddListing")?id=${listingId}`;
+        }
+    }
+
+    function confirmDelete(listingId) {
+        var userConfirmed = confirm("از بابت حذف این آگهی مطمعن هستید؟");
+
+        if (userConfirmed) {
+            window.location.href = `@Url.Action("Index", "Home")`;
+            $.ajax({
+                url: '@Url.Action("DeleteUserListing", "Home")',
+                type: 'GET',
+                data: { id: listingId },
+                success: function (result) {
+                    $('#listingCard').html(result);
+                },
+                error: function () {
+                    alert("آگهی مورد نظر حذف نشد");
+                }
+            });
+        }
     }
 </script>
 
