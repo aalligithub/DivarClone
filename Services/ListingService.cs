@@ -21,7 +21,7 @@ namespace DivarClone.Services
 
         public List<Listing> GetSecretListings(int UserId);
 
-		List<Listing> FilterResult(object categoryEnum);
+        List<Listing> FilterResult(object categoryEnum);
 
         List<Listing> SearchResult(string textToSearch);
 
@@ -45,7 +45,7 @@ namespace DivarClone.Services
 
         Task<bool> DeleteImageFromFTP(string ImagePath);
 
-		Task<byte[]> GetImagesFromFTPForListing(string ImagePath);
+        Task<byte[]> GetImagesFromFTPForListing(string ImagePath);
 
         public string ComputeImageHash(string path);
 
@@ -54,7 +54,7 @@ namespace DivarClone.Services
 
     public class ListingService : IListingService
     {
-        public string Constr {  get; set; }
+        public string Constr { get; set; }
         public IConfiguration _configuration;
         public SqlConnection con;
         private readonly ImageUploader _ImageUploader;
@@ -251,13 +251,13 @@ namespace DivarClone.Services
         }
 
         public string ComputeImageHash(string path)
-		{
-			using (var sha256 = SHA256.Create())
-			{
-				var hashBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(path));
-				return Convert.ToHexString(hashBytes);
-			}
-		}
+        {
+            using (var sha256 = SHA256.Create())
+            {
+                var hashBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(path));
+                return Convert.ToHexString(hashBytes);
+            }
+        }
 
         public async Task<bool> MakeListingSecret(int? listingId)
         {
@@ -289,7 +289,7 @@ namespace DivarClone.Services
 
             return true;
         }
-       
+
         public async Task<bool> CollectDistinctImages(int? newListingId, List<IFormFile>? ImageFiles)
         {
             string fileHash = "";
@@ -339,41 +339,42 @@ namespace DivarClone.Services
 
         public async Task<bool> UploadImageToFTP(int? ListingId, IFormFile? ImageFile, string fileHash)
         {
-			FtpWebRequest ftpRequest = null;
-			string ftpUrl = null;
-			List<string> PathToImage = new List<string>();
+            FtpWebRequest ftpRequest = null;
+            string ftpUrl = null;
+            List<string> PathToImage = new List<string>();
 
-			try
+            try
             {
-				if (ImageFile == null || ListingId == null)
-				{
-					throw new ArgumentNullException("ImageFile or ListingId cannot be null.");
-				}
+                if (ImageFile == null || ListingId == null)
+                {
+                    throw new ArgumentNullException("ImageFile or ListingId cannot be null.");
+                }
 
                 //string ftpHost = Environment.GetEnvironmentVariable("FTP_HOST");
-				string ftpHost = "ftp://127.0.0.1:21";
+                string ftpHost = "ftp://127.0.0.1:21";
 
-				string imageExtension = Path.GetExtension(ImageFile.FileName);
-				string ftpFolder = "/Images/Listings/";
-				string imageName = Guid.NewGuid().ToString();
-				ftpUrl = ftpHost + ftpFolder + imageName + imageExtension; // Full path with the image name
+                string imageExtension = Path.GetExtension(ImageFile.FileName);
+                string ftpFolder = "/Images/Listings/";
+                string imageName = Guid.NewGuid().ToString();
+                ftpUrl = ftpHost + ftpFolder + imageName + imageExtension; // Full path with the image name
 
-				ServicePointManager.ServerCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true;
+                ServicePointManager.ServerCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true;
 
-				ftpRequest = (FtpWebRequest)WebRequest.Create(ftpUrl);
-				ftpRequest.UsePassive = false;
-				ftpRequest.EnableSsl = false;
-				ftpRequest.Method = WebRequestMethods.Ftp.UploadFile;
-				ftpRequest.Credentials = new NetworkCredential(
-                    "Ali","Ak362178"
-                    //Environment.GetEnvironmentVariable("FTP_USERNAME"),
-                    //Environment.GetEnvironmentVariable("FTP_PASSWORD")
+                ftpRequest = (FtpWebRequest)WebRequest.Create(ftpUrl);
+                ftpRequest.UsePassive = false;
+                ftpRequest.EnableSsl = false;
+                ftpRequest.Method = WebRequestMethods.Ftp.UploadFile;
+                ftpRequest.Credentials = new NetworkCredential(
+                    "Ali", "Ak362178"
+                //Environment.GetEnvironmentVariable("FTP_USERNAME"),
+                //Environment.GetEnvironmentVariable("FTP_PASSWORD")
                 );
 
                 System.Diagnostics.Debug.WriteLine(ftpUrl);
-			}
-            catch (Exception ex) {
-                _logger.LogError(ex ," Error connecting to ftp server, unresponsive host or wrong credentials");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, " Error connecting to ftp server, unresponsive host or wrong credentials");
                 return false;
             }
 
@@ -383,8 +384,8 @@ namespace DivarClone.Services
                 {
                     await ImageFile.CopyToAsync(ftpStream);
                     PathToImage.Add(ftpUrl);
-				}
-			}
+                }
+            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, " Error uploading to ftp server, file transfer failed");
@@ -401,18 +402,19 @@ namespace DivarClone.Services
 
                 return false;
             }
-            catch (Exception ex) {
-				_logger.LogError(ex, " Error adding image path to images table but ftp was successful");
-				return false;
-			}
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, " Error adding image path to images table but ftp was successful");
+                return false;
+            }
         }
 
-		public async Task<bool> DeleteImageFromFTP(string imagePath)
+        public async Task<bool> DeleteImageFromFTP(string imagePath)
         {
-			FtpWebRequest ftpRequest = null;
-			FtpWebResponse ftpResponse = null;
+            FtpWebRequest ftpRequest = null;
+            FtpWebResponse ftpResponse = null;
 
-			try
+            try
             {
                 ServicePointManager.ServerCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true;
 
@@ -426,45 +428,46 @@ namespace DivarClone.Services
                 //Environment.GetEnvironmentVariable("FTP_PASSWORD")
                 );
 
-				ftpResponse = (FtpWebResponse)await ftpRequest.GetResponseAsync();
+                ftpResponse = (FtpWebResponse)await ftpRequest.GetResponseAsync();
 
-				if (ftpResponse.StatusCode == FtpStatusCode.FileActionOK)
-				{
-					_logger.LogInformation("Successfully deleted image from FTP: {ImagePath}", imagePath);
+                if (ftpResponse.StatusCode == FtpStatusCode.FileActionOK)
+                {
+                    _logger.LogInformation("Successfully deleted image from FTP: {ImagePath}", imagePath);
 
                     try
                     {
-						if (con != null && con.State == ConnectionState.Closed)
-						{
-							con.Open();
-						}
+                        if (con != null && con.State == ConnectionState.Closed)
+                        {
+                            con.Open();
+                        }
 
-						var cmd = new SqlCommand("SP_RemoveDeletedImagePath", con);
-						cmd.CommandType = System.Data.CommandType.StoredProcedure;
+                        var cmd = new SqlCommand("SP_RemoveDeletedImagePath", con);
+                        cmd.CommandType = System.Data.CommandType.StoredProcedure;
 
-						cmd.Parameters.AddWithValue("@ImagePath", imagePath);
+                        cmd.Parameters.AddWithValue("@ImagePath", imagePath);
 
-						cmd.ExecuteNonQuery();
-					}
+                        cmd.ExecuteNonQuery();
+                    }
                     catch (Exception ex)
                     {
                         _logger.LogError(ex.Message, ex);
                         return false;
                     }
-                    finally { 
+                    finally
+                    {
                         ftpResponse.Close();
                         _logger.LogInformation("Successfully removed image data from listing");
                     }
-                    					
-					return true;
-				}
-				else
-				{
-					_logger.LogWarning("Failed to delete image from FTP. Status: {Status}", ftpResponse.StatusDescription);
-					return false;
-				}
 
-			}
+                    return true;
+                }
+                else
+                {
+                    _logger.LogWarning("Failed to delete image from FTP. Status: {Status}", ftpResponse.StatusDescription);
+                    return false;
+                }
+
+            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, " Error connecting to ftp server, unresponsive host or wrong credentials");
@@ -472,27 +475,28 @@ namespace DivarClone.Services
             }
         }
 
-		public async Task<bool> InsertImagePathIntoDB(int? listingId, List<string> PathToImageFTP, string fileHash)
-		{            
-			if (con != null && con.State == ConnectionState.Closed)
-			{
-				con.Open();
-			}
+        public async Task<bool> InsertImagePathIntoDB(int? listingId, List<string> PathToImageFTP, string fileHash)
+        {
+            if (con != null && con.State == ConnectionState.Closed)
+            {
+                con.Open();
+            }
             try
             {
                 var cmd = new SqlCommand("SP_InsertImagePathIntoImages", con);
                 cmd.CommandType = System.Data.CommandType.StoredProcedure;
 
-                foreach (var path in PathToImageFTP) {
-					cmd.Parameters.AddWithValue("@ListingId", listingId);
+                foreach (var path in PathToImageFTP)
+                {
+                    cmd.Parameters.AddWithValue("@ListingId", listingId);
                     cmd.Parameters.AddWithValue("@ImagePath", path);
 
                     cmd.Parameters.AddWithValue("@ImageHash", fileHash);
 
-					await cmd.ExecuteNonQueryAsync();
-					cmd.Parameters.Clear();
-				}
-				return true;
+                    await cmd.ExecuteNonQueryAsync();
+                    cmd.Parameters.Clear();
+                }
+                return true;
 
             }
             catch (Exception ex)
@@ -500,13 +504,14 @@ namespace DivarClone.Services
                 System.Diagnostics.Debug.WriteLine(ex, "failed to add image path to db");
                 return false;
             }
-            finally {
+            finally
+            {
                 System.Diagnostics.Debug.WriteLine("\n Successfully added image path to db");
-			}
-		}
+            }
+        }
 
-		public async Task<byte[]> GetImagesFromFTPForListing(string ImagePath)
-		{
+        public async Task<byte[]> GetImagesFromFTPForListing(string ImagePath)
+        {
             FtpWebRequest ftpRequest = null;
             FtpWebResponse ftpResponse = null;
             byte[] imageBytes = null;
@@ -554,7 +559,7 @@ namespace DivarClone.Services
             }
 
             return imageBytes;
-		}
+        }
 
         public async Task<string> DownloadImageAsBase64(string imagePath)
         {
@@ -570,30 +575,30 @@ namespace DivarClone.Services
         }
 
         public List<Listing> RetrieveListingWithImages(SqlDataReader rdr)
-		{
-			var listingsDictionary = new Dictionary<int, Listing>();
+        {
+            var listingsDictionary = new Dictionary<int, Listing>();
 
-			while (rdr.Read())
-			{
-				int listingId = rdr.GetInt32("Id");
+            while (rdr.Read())
+            {
+                int listingId = rdr.GetInt32("Id");
 
-				// Check if the listing is already added to the dictionary
-				if (!listingsDictionary.TryGetValue(listingId, out Listing listing))
-				{
-					listing = new Listing
-					{
-						Id = listingId,
-						Name = rdr["Name"].ToString(),
-						Description = rdr["Description"].ToString(),
-						Price = Convert.ToInt32(rdr["Price"]),
-						Poster = rdr["Poster"].ToString(),
-						Category = (Category)Enum.Parse(typeof(Category), rdr["Category"].ToString()),
-						DateTimeOfPosting = Convert.ToDateTime(rdr["DateTimeOfPosting"]),
-						ImagePath = new List<string>()
-					};
+                // Check if the listing is already added to the dictionary
+                if (!listingsDictionary.TryGetValue(listingId, out Listing listing))
+                {
+                    listing = new Listing
+                    {
+                        Id = listingId,
+                        Name = rdr["Name"].ToString(),
+                        Description = rdr["Description"].ToString(),
+                        Price = Convert.ToInt32(rdr["Price"]),
+                        Poster = rdr["Poster"].ToString(),
+                        Category = (Category)Enum.Parse(typeof(Category), rdr["Category"].ToString()),
+                        DateTimeOfPosting = Convert.ToDateTime(rdr["DateTimeOfPosting"]),
+                        ImagePath = new List<string>()
+                    };
 
                     listingsDictionary[listingId] = listing;
-				}
+                }
                 if (!rdr.IsDBNull(rdr.GetOrdinal("ImagePaths")))
                 {
                     string concatenatedPaths = rdr["ImagePaths"].ToString();
@@ -607,7 +612,8 @@ namespace DivarClone.Services
                         }
                     }
                 }
-                else if (!listing.ImagePath.Contains("ftp://127.0.0.1/Images/Listings/No_Image_Available.jpg")) {
+                else if (!listing.ImagePath.Contains("ftp://127.0.0.1/Images/Listings/No_Image_Available.jpg"))
+                {
                     //Environment.GetEnvironmentVariable("PATH_TO_DEFAULT_IMAGE")
                     listing.ImagePath.Add("ftp://127.0.0.1/Images/Listings/No_Image_Available.jpg");
                 }
@@ -619,7 +625,7 @@ namespace DivarClone.Services
                         var base64Image = DownloadImageAsBase64(imagePath).Result;
 
                         if (!string.IsNullOrEmpty(base64Image) && !listing.ImageData.Contains(base64Image))
-                        { 
+                        {
                             listing.ImageData.Add(base64Image);
                         }
                     }
@@ -634,43 +640,44 @@ namespace DivarClone.Services
 
         public List<Listing> GetSecretListings(int UserId)
         {
-			List<Listing> listingsList = new List<Listing>();
+            List<Listing> listingsList = new List<Listing>();
 
-			if (con != null && con.State == ConnectionState.Closed)
-			{
-				con.Open();
-			}
+            if (con != null && con.State == ConnectionState.Closed)
+            {
+                con.Open();
+            }
 
-			try
-			{
-				var cmd = new SqlCommand("SP_GetAllSecretListingsWithImages", con);
+            try
+            {
+                var cmd = new SqlCommand("SP_GetAllSecretListingsWithImages", con);
 
-				cmd.CommandType = System.Data.CommandType.StoredProcedure;
+                cmd.CommandType = System.Data.CommandType.StoredProcedure;
 
                 cmd.Parameters.AddWithValue("@UserId", UserId);
 
-				SqlDataReader rdr = cmd.ExecuteReader();
+                SqlDataReader rdr = cmd.ExecuteReader();
 
-				listingsList = RetrieveListingWithImages(rdr);
-			}
-			catch (Exception ex)
-			{
-				_logger.LogError(ex, " Error Getting Listing list from Listings table");
+                listingsList = RetrieveListingWithImages(rdr);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, " Error Getting Listing list from Listings table, unAuthorized access");
                 return null;
-			}
-			finally
-			{
-				con.Close();
-			}
+            }
+            finally
+            {
+                con.Close();
+            }
 
-			return listingsList;
-		}
+            return listingsList;
+        }
 
-		public List<Listing> GetAllListings()
+        public List<Listing> GetAllListings()
         {
-			List<Listing> listingsList = new List<Listing>();
+            List<Listing> listingsList = new List<Listing>();
 
-            if (con != null && con.State == ConnectionState.Closed) {
+            if (con != null && con.State == ConnectionState.Closed)
+            {
                 con.Open();
             }
 
@@ -682,8 +689,8 @@ namespace DivarClone.Services
 
                 SqlDataReader rdr = cmd.ExecuteReader();
 
-				listingsList = RetrieveListingWithImages(rdr);
-			}
+                listingsList = RetrieveListingWithImages(rdr);
+            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, " Error Getting Listing list from Listings table");
@@ -715,25 +722,26 @@ namespace DivarClone.Services
                 cmd.Parameters.AddWithValue("@Category", (int)listing.Category);
                 cmd.Parameters.AddWithValue("@DateTimeOfPosting", DateTime.Now);
 
-				int newListingId = Convert.ToInt32(await cmd.ExecuteScalarAsync());
+                int newListingId = Convert.ToInt32(await cmd.ExecuteScalarAsync());
 
-                System.Diagnostics.Debug.WriteLine("New Listing Created with Listing Id : "+ newListingId);
-				return newListingId;
+                System.Diagnostics.Debug.WriteLine("New Listing Created with Listing Id : " + newListingId);
+                return newListingId;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error creating listing");
                 return null;
             }
-            finally { 
+            finally
+            {
                 con.Close();
             }
         }
 
         public Listing GetSpecificListing(int id)
         {
-			Listing listing = null;
-			try
+            Listing listing = null;
+            try
             {
                 if (con != null && con.State == ConnectionState.Closed)
                 {
@@ -801,7 +809,7 @@ namespace DivarClone.Services
                 return false;
             }
         }
- 
+
         public async Task DeleteUserListing(int id)
         {
             try
@@ -849,9 +857,9 @@ namespace DivarClone.Services
 
                 SqlDataReader rdr = cmd.ExecuteReader();
 
-				var listingsList = RetrieveListingWithImages(rdr);
+                var listingsList = RetrieveListingWithImages(rdr);
 
-				return listingsList.ToList();
+                return listingsList.ToList();
 
             }
             catch (Exception ex)
@@ -878,9 +886,9 @@ namespace DivarClone.Services
 
                 SqlDataReader rdr = cmd.ExecuteReader();
 
-				var listingsList = RetrieveListingWithImages(rdr);
+                var listingsList = RetrieveListingWithImages(rdr);
 
-				return listingsList.ToList();
+                return listingsList.ToList();
 
             }
             catch (Exception ex)
@@ -907,9 +915,9 @@ namespace DivarClone.Services
 
                 SqlDataReader rdr = cmd.ExecuteReader();
 
-				var listingsList = RetrieveListingWithImages(rdr);
+                var listingsList = RetrieveListingWithImages(rdr);
 
-				return listingsList.ToList();
+                return listingsList.ToList();
 
             }
             catch (Exception ex)
