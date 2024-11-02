@@ -40,8 +40,20 @@ namespace DivarClone.Controllers
 
             var secretListings = new List<Listing>();
 
-            secretListings = _service.GetSecretListings(UserId);
-			if (secretListings.Count() > 0)
+            try {secretListings = _service.GetSecretListings(UserId); }
+            catch (Exception ex) {
+                _logger.LogError(ex," HomeController, GetSecretListings, No listings were found");
+                secretListings.Clear();
+             }
+
+            if (secretListings == null)
+            {
+                var listings = _service.GetAllListings();
+                ViewBag.ModelStateErrors += "سطح دسترسی لازم برای آگهی را ندارید";
+                return PartialView("_ListingPartial", listings);
+            }
+            
+			else if (secretListings.Count() > 0)
 			{
                 return PartialView("_ListingPartial", secretListings);
             }
