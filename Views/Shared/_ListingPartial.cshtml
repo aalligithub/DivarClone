@@ -50,12 +50,12 @@
 
             <div class="card-footer">
 
-                @if (User.IsInRole("PrivilagedUser") || User.IsInRole("Admin") || listing.Poster == @UserManager.GetUserName(User) && User.HasClaim("Permission", "CanDeleteListings"))
+                @if (User.HasClaim("Permission", "CanDeleteListings"))
                 {
                     <a class="btn btn-danger ms-2" onclick=confirmDelete(@listing.Id)> حذف</a>
                 }
 
-                @if (User.IsInRole("PrivilagedUser") || User.IsInRole("Admin") || listing.Poster == @UserManager.GetUserName(User) && User.HasClaim("Permission", "CanEditListings"))
+                @if (User.HasClaim("Permission", "CanEditListings"))
                 {
                     <a class="btn btn-danger ms-2" onclick=editListing(@listing.Id)>ویرایش</a>
                 }

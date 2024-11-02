@@ -4,6 +4,7 @@ using DivarClone.Controllers;
 using DivarClone.Models;
 using System.Reflection;
 using Microsoft.CodeAnalysis.Elfie.Serialization;
+using Microsoft.AspNetCore.Authorization;
 
 namespace DivarClone.Services
 {
@@ -161,6 +162,7 @@ namespace DivarClone.Services
             return UsersList.ToList();
         }
 
+        [Authorize]
         public async Task<bool> ChangeUserRoles(int Id, int Role)
         {
             try

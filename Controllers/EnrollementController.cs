@@ -3,6 +3,7 @@ using DivarClone.Models;
 using DivarClone.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 
 
 namespace DivarClone.Controllers
@@ -77,7 +78,7 @@ namespace DivarClone.Controllers
             }
         }
 
-
+        [Authorize]
         public async Task<ActionResult> UserLogout()
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);

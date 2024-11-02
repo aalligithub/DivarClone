@@ -81,7 +81,7 @@
 
                         <li class="nav-item">
                             <a class="btn btn-danger ms-2" asp-area="" asp-controller="AddListing" asp-action="Index">ثبت آگهی</a>
-                            @if (User.HasClaim(ClaimTypes.Role, "Admin") || User.HasClaim(ClaimTypes.Role, "PrivilagedUser"))
+                            @if (User.HasClaim("Permission", "ViewSpecialListingPolicy"))
                             {
                                 <a class="btn btn-danger ms-2" asp-area="" asp-controller="AddListing" asp-action="CreateSecret">ثبت آگهی خاص</a>
                             }

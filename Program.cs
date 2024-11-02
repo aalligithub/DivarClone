@@ -1,11 +1,7 @@
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using DivarClone.Areas.Identity.Data;
 using DivarClone.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.Extensions.Options;
-using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
 

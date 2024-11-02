@@ -3,6 +3,8 @@ using DivarClone.Models;
 using DivarClone.Services;
 using Microsoft.AspNetCore.Authorization;
 using DivarClone.Attributes;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication;
 
 
 namespace DivarClone.Controllers
@@ -12,16 +14,18 @@ namespace DivarClone.Controllers
         private readonly ILogger<AdminDashboardController> _logger;
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly IAdminService _service;
+        private readonly IEnrollService _enrollService;
 
-        public AdminDashboardController(ILogger<AdminDashboardController> logger, IWebHostEnvironment webHostEnvironment, IAdminService service)
+        public AdminDashboardController(ILogger<AdminDashboardController> logger, IWebHostEnvironment webHostEnvironment, IAdminService service, IEnrollService enrollService)
         {
             _logger = logger;
             _webHostEnvironment = webHostEnvironment;
             _service = service;
+            _enrollService = enrollService;
         }
 
-        [RoleOrPermissionAuthorize(Role = "Admin", Permission = "CanViewDashboard")]
-        public async Task<IActionResult> IndexAsync()
+		[Authorize(Policy = "ViewDashboardPolicy")]
+		public async Task<IActionResult> IndexAsync()
         {
 			var Users = _service.GetAllUsers();
             var AllPossiblePermissions = await _service.GetAllPossiblePermissions();
@@ -34,8 +38,8 @@ namespace DivarClone.Controllers
             return View();
         }
 
-        [RoleOrPermissionAuthorize(Role = "Admin", Permission = "CanViewDashboard")]
-        public async Task<IActionResult> SearchUsers(string Username)
+		[Authorize(Policy = "ViewDashboardPolicy")]
+		public async Task<IActionResult> SearchUsers(string Username)
         {
             var Users = _service.SearchUsers(Username);
             var AllPossiblePermissions = await _service.GetAllPossiblePermissions();
@@ -48,9 +52,9 @@ namespace DivarClone.Controllers
             return PartialView("_AdminUsersPartial");
         }
 
-        [RoleOrPermissionAuthorize(Role = "Admin", Permission = "CanViewDashboard")]
-        [HttpPost]
-        public async Task<IActionResult> ChangeUserRole(int Id, int Role)
+		[Authorize(Policy = "ViewDashboardPolicy")]
+		[HttpPost]
+        public async Task<IActionResult> ChangeUserRole(int Id, int Role, string Username)
         {
 			TempData["UserId"] = Id.ToString();
 
@@ -64,8 +68,16 @@ namespace DivarClone.Controllers
 
 				ViewBag.ModelStateErrors += "تغییر نقش کاربر موفقیت آمیز نبود";
 			}
-            finally {
-                TempData["SuccessMessage"] = "نقش کاربر تغییر کرد";
+
+            TempData["SuccessMessage"] = "نقش کاربر تغییر کرد";
+
+            //user changed their own permission and needs to login again
+            if (User.Identity.Name == Username)
+            {
+                TempData["SuccessMessage"] = "برای دریافت اجازه ها و نقش جدید مجددا لاگین کنید";
+                await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+
+                return Json(new { redirectUrl = Url.Action("Index", "Home") });
             }
 
             var Users = _service.GetAllUsers();
@@ -79,9 +91,9 @@ namespace DivarClone.Controllers
             return PartialView("_AdminUsersPartial");
         }
 
-        [RoleOrPermissionAuthorize(Role = "Admin", Permission = "CanViewDashboard")]
+        [Authorize(Policy = "ViewDashboardPolicy")]
         [HttpPost]
-        public async Task<IActionResult> GiveUserSpecialPermission(int Id, int PermissionId)
+        public async Task<IActionResult> GiveUserSpecialPermission(int Id, int PermissionId, string Username)
         {
 			TempData["UserId"] = Id.ToString();
 
@@ -100,7 +112,16 @@ namespace DivarClone.Controllers
 				TempData["SuccessMessage"] = "اجازه خاص اضافه شد";
 			}
 
-			var Users = _service.GetAllUsers();
+            //user changed their own permission and needs to login again
+            if (User.Identity.Name == Username)
+            {
+                TempData["SuccessMessage"] = "برای دریافت اجازه ها و نقش جدید مجددا لاگین کنید";
+                await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+
+                return Json(new { redirectUrl = Url.Action("Index", "Home") });
+            }
+
+            var Users = _service.GetAllUsers();
 			var AllPossiblePermissions = await _service.GetAllPossiblePermissions();
 			var AllPossibleRoles = await _service.GetAllPossibleRoles();
 
@@ -111,8 +132,8 @@ namespace DivarClone.Controllers
 			return PartialView("_AdminUsersPartial");
 		}
 
-        [RoleOrPermissionAuthorize(Role = "Admin", Permission = "CanViewDashboard")]
-        public async Task<IActionResult> RemoveUserSpecialPermission(int Id, string PermissionName) {
+        [Authorize(Policy = "ViewDashboardPolicy")]
+        public async Task<IActionResult> RemoveUserSpecialPermission(int Id, string PermissionName, string Username) {
 			TempData["UserId"] = Id.ToString();
 
 			try
@@ -130,7 +151,16 @@ namespace DivarClone.Controllers
 				TempData["SuccessMessage"] = "اجازه خاص حذف شد";
 			}
 
-			var Users = _service.GetAllUsers();
+            //user changed their own permission and needs to login again
+            if (User.Identity.Name == Username)
+            {
+                TempData["SuccessMessage"] = "برای دریافت اجازه ها و نقش جدید مجددا لاگین کنید";
+                await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+
+                return Json(new { redirectUrl = Url.Action("Index", "Home") });
+            }
+
+            var Users = _service.GetAllUsers();
 			var AllPossiblePermissions = await _service.GetAllPossiblePermissions();
 			var AllPossibleRoles = await _service.GetAllPossibleRoles();
 
