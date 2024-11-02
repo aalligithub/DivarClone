@@ -32,7 +32,7 @@ namespace DivarClone.Controllers
         }
 
 
-        [RoleOrPermissionAuthorize(Role = "PrivilagedUser", Permission = "CanViewSpecialListing")]
+        [Authorize(Policy = "ViewSpecialListingPolicy")]
         [HttpGet("/SecretListings")]
         public IActionResult SecretListings() {
 
@@ -161,8 +161,8 @@ namespace DivarClone.Controllers
         }
 
 
-        [RoleOrPermissionAuthorize(Role = "PrivilagedUser", Permission = "CanDeleteListings")]
-        public async Task<IActionResult> DeleteUserListing(int id)
+		[Authorize(Policy = "DeleteListingsPolicy")]
+		public async Task<IActionResult> DeleteUserListing(int id)
         {
             try
             {

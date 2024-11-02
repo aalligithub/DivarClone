@@ -50,7 +50,7 @@
                             {
                                 <div class="container">
                                     <span class="badge bg-danger text-white me-1" style="font-size: 0.90rem;">@specialPermission</span>
-                                    <button onclick="RemoveUserSpecialPermission('@specialPermission', @user.ID)">حذف</button>
+                                    <button onclick="RemoveUserSpecialPermission('@specialPermission', @user.ID, '@user.Username')">حذف</button>
 								</div>
                             }
                         </div>
@@ -68,7 +68,7 @@
                             @foreach (var role in roles)
                             {
                                 <li>
-                                    <a class="dropdown-item" href="javascript:void(0)" style="outline:solid;" onclick="ChangeUserRole(@role.Key, @user.ID)">@role.Value</a>
+                                    <a class="dropdown-item" href="javascript:void(0)" style="outline:solid;" onclick="ChangeUserRole(@role.Key, @user.ID, '@user.Username')">@role.Value</a>
                                 </li>
                             }
                         </ul>
@@ -86,7 +86,7 @@
                             @foreach (var permission in permissions)
                             {
                                 <li>
-                                    <a class="dropdown-item" href="javascript:void(0)" style="outline:solid;" onclick="GiveUserSpecialPermission(@permission.Key, @user.ID)">@permission.Value</a>
+                                    <a class="dropdown-item" href="javascript:void(0)" style="outline:solid;" onclick="GiveUserSpecialPermission(@permission.Key, @user.ID, '@user.Username')">@permission.Value</a>
                                 </li>
                             }
                         </ul>

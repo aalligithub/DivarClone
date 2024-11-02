@@ -24,8 +24,8 @@ namespace DivarClone.Controllers
             _service = service;
         }
 
-        [RoleOrPermissionAuthorize(Permission = "CanCreateListing")]
-        [HttpGet]
+		[Authorize(Policy = "CreateListingPolicy")]
+		[HttpGet]
         public IActionResult Index()
         {
             return View();
@@ -37,7 +37,8 @@ namespace DivarClone.Controllers
         }
 
 
-        [RoleOrPermissionAuthorize(Permission = "CanCreateListing")]
+        //[RoleOrPermissionAuthorize(Permission = "CanCreateListing")]
+        [Authorize(Policy = "CreateListingPolicy")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Listing listing, List<IFormFile>? ImageFiles)
@@ -89,7 +90,7 @@ namespace DivarClone.Controllers
         }
 
 
-        [RoleOrPermissionAuthorize(Role = "PrivilagedUser", Permission = "CanViewSpecialListing")]
+		[Authorize(Policy = "ViewSpecialListingPolicy")]
         [HttpGet]
         public IActionResult CreateSecret()
         {
@@ -97,8 +98,8 @@ namespace DivarClone.Controllers
         }
 
 
-        [RoleOrPermissionAuthorize(Role = "PrivilagedUser", Permission = "CanViewSpecialListing")]
-        [HttpPost]
+		[Authorize(Policy = "ViewSpecialListingPolicy")]
+		[HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateSecret(Listing listing, List<IFormFile>? ImageFiles)
         {
@@ -160,7 +161,7 @@ namespace DivarClone.Controllers
         }
 
 
-        [RoleOrPermissionAuthorize(Role = "RegularUser", Permission = "CanEditListings")]
+		[Authorize(Policy = "EditListingPolicy")]
         public IActionResult EditListing(int id)
         {
             var listing = _service.GetSpecificListing(id);
@@ -172,7 +173,7 @@ namespace DivarClone.Controllers
         }
 
 
-        [RoleOrPermissionAuthorize(Role = "RegularUser", Permission = "CanEditListings")]
+        [Authorize(Policy = "EditListingPolicy")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Update(Listing listing, List<IFormFile?> ImageFiles)
@@ -217,8 +218,8 @@ namespace DivarClone.Controllers
         }
 
 
-        [RoleOrPermissionAuthorize(Role = "RegularUser", Permission = "CanEditListings")]
-        [HttpPost]
+		[Authorize(Policy = "EditListingPolicy")]
+		[HttpPost]
         public async Task<IActionResult> DeleteListingImage(string imagePath)
         {
             try

@@ -2,16 +2,9 @@
 using System.Data;
 using DivarClone.Controllers;
 using DivarClone.Models;
-using Microsoft.CodeAnalysis.Elfie.Diagnostics;
-using System.Collections.Generic;
-using System.Runtime.Intrinsics.Arm;
-using System.Reflection;
 using System.Security.Cryptography;
-using Newtonsoft.Json.Linq;
-using System.Security.Policy;
 using System.Text;
 using System.Net;
-using Microsoft.AspNetCore.Http;
 
 namespace DivarClone.Services
 {
